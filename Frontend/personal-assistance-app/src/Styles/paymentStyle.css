@@ -1,0 +1,25 @@
+body{
+    background-color:#FEFCFF;
+   
+}
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  
+  .main-content {
+    flex: 1; 
+    margin-left: 250px; 
+    padding: 20px; 
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+  }
+  
+  /* Card Stack Container */
+  .card-stack-container {
+    width: 100%; 
+    max-width: 400px;
+  }

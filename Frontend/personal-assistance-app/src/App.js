@@ -1,14 +1,13 @@
 import logo from './logo.svg';
 import './App.css';
-
-import SideNavBar from './Component/UI/SideNavBar';
+import PaymentDashboard from './Component/Pages/PaymentDashboard';
 
 function App() {
   return (
     <div className="App">
 
 
-      <SideNavBar />
+      <PaymentDashboard />
     </div>
   );
 }
