@@ -1,12 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
-import VisaCard from './Component/UI/VisaCard';
+
+import SideNavBar from './Component/UI/SideNavBar';
 
 function App() {
   return (
     <div className="App">
 
-      <VisaCard />
+
+      <SideNavBar />
     </div>
   );
 }
