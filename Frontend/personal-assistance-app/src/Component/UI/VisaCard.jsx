@@ -18,12 +18,12 @@ export default function VisaCard({ type, cardName, cardNumber, validDate }) {
       <div className="card-details">
         <div className="name-number">
           <h6>Card Number</h6>
-          <h5 className="number">{cardNumber}</h5>
-          <h5 className="name">{cardName}</h5>
+          <h5 className="number">{cardNumber || "**** **** **** ****"}</h5>
+          <h5 className="name">{cardName || "Cardholder Name"}</h5>
         </div>
         <div className="valid-date">
           <h6>Valid Thru</h6>
-          <h5>{validDate}</h5>
+          <h5>{validDate || "MM/YY"}</h5>
         </div>
       </div>
     </div>

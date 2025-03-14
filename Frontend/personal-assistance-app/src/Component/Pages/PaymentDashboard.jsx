@@ -1,23 +1,22 @@
 import React from "react";
-import "./../../Styles/paymentStyle.css"
-
+import "./../../Styles/paymentStyle.css";
 
 import { CardStack } from "../UI/card-stack";
 import VisaCard from "../UI/VisaCard";
 import SideNavBar from "../UI/SideNavBar";
-
+import PaymentMethod from "../UI/PaymentMethod";
 
 export default function PaymentDashboard() {
   const cards = [
     {
       id: 1,
       content: (
-       
-        <VisaCard 
-        type="visa"
-        cardName="Dini Gamage"
-        cardNumber="xxxx xxxx xxxx xxxx"
-        validDate="MM/DD"/>
+        <VisaCard
+          type="visa"
+          cardName="Dini Gamage"
+          cardNumber="xxxx xxxx xxxx xxxx"
+          validDate="MM/DD"
+        />
       ),
     },
     {
@@ -34,11 +33,16 @@ export default function PaymentDashboard() {
   ];
   return (
     <div className="dashboard-container">
-      <SideNavBar/>
       <div className="main-content">
-        <div className="card-stack-container">
-          <CardStack items={cards}/>
+        <SideNavBar />
+      </div>
+      <div className="content-container">
+        {/*<div className="card-stack-container">
+          <CardStack items={cards} />
         </div>
+        <div className="payment-method-container">
+          <PaymentMethod />
+        </div>*/}
       </div>
     </div>
   );
