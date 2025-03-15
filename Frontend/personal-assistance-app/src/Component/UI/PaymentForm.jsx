@@ -56,9 +56,11 @@ export default function PaymentForm({ selectedType }) {
     // Add your form submission logic here (e.g., API call)
   };
   return (
-    <div className=" w-full px-4 pl-2">
+    <div className=" w-full px-4 pl-2 justify-items-center">
       <form onSubmit={paymenntSubmit}>
-        <h2 className="text-lg font-semibold mb-4">Payment Details</h2>
+        <h2 className="text-lg font-semibold mb-4 text-violet-950">
+          Payment Details
+        </h2>
         {selectedType === "visa" || selectedType === "mastercard" ? (
           <>
             <div className="mb-6">
@@ -197,14 +199,14 @@ export default function PaymentForm({ selectedType }) {
             onChange={(e) => setSaveCard(e.target.checked)}
             className="mr-2"
           />
-          <label htmlFor="saveCard">
+          <label htmlFor="saveCard" className="text-violet-950">
             Save card details for future payments
           </label>
         </div>
 
         <button
           type="submit"
-          className="mt-4 py-2 px-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
+          className="mt-4 py-2 px-4 w-full bg-violet-950 text-white py-2 px-4 rounded-lg hover:bg-cyan-300"
         >
           Submit Payment
         </button>

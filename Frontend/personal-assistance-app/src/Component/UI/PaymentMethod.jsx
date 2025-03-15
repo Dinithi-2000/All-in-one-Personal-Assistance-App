@@ -29,9 +29,9 @@ export default function PaymentMethod() {
   };
 
   return (
-    <div className="min-h-screen w-screen flex justify-center items-center">
+    <div className="min-h-screen w-screen flex justify-center justify-items-center items-center ">
       <div className="-pl-8">
-        <div className="w-10/12  rounded-xl -mx-px shadow-lg overflow-hidden pl-8 pr-8 pb-8 pt-8">
+        <div className="w-10/12 bg-stone-50 rounded-xl -mx-px shadow-lg overflow-hidden pl-8 pr-8 pb-8 pt-8">
           {/* Show Payment Form when a method is selected */}
           {selectedType ? (
             <div className="flex flex-col w-full space-x-3 items-center">
@@ -39,7 +39,7 @@ export default function PaymentMethod() {
                 onClick={handleBack}
                 className="mb-4 px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
               >
-                ← Back
+                ←
               </button>
               <PaymentForm selectedType={selectedType} />
             </div>
