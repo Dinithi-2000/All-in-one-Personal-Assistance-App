@@ -71,7 +71,7 @@ export const BackgroundGradient = ({
         <div>
           <ServiceCatergoty />
         </div>
-        Hello{children}
+        {children}
       </div>
     </div>
   );
