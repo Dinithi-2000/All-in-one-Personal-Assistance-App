@@ -4,6 +4,7 @@ import PaymentDashboard from './Component/Pages/PaymentDashboard';
 import PaymentMethod from './Component/UI/PaymentMethod';
 import ServiceCatergoty from './Component/UI/ServiceCatergoty';
 import MonthlyPayment from './Component/UI/MonthlyPayment';
+import PaymentHistory from './Component/UI/PaymentHistory';
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
 
       {/*<PaymentDashboard />*/}
       {/*<PaymentMethod />*/}
-      <MonthlyPayment />
+      {/*<MonthlyPayment />*/}
+      <PaymentHistory />
     </div>
   );
 }
