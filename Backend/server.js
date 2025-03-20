@@ -1,9 +1,13 @@
-//import express ,mongoDb,bodyparser and cord
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyparser = require("body-parser");
-const cors = require("cors");
-const dotenv = require("dotenv");
+import express from "express"
+import mongoose from "mongoose"
+import bodyParser from "body-parser"
+import cors from "cors"
+import dotenv from "dotenv"
+import { paymentRoute } from "./routes/paymentRouts.js"
+
+
+
+
 
 //create express application instance
 const app = express();
@@ -13,9 +17,11 @@ dotenv.config();
 //set local host port
 const PORT = process.env.PORT || 8070;
 
+app.use(express.json())
+
 //apply middleware to the applicaton and convert JSON request to HTTP request
 app.use(cors());
-app.use(bodyparser.json());
+app.use(bodyParser.json());
 
 //get mongodb url
 const URL = process.env.MONGO_URL;
@@ -35,4 +41,6 @@ connection.once("open", () => {
 app.listen(PORT, () => {
     console.log(`server start and running ${PORT}`);
 })
+
+app.use("/home/payment", paymentRoute)
 
