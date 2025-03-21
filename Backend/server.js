@@ -4,6 +4,7 @@ import bodyParser from "body-parser"
 import cors from "cors"
 import dotenv from "dotenv"
 import { paymentRoute } from "./routes/paymentRouts.js"
+import { RefundRouter } from "./routes/RefundRoutes.js"
 
 
 
@@ -43,4 +44,5 @@ app.listen(PORT, () => {
 })
 
 app.use("/home/payment", paymentRoute)
+app.use("/home/Refund", RefundRouter)
 

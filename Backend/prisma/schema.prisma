@@ -30,6 +30,12 @@ enum BookingStatus {
     CANCELLED
     COMPLETED
 }
+enum PaymentStatus {
+    PENDING
+    CANCELLED
+    REFUNDED
+    COMPLETED
+}
 enum refundStatus {
     PENDING
     CANCELLED
@@ -179,6 +185,7 @@ model Payment{
     Amount Float?
     PaymentMethod String @db.ObjectId
     BookingId String @db.ObjectId
+    Status PaymentStatus @default(PENDING)
     paymentMethod PaymentMethod @relation(fields: [PaymentMethod],references: [MethodId])
     booking Booking @relation(fields: [BookingId],references: [BookingID])
     refundRequests RefundRequests?
@@ -254,7 +261,7 @@ model profitLoss{
     NetAmount Float?
 }
  model savedPaymentMethod{
-    id String @id @map("_id") @db.ObjectId
+    id String @id @default(auto()) @map("_id") @db.ObjectId
     paymentMethod String?
     cardNumber String?
     cardHolderName String?
@@ -262,13 +269,13 @@ model profitLoss{
  }
 
  model RefundRequests{
-    refundId String @id @map("_id") @db.ObjectId
+    refundId String @id @default(auto()) @map("_id") @db.ObjectId
     customerID String @db.ObjectId
     paymentId String @db.ObjectId @unique
     amount Float?
-    status refundStatus @default(PENDING)
     reason String?
     requestAt DateTime @default(now())
+    status refundStatus @default(PENDING)
     customer Customer @relation(fields: [customerID],references: [id])
     payment Payment @relation(fields: [paymentId],references: [paymentID])
  }
