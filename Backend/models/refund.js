@@ -77,4 +77,72 @@ const retrieveAllRefund = asyncHandler(async (req, res) => {
         res.status(500).json({ message: "Error Retrieving Refund", error: error.message })
     }
 })
-export { requestRefund, retrieveAllRefund }
+
+//update refund status
+const requestApproved = asyncHandler(async (req, res) => {
+    try {
+
+        const { refundID } = req.body;
+        console.log("Accedd to approved");
+
+        //find related refund details
+        const requestDetails = await prisma.refundRequests.findUnique({
+            where: {
+                refundId: refundID
+            }
+        });
+
+        //check refund status
+        if (!requestDetails || requestDetails.status !== "PENDING") {
+            return res._construct.status(400).json({ message: "Invalid or Alredy Refunded" });
+        }
+
+        //if refund found updtate payment and refund states
+        const updatePayment = await prisma.payment.update({
+            where: {
+                paymentID: requestDetails.paymentId
+            },
+            data: {
+                Status: "REFUNDED"
+            }
+        });
+
+        //change refund status
+        await prisma.refundRequests.update({
+            where: {
+                refundId: refundID
+
+            },
+            data: {
+                status: "APPROVED"
+            }
+        });
+        res.json({
+            message: "Refund Approved SuccessFully",
+            updatePayment
+        })
+    } catch (error) {
+        console.error("Refunded Approval Error", error);
+        res.status(500).json({ message: "Error occured when the processing refund" })
+    }
+})
+
+//delete refunded history
+const RefundHistoryDelete = asyncHandler(async (req, res) => {
+    const { refundIDs } = req.body;
+    try {
+        const deleteRefund = await prisma.refundRequests.deleteMany({
+            where: {
+                refundId: {
+                    in: refundIDs//delete all the selected refunded id in array
+                }
+            }
+        });
+        res.status(200).json({ message: "Refund History delete Successfully", deleteRefund });
+    } catch (error) {
+        console.error("Error deleting refunds:", error);
+        res.status(500).json({ message: "Error deleting refunds", error: error.message });
+    }
+
+});
+export { requestRefund, retrieveAllRefund, requestApproved, RefundHistoryDelete }

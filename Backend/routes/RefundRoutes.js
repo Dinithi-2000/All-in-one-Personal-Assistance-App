@@ -1,5 +1,5 @@
 import express from 'express'
-import { requestRefund, retrieveAllRefund } from '../models/refund.js';
+import { requestRefund, retrieveAllRefund, requestApproved, RefundHistoryDelete } from '../models/refund.js';
 
 const router = express.Router();
 
@@ -10,6 +10,12 @@ router.post("/requestRefund", (req, res, next) => {
 }, requestRefund);
 
 //retrieve refund details
-router.get("/retrieveRefund", retrieveAllRefund)
+router.get("/retrieveRefund", retrieveAllRefund);
+
+//update Refund status
+router.put("/Approval", requestApproved);
+
+router.delete("/deleteRefund", RefundHistoryDelete)
+
 
 export { router as RefundRouter }

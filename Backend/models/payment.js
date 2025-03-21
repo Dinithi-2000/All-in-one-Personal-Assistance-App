@@ -188,5 +188,45 @@ const filterPaymentHistory = asyncHandler(async (req, res) => {
     }
 })
 
+//retriev service Category
+const retriveServiceCategory = asyncHandler(async (req, res) => {
 
-export { createPayment, retrievAllPayments, filterPaymentHistory };
+    const getCategory = await prisma.category.findMany();
+    res.json(getCategory);
+})
+
+//retrive ServiceProvider
+const retrieveSelectedProvider = asyncHandler(async (req, res) => {
+    const { categoryID } = req.params
+
+    try {
+        const getServiceIDS = await prisma.service.findMany({
+            where: {
+                Category: categoryID
+            },
+            select: {
+                ServiceID: true
+            }
+
+        })
+
+        const serviceIDS = getServiceIDS.map((services) => services.ServiceID);
+
+        const getProviderName = await prisma.serviceProvider.findMany({
+            where: {
+                ServiceType: {
+                    in: serviceIDS
+                }
+            }
+
+        });
+        res.json(getProviderName);
+    } catch (error) {
+        console.error("Error retrieving service providers:", error);
+        res.status(500).json({ message: "Error retrieving service providers", error: error.message });
+    }
+
+
+})
+
+export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider };

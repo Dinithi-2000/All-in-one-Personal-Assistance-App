@@ -1,5 +1,5 @@
 import express from 'express'
-import { createPayment, retrievAllPayments, filterPaymentHistory } from '../models/payment.js';
+import { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider } from '../models/payment.js';
 
 const router = express.Router();
 
@@ -15,5 +15,12 @@ router.get("/paymentHistory", retrievAllPayments);
 //retriev date filteed Payments
 router.get("/filteredHistory", filterPaymentHistory);
 
+//retrive categories name
+router.get("/", retriveServiceCategory);
+
+//retriev provider
+router.get("/category/provide:categoryID", retrieveSelectedProvider)
+
 export { router as paymentRoute }
+
 
