@@ -233,6 +233,9 @@ const retrieveSelectedProvider = asyncHandler(async (req, res) => {
 
 })
 
+
+
+
 //set provider salary
 const makeProviderSalary = asyncHandler(async (req, res) => {
     try {
@@ -314,7 +317,15 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
                     totSalary: netSalary,
                 },
             });
-
+            //
+            const provider = await prisma.serviceProvider.findUnique({
+                where: {
+                    ProviderID: providerId
+                },
+            });
+            const pdfBytes = await generatePaysheetPDF(provider, providerSalaries[providerId]);
+            //send pdf to provider's mail
+            await sendEmailWithPaysheet(provider, pdfBytes);
         }
         res.json({
             message: "Provider salaries calculated and updated successfully",
