@@ -257,7 +257,8 @@ model Liability{
 model profitLoss{
     id String @id @default(auto()) @map("_id") @db.ObjectId
     month DateTime?
-    revenue String?
+    totalrevenue Float?
+    totalExpence Float?
     NetAmount Float?
 }
  model savedPaymentMethod{
