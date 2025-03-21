@@ -269,7 +269,7 @@ model profitLoss{
  }
 
  model RefundRequests{
-    refundId String @id @default(auto()) @map("_id") @db.ObjectId
+    refundId String @id @default(auto())@map("_id") @db.ObjectId
     customerID String @db.ObjectId
     paymentId String @db.ObjectId @unique
     amount Float?

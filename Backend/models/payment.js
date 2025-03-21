@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler"
 import { prisma } from "../config/prismaConfig.js"
+import { ObjectId } from "mongodb";
 
 
 //create paymente
@@ -197,18 +198,21 @@ const retriveServiceCategory = asyncHandler(async (req, res) => {
 
 //retrive ServiceProvider
 const retrieveSelectedProvider = asyncHandler(async (req, res) => {
-    const { categoryID } = req.params
+
+    const { categoryID } = req.params;
+    console.log("Category ID:", categoryID);
 
     try {
         const getServiceIDS = await prisma.service.findMany({
             where: {
-                Category: categoryID
+                Category: new ObjectId(categoryID),
             },
             select: {
-                ServiceID: true
+                ServiceID: true,
             }
 
         })
+        console.log("Service IDs found:", getServiceIDS);
 
         const serviceIDS = getServiceIDS.map((services) => services.ServiceID);
 

@@ -19,7 +19,7 @@ router.get("/filteredHistory", filterPaymentHistory);
 router.get("/", retriveServiceCategory);
 
 //retriev provider
-router.get("/category/provide:categoryID", retrieveSelectedProvider)
+router.get("/category/provider/:categoryID", retrieveSelectedProvider)
 
 export { router as paymentRoute }
 
