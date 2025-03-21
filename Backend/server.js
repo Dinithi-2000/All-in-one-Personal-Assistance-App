@@ -5,7 +5,8 @@ import cors from "cors"
 import dotenv from "dotenv"
 import { paymentRoute } from "./routes/paymentRouts.js"
 import { RefundRouter } from "./routes/RefundRoutes.js"
-
+import { savedPaymentRouter } from "./routes/savedPaymentRoute.js"
+import { financialActivityRoute } from "./routes/financialActivity.js"
 
 
 
@@ -45,4 +46,6 @@ app.listen(PORT, () => {
 
 app.use("/home/payment", paymentRoute)
 app.use("/home/Refund", RefundRouter)
+app.use("/home/payment/savedPayment", savedPaymentRouter)
+app.use("/adminDashBoard/Financial", financialActivityRoute)
 
