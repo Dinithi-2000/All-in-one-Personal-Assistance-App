@@ -232,14 +232,14 @@ model OutFlow{
 
 model Revenue{
     id String @id @default(auto()) @map("_id") @db.ObjectId
-    Date DateTime?
-    Expense String?
+    Date DateTime @default(now())
+    Description String?
     Amount Float?
 }
 
 model Expenses{
     id String @id @default(auto()) @map("_id") @db.ObjectId
-    Date DateTime?
+    Date DateTime @default(now())
     Expense String?
     Amount Float?
 }
@@ -278,6 +278,12 @@ model profitLoss{
     status refundStatus @default(PENDING)
     customer Customer @relation(fields: [customerID],references: [id])
     payment Payment @relation(fields: [paymentId],references: [paymentID])
+ }
+
+ model deductionRate{
+    id String @id @default(auto())@map("_id") @db.ObjectId
+    type String?
+    rate Float?
  }
 
 

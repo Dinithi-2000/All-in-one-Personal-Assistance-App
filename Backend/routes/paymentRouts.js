@@ -1,5 +1,5 @@
 import express from 'express'
-import { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider } from '../models/payment.js';
+import { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary } from '../models/payment.js';
 
 const router = express.Router();
 
@@ -19,7 +19,10 @@ router.get("/filteredHistory", filterPaymentHistory);
 router.get("/", retriveServiceCategory);
 
 //retriev provider
-router.get("/category/provider/:categoryID", retrieveSelectedProvider)
+router.get("/category/provider/:categoryID", retrieveSelectedProvider);
+
+//provider salary calculation
+router.post("/AdminDashBoard/providerSalary/", makeProviderSalary)
 
 export { router as paymentRoute }
 

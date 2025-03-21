@@ -233,4 +233,99 @@ const retrieveSelectedProvider = asyncHandler(async (req, res) => {
 
 })
 
-export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider };
+//set provider salary
+const makeProviderSalary = asyncHandler(async (req, res) => {
+    try {
+        //retirev payments.
+        const completePayment = await prisma.payment.findMany({
+            where: {
+                Status: "COMPLETED",
+            },
+            include: {
+                booking: {
+                    include: {
+                        serviceProvider: true,
+                    },
+                },
+            },
+        })
+
+
+        //retirev EPF ETF rate
+        const rate = await prisma.deductionRate.findMany();
+        const epfAmpount = rate.find(r => r.type === "EPF")?.rate || 0;
+        const etfAmount = rate.find(r => r.type === "ETF")?.rate || 0;
+
+        //group paymnet by provider
+        const providerSalaries = {};
+
+        completePayment.forEach(payment => {
+            const providerId = payment.booking.serviceProvider.providerId;
+            const amount = payment.Amount;
+
+            if (!providerSalaries[providerId]) {
+                providerSalaries[providerId] = {
+                    totalEarning: 0,
+                    commission: 0,
+                    epfDeduct: 0,
+                    etfDeduct: 0,
+                    netSalary: 0,
+                };
+            }
+            providerSalaries[providerId].totalEarning += amount;
+
+
+        });
+
+        //calculate net salary
+        for (const providerId in providerSalaries) {
+            const totalEarning = providerSalaries[providerId].totalEarning;
+            const commisionRate = 0.1;
+            const commission = totalEarning * commisionRate;
+            const epf = ((totalEarning - commission) * epfAmpount);
+            const etf = ((totalEarning - commission) * etfAmount);
+            const netSalary = totalEarning - commission - epf - etf;
+
+            //update salary
+            providerSalaries[providerId].commission = commission;
+            providerSalaries[providerId].EPF = epf;
+            providerSalaries[providerId].ETF = etf;
+            providerSalaries[providerId].netSalary = netSalary;
+
+            //update system revenue
+            await prisma.revenue.create({
+                data: {
+                    Description: `Commission from provide ${providerId}`,
+                    Amount: commission,
+                }
+            })
+
+            //update provider salary 
+            await prisma.providerSalary.upsert({
+                where: { provider: providerId },
+                update: {
+                    EPF: { increment: epf },
+                    ETF: { increment: etf },
+                    totSalary: { increment: netSalary },
+                }, create: {
+                    provider: providerId,
+                    EPF: epf,
+                    ETF: etf,
+                    totSalary: netSalary,
+                },
+            });
+
+        }
+        res.json({
+            message: "Provider salaries calculated and updated successfully",
+            providerSalaries,
+        });
+    } catch (error) {
+        console.error("Error calculating provider salaries:", error);
+        res.status(500).json({
+            message: "Error calculating provider salaries",
+            error: error.message,
+        });
+    }
+})
+export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary };
