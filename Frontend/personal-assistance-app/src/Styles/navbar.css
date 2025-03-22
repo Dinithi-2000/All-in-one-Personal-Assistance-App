@@ -37,12 +37,12 @@
 }
 .sideBar_menu .menu {
   position: absolute;
-  top: 80px;
+  top: 90px;
   width: 100%;
 }
 
 .sideBar_menu .menu li {
-  margin-top: 6px;
+  margin-top: 20px;
   padding: 14px 20px;
   text-align: left;
 }

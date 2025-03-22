@@ -1,20 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
 import PaymentDashboard from './Component/Pages/PaymentDashboard';
-import PaymentMethod from './Component/UI/PaymentMethod';
-import ServiceCatergoty from './Component/UI/ServiceCatergoty';
-import MonthlyPayment from './Component/UI/MonthlyPayment';
-import PaymentHistory from './Component/UI/PaymentHistory';
+
+import AppRoutes from './Routes/AppRoutes';
+import { useState } from 'react';
+import NavBar from './Component/UI/NavBar';
 
 function App() {
+
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   return (
     <div className="App">
 
-
-      {/*<PaymentDashboard />*/}
-      {/*<PaymentMethod />*/}
-      {/*<MonthlyPayment />*/}
-      <PaymentHistory />
+      {/*<AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />*/}
+      <NavBar />
     </div>
   );
 }

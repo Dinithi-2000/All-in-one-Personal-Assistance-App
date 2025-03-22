@@ -15,10 +15,10 @@ body {
 .container {
   position: relative;
   background-color: #2e1065;
-  padding: 25px;
+  padding: 2px;
   border-radius: 28px;
-  max-width: 450px;
-  width: 100%;
+  max-width: 600px;
+  width: 600px;
   min-height: 250px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
@@ -35,7 +35,7 @@ header .logo {
 }
 
 .logo img {
-  width: 48px;
+  width: 50px;
   margin-right: 10px;
 }
 h5 {
@@ -49,12 +49,16 @@ header .chip {
 }
 h6 {
   color: #fff;
-  font-size: 12px;
+  font-size: 8px;
   font-weight: 400;
+}
+h5,
+h6 {
+  color: #fff !important;
 }
 h5 .number {
   margin-top: 4px;
-  font-size: 18px;
+  font-size: 10px;
   letter-spacing: 1px;
 }
 .name-number {
