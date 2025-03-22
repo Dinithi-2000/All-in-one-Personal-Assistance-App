@@ -232,14 +232,14 @@ model OutFlow{
 
 model Revenue{
     id String @id @default(auto()) @map("_id") @db.ObjectId
-    Date DateTime @default(now())
+    Date DateTime? @default(now())
     Description String?
     Amount Float?
 }
 
 model Expenses{
     id String @id @default(auto()) @map("_id") @db.ObjectId
-    Date DateTime @default(now())
+    Date DateTime? @default(now())
     Expense String?
     Amount Float?
 }
@@ -256,7 +256,7 @@ model Liability{
 }
 model profitLoss{
     id String @id @default(auto()) @map("_id") @db.ObjectId
-    month DateTime?
+    month String @unique
     totalrevenue Float?
     totalExpence Float?
     NetAmount Float?

@@ -22,7 +22,7 @@ router.get("/", retriveServiceCategory);
 router.get("/category/provider/:categoryID", retrieveSelectedProvider);
 
 //provider salary calculation
-router.post("/AdminDashBoard/providerSalary/", makeProviderSalary)
+router.post("/AdminDashBoard/providerSalary/", makeProviderSalary);
 
 export { router as paymentRoute }
 
