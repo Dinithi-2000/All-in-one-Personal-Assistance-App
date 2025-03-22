@@ -5,16 +5,17 @@ import PaymentDashboard from './Component/Pages/PaymentDashboard';
 import AppRoutes from './Routes/AppRoutes';
 import { useState } from 'react';
 import NavBar from './Component/UI/NavBar';
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   return (
-    <div className="App">
-
-      {/*<AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />*/}
-      <NavBar />
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+      </div>
+    </BrowserRouter>
   );
 }
 

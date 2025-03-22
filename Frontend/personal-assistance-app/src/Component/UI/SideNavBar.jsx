@@ -13,9 +13,7 @@ function SideNavBar() {
       </div>
 
       <div className="sideBar_menu">
-        <div className="logo">
-          <a href="#">SereniLux</a>
-        </div>
+        <div className="logo"></div>
 
         <div className="btn_two">
           <label htmlFor="check">
@@ -27,23 +25,23 @@ function SideNavBar() {
           <ul>
             <li>
               <Link to="/MakePayment">
-                <i className="fa fa-home"></i>Home
+                <i className="fa fa-home"></i>Monthly Service Payment
               </Link>
-            </li>
-            <li>
-              <a href="#">
-                <i className="fa fa-credit-card"></i>Monthly Service Payment
-              </a>
             </li>
             <li>
               <a href="#">
                 <i className="fa fa-credit-card"></i>Refund Service Payment
               </a>
             </li>
+            <li>
+              <a href="#">
+                <i className="fa fa-credit-card"></i>Payment History
+              </a>
+            </li>
 
             <li>
               <a href="#">
-                <i className="fa fa-ban"></i>Cancel Subscription
+                <i className="fa fa-ban"></i>Terms & Conditions
               </a>
             </li>
           </ul>

@@ -16,7 +16,7 @@ export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
         {/*Protected Path*/}
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/payment" element={<PaymentDashboard />}>
-            <Route path="/MakePayment" element={<ServiceCatergoty />} />
+            <Route path="MakePayment" element={<ServiceCatergoty />} />
           </Route>
         </Route>
       </Route>
