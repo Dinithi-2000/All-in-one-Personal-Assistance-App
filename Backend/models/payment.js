@@ -196,6 +196,21 @@ const retriveServiceCategory = asyncHandler(async (req, res) => {
     res.json(getCategory);
 })
 
+//retrieve bookindDetails
+const retrieveBookingDetails = asyncHandler(async (req, res) => {
+    const { providerId, customerId } = req.params;
+    const bookingDetails = await prisma.booking.findFirst({
+        where: {
+            CustomerID: customerId,
+            Provider: providerId,
+        }
+    })
+    if (!bookingDetails) {
+        return res.status(404).json({ message: "Booking details not found" });
+    }
+    res.status(200).json(bookingDetails);
+})
+
 //retrive ServiceProvider
 const retrieveSelectedProvider = asyncHandler(async (req, res) => {
 
@@ -339,4 +354,4 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
         });
     }
 })
-export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary };
+export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary, retrieveBookingDetails };

@@ -14,7 +14,8 @@
   position: fixed;
   height: 100vh;
   width: 280px;
-  background: #040273;
+  /*background: #040273;*/
+  background-image: linear-gradient(180deg, #000080, #40e0d0, #9333ea);
   box-shadow: 0 0 6px #000080;
   opacity: 1;
   left: -280px;
@@ -60,6 +61,7 @@
 .sideBar_menu .menu li:hover {
   border-left: 1px solid #fff;
   box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+  color: #000080;
 }
 
 #check {

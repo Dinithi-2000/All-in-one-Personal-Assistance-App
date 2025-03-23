@@ -1,49 +1,72 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import AgreementDetails from "./AgreementDetails";
+import axios from "axios";
 
 export default function ServiceCatergoty() {
-  const [catergories, setCatergories] = useState([
-    { id: 1, name: "Baby sitting" },
-    { id: 2, name: "Nanny" },
-  ]);
+  const [catergories, setCatergories] = useState([]);
   const [selectCategory, setSelectCategory] = useState(null);
-  const [serviceProvider, setServiceProvider] = useState([
-    {
-      id: 1,
-      name: "Kasun",
-      catId: 1,
-    },
-    { id: 2, name: "Manik", catId: 2 },
-    { id: 3, name: "Amali", catId: 1 },
-  ]);
   const [filteredProvider, setFilteredProvider] = useState([]);
+  const [selectedCategoryObject, setSelectedCategoryObject] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectProvider, setSelectProvider] = useState(null);
   const [hireDetails, setHireDetails] = useState(false);
 
-  //handling function
+  //useEffect to retrieve categories.
+  useEffect(() => {
+    const getStudents = () => {
+      axios
+        .get("http://localhost:8070/home/payment/")
+        .then((res) => {
+          console.log(res);
+          setCatergories(res.data);
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    };
+    getStudents();
+  }, []);
+
+  //useEffect for retriev provider
+  useEffect(() => {
+    if (selectCategory) {
+      const getProviders = () => {
+        axios
+          .get(
+            `http://localhost:8070/home/payment/category/provider/${selectCategory}`,
+          )
+          .then((res) => {
+            console.log(res);
+            setFilteredProvider(res.data);
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
+      };
+      getProviders();
+    }
+  }, [selectCategory]);
+
+  //handling function/category/provider/:categoryID
   const handleCategory = (event) => {
     const selectedCategoryId = event.target.value;
-    const selectedCategory = catergories.find(
-      (cat) => cat.id === parseInt(selectedCategoryId),
-    );
-    setSelectCategory(selectedCategory);
+    console.log(selectedCategoryId);
+    setSelectCategory(selectedCategoryId);
 
-    const filtered = serviceProvider.filter(
-      (provider) => provider.catId === parseInt(selectedCategoryId),
+    const selectedCategory = catergories.find(
+      (category) => category.CategoryID === selectedCategoryId,
     );
-    setFilteredProvider(filtered);
+    console.log(selectedCategory);
+    setSelectedCategoryObject(selectedCategory || null);
   };
 
   const handleChangeProvider = (event) => {
     const providerID = event.target.value;
+    const provider = filteredProvider.find((p) => p.ProviderID === providerID);
 
-    const provider = serviceProvider.find(
-      (provi) => provi.id === parseInt(providerID),
-    );
-    setSelectProvider(provider);
+    setSelectProvider(provider || null);
   };
 
   const handleHirdetails = () => {
@@ -54,7 +77,7 @@ export default function ServiceCatergoty() {
     <div>
       {hireDetails ? (
         <AgreementDetails
-          serviceCategory={selectCategory}
+          selectCategory={selectedCategoryObject}
           selectProvider={selectProvider}
         />
       ) : (
@@ -65,18 +88,18 @@ export default function ServiceCatergoty() {
               className="form-select"
               aria-label="service Category"
               onChange={handleCategory}
-              value={selectCategory ? selectCategory.id : ""}
+              value={selectCategory ? selectCategory.CategoryID : ""}
             >
               <option value="">Category</option>
               {catergories.map((catergory) => (
-                <option key={catergory.id} value={catergory.id}>
-                  {catergory.name}
+                <option key={catergory.CategoryID} value={catergory.CategoryID}>
+                  {catergory.Type}
                 </option>
               ))}
             </select>
           </div>
           <div style={{ marginTop: "20px", marginBottom: "20px" }}>
-            <h5 style={{ color: "#000080" }}>
+            <h5 style={{ color: "#000080" }} className="whitespace-nowrap">
               Select Service Provider Your hired
             </h5>
             <select
@@ -88,8 +111,8 @@ export default function ServiceCatergoty() {
             >
               <option value="">Service Provider</option>
               {filteredProvider.map((provider) => (
-                <option key={provider.id} value={provider.id}>
-                  {provider.name}
+                <option key={provider.ProviderID} value={provider.ProviderID}>
+                  {provider.FirstName} {provider.LastName}
                 </option>
               ))}
             </select>

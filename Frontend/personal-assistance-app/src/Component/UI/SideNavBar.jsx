@@ -24,7 +24,12 @@ function SideNavBar() {
         <div className="menu">
           <ul>
             <li>
-              <Link to="/MakePayment">
+              <Link to="/payment">
+                <i className="fa fa-home"></i>DashBoard
+              </Link>
+            </li>
+            <li>
+              <Link to="/payment/MakePayment">
                 <i className="fa fa-home"></i>Monthly Service Payment
               </Link>
             </li>
@@ -47,7 +52,6 @@ function SideNavBar() {
           </ul>
         </div>
       </div>
-      <Outlet />
     </div>
   );
 }

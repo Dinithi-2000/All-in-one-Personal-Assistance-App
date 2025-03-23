@@ -1,59 +1,50 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-export default function AgreementDetails({ selectProvider, serviceCategory }) {
-  const [AgreementInfo, setAgreementInfo] = useState([
-    {
-      bookID: "B0001",
-      Service: "Baby Sitting",
-      Provider: "Kasun",
-      Duration: "6month",
-      ServiceCharge: "LKR 37000",
-    },
-    {
-      bookID: "B0003",
-      Service: "Baby Sitting",
-      Provider: "Amali",
-      Duration: "3month",
-      ServiceCharge: "LKR 20000",
-    },
-  ]);
+export default function AgreementDetails({ selectProvider, selectCategory }) {
+  const [bookDetail, setBookDetail] = useState({});
 
-  const [matchDetail, SetMatchDetails] = useState(null);
   useEffect(() => {
-    if (selectProvider) {
-      const matched = AgreementInfo.find(
-        (detail) => detail.Provider === selectProvider.name,
-      );
-      SetMatchDetails(matched || null);
-    }
-  }, [selectProvider, AgreementInfo]);
-  if (!matchDetail) {
-    return <div>No agreement details found for the selected provider.</div>;
-  }
+    const getBookingDetail = () => {
+      axios
+        .get(
+          `http://localhost:8070/home/payment/bookingDetails/${selectProvider.ProviderID}/67db7f7145aae4033ea34d42`,
+        )
+        .then((res) => {
+          console.log(res);
+          setBookDetail(res.data);
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    };
+    getBookingDetail();
+  }, [selectProvider, selectCategory]);
+
   return (
     <div style={{ color: "#9fa8da" }}>
       <h4 style={{ paddingBottom: "10px", color: "#000080" }}>
         Agreement Details
       </h4>
-      <p>
+      <p className="whitespace-nowrap">
         <strong>Service Category :</strong>
-        {matchDetail.Service}
+        {selectCategory.Type}
       </p>
-      <p>
+      <p className="whitespace-nowrap">
         <strong>Service Provider :</strong>
-        {matchDetail.Provider}
+        {selectProvider.FirstName} {selectProvider.LastName}
       </p>
-      <p>
+      <p className="whitespace-nowrap">
         <strong>Booking ID :</strong>
-        {matchDetail.bookID}
+        {bookDetail.BookingID}
       </p>
-      <p>
+      <p className="whitespace-nowrap">
         <strong>Service Duration :</strong>
-        {matchDetail.Duration}
+        {bookDetail.AgreementDuration}
       </p>
-      <p>
-        <strong>Service Charge :</strong>
-        {matchDetail.ServiceCharge}
+      <p className="whitespace-nowrap">
+        <strong>Service Charge : LKR.</strong>
+        {bookDetail.MonthlyPayment}
       </p>
       <button type="button" className="btn btn-primary">
         checkOut

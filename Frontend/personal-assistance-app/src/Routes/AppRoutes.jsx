@@ -4,7 +4,8 @@ import Layout from "../Component/UI/Layout";
 import HomePage from "../Component/Pages/HomePage";
 import PrivateRoute from "./PrivateRoute";
 import PaymentDashboard from "../Component/Pages/PaymentDashboard";
-import ServiceCatergoty from "../Component/UI/ServiceCatergoty";
+import { BackgroundGradient } from "../Component/UI/background-gradient";
+import PaymentStack from "../Component/UI/PaymentStack";
 
 export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
   return (
@@ -16,7 +17,7 @@ export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
         {/*Protected Path*/}
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/payment" element={<PaymentDashboard />}>
-            <Route path="MakePayment" element={<ServiceCatergoty />} />
+            <Route path="MakePayment" element={<BackgroundGradient />} />
           </Route>
         </Route>
       </Route>
