@@ -28,7 +28,7 @@ export default function PaymentStack() {
     },
   ];
   return (
-    <div>
+    <div className="mt-[20%] ml-[30%]">
       <CardStack items={cards} />
     </div>
   );

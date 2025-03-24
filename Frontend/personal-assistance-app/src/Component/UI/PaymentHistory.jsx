@@ -54,8 +54,8 @@ export default function PaymentHistory() {
     setFilteredPayments(paymentFiller);
   };
   return (
-    <div className="container m-6 mx-auto p-4 text-center">
-      <h2 className="text-2xl font-bold mb-4">Payment History</h2>
+    <div className="container m-6 mx-auto p-4 mt-[0] text-center">
+      <h2 className="text-2xl font-bold mb-4 text-white">Payment History</h2>
       <div
         className="flex gap-4 mb-6 items-end justify-center justify-items-center
 "
@@ -63,7 +63,7 @@ export default function PaymentHistory() {
         <div>
           <label
             htmlFor="startDate"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-white"
           >
             Start Date
           </label>
@@ -78,7 +78,7 @@ export default function PaymentHistory() {
         <div>
           <label
             htmlFor="endDate"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-white"
           >
             End Date
           </label>
@@ -100,10 +100,12 @@ export default function PaymentHistory() {
         </div>
       </div>
       <div className="overflow-auto" style={{ maxHeight: "500px" }}>
-        <table className="table  table-hover table-striped-row">
-          <thead className="sticky top-0">
+        <table className="table  table-hover table-striped-row backdrop-opacity-10">
+          <thead className="sticky top-0 ">
             <tr>
-              <th scope="col">#</th>
+              <th scope="col" className="text-indigo">
+                #
+              </th>
               <th scope="col">Payment Details</th>
               <th scope="col">Booking Details</th>
               <th scope="col">Payment Status</th>
@@ -138,7 +140,7 @@ export default function PaymentHistory() {
                   </td>
                   <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
                     <button className="btn btn-sm btn-primary">
-                      View Details
+                      Refund Payment
                     </button>
                   </td>
                 </tr>
