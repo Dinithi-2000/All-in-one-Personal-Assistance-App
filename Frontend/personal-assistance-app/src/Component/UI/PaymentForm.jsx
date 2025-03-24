@@ -1,8 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import VisaCard from "./VisaCard";
 import usePaymentFormValidation from "../Hooks/CustomHook/usePaymentFormValidation";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
-export default function PaymentForm({ selectedType }) {
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+export default function PaymentForm({
+  selectedType,
+  saveDetails,
+  bookingid,
+  amount,
+}) {
   const [cardCredentials, setCardCredentials] = useState({
     cardHolderName: "",
     cardNumber: "",
@@ -14,14 +24,27 @@ export default function PaymentForm({ selectedType }) {
     transactionPdf: "",
   });
   const [saveCard, setSaveCard] = useState(false);
-
+  const [alert, setAlert] = useState({ type: "", message: "" });
+  const navigate = useNavigate();
   //form validaion custom hook
   const { error, formValidation, clearForm } = usePaymentFormValidation();
 
+  //if savedetails provide pre fill form
+  useEffect(() => {
+    if (saveDetails) {
+      setCardCredentials((prevState) => ({
+        ...prevState,
+        cardHolderName: saveDetails.cardHolderName || "",
+        cardNumber: saveDetails.cardNumber || "",
+      }));
+      setSaveCard(true);
+    }
+  }, [saveDetails]);
   //card number format
   const cardNumberFormat = (cardNumber) => {
+    const cardNumberStr = cardNumber || "";
     //remove space
-    const nonSpaceValue = cardNumber.replace(/\D/g, "");
+    const nonSpaceValue = cardNumberStr.replace(/\D/g, "");
     // add space
     return nonSpaceValue.replace(/(\d{4})(?=\d)/g, "$1 ");
   };
@@ -36,7 +59,7 @@ export default function PaymentForm({ selectedType }) {
     clearForm(name);
   };
 
-  const paymenntSubmit = (event) => {
+  const paymenntSubmit = async (event) => {
     event.preventDefault();
 
     // Check validation
@@ -51,12 +74,68 @@ export default function PaymentForm({ selectedType }) {
       return;
     }
 
+    try {
+      const response = await axios.post(
+        "http://localhost:8070/home/payment/makePayment",
+        {
+          Amount: amount,
+          Currency: "LKR",
+          PaymentMethod: selectedType,
+          order_id: bookingid,
+          BookingId: bookingid,
+          Item: "Monthly Service Payment",
+        },
+      );
+
+      if (saveCard) {
+        await axios.post(
+          "http://localhost:8070/home/payment/savedPayment/Option",
+          {
+            paymentMethod: selectedType,
+            cardNumber: cardCredentials.cardNumber,
+            cardHolderName: cardCredentials.cardHolderName,
+          },
+        );
+        setAlert({ type: "success", message: "Payment successful!" });
+
+        //redirect to dashboard
+        setTimeout(() => {
+          navigate("/payment");
+        }, 2000);
+      }
+
+      //redirect to payhere checkout page
+      window.location.href = response.data.checkout_url;
+    } catch (error) {
+      setAlert({
+        type: "error",
+        message: "Payment failed. Please try again.",
+      });
+      console.error("Error iniializing payment:", error);
+    }
+
     // If no validation errors, proceed with form submission
     console.log("Form submitted successfully:", cardCredentials);
     // Add your form submission logic here (e.g., API call)
   };
   return (
-    <div className=" w-full px-4 pl-2 justify-items-center">
+    <div className=" w-full px-4 pl-2 justify-items-center whitespace-nowrap">
+      {alert.message && (
+        <Alert severity={alert.type}>
+          {alert.type === "success" && (
+            <>
+              <AlertTitle>Success</AlertTitle>
+              This is a success Alert with an encouraging title.
+            </>
+          )}
+          {alert.type === "error" && (
+            <>
+              <AlertTitle>Error</AlertTitle>
+              This is an error Alert with a scary title.
+            </>
+          )}
+        </Alert>
+      )}
       <form onSubmit={paymenntSubmit}>
         <h2 className="text-lg font-semibold mb-4 text-violet-950">
           Payment Details
@@ -65,7 +144,7 @@ export default function PaymentForm({ selectedType }) {
           <>
             <div className="mb-6">
               <VisaCard
-                className="min-h-[200px] w-full"
+                className="min-h-[200px] w-full whitespace-nowrap"
                 type={selectedType}
                 cardName={cardCredentials.cardHolderName}
                 cardNumber={cardCredentials.cardNumber}
@@ -78,7 +157,7 @@ export default function PaymentForm({ selectedType }) {
                 <input
                   type="text"
                   name="cardHolderName"
-                  value={cardCredentials.cardHolderName}
+                  value={cardCredentials.cardHolderName || ""}
                   onChange={handleInputChange}
                   placeholder="Cardholder Name"
                   className="w-full py-2 px-4 border rounded"
@@ -92,7 +171,7 @@ export default function PaymentForm({ selectedType }) {
                 <input
                   type="text"
                   name="cardNumber"
-                  value={cardNumberFormat(cardCredentials.cardNumber)}
+                  value={cardNumberFormat(cardCredentials.cardNumber || "")}
                   onChange={handleInputChange}
                   placeholder="Card Number"
                   className="w-full py-2 px-4 border rounded "
@@ -101,15 +180,15 @@ export default function PaymentForm({ selectedType }) {
                   <p className="text-red-500 text-sm">{error.cardNumber}</p>
                 )}
               </div>
-              <div className="flex">
+              <div className="flex gap-x-3">
                 <div className="w-1/2">
                   <input
                     type="text"
                     name="expiryDate"
-                    value={cardCredentials.expiryDate}
+                    value={cardCredentials.expiryDate || ""}
                     onChange={handleInputChange}
                     placeholder="Expiry Date"
-                    className="w-20 py-2 px-4 border rounded "
+                    className="w-[150px] py-2 px-4 border rounded "
                   />
                   {error.expiryDate && (
                     <p className="text-red-500 text-sm">{error.expiryDate}</p>
@@ -120,10 +199,10 @@ export default function PaymentForm({ selectedType }) {
                   <input
                     type="text"
                     name="cvv"
-                    value={cardCredentials.cvv}
+                    value={cardCredentials.cvv || ""}
                     onChange={handleInputChange}
                     placeholder="CVV"
-                    className="w-1/2 py-2 px-4 border rounded "
+                    className="w-[150px] py-2 px-4 border rounded "
                   />
                   {error.cvv && (
                     <p className="text-red-500 text-sm">{error.cvv}</p>
@@ -137,7 +216,7 @@ export default function PaymentForm({ selectedType }) {
             <input
               type="email"
               name="payhereEmail"
-              value={cardCredentials.payhereEmail}
+              value={cardCredentials.payhereEmail || ""}
               onChange={handleInputChange}
               placeholder="PayHere Email"
               className="w-full py-2 px-4 border rounded mt-2"
@@ -152,7 +231,7 @@ export default function PaymentForm({ selectedType }) {
               <input
                 type="text"
                 name="bankName"
-                value={cardCredentials.bankName}
+                value={cardCredentials.bankName || ""}
                 onChange={handleInputChange}
                 placeholder="Bank Name"
                 className="w-full py-2 px-4 border rounded "
@@ -166,7 +245,7 @@ export default function PaymentForm({ selectedType }) {
               <input
                 type="text"
                 name="branch"
-                value={cardCredentials.branch}
+                value={cardCredentials.branch || ""}
                 onChange={handleInputChange}
                 placeholder="Branch"
                 className="w-full py-2 px-4 border rounded "

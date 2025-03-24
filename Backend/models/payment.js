@@ -2,11 +2,11 @@ import asyncHandler from "express-async-handler"
 import { prisma } from "../config/prismaConfig.js"
 import { ObjectId } from "mongodb";
 
-
+const PAYHERE_CHECKOUT_URL = 'https://sandbox.payhere.lk/pay/checkout';
 //create paymente
 const createPayment = asyncHandler(async (req, res) => {
     console.log("Create Payment");
-    let { Amount, PaymentMethod, BookingId } = req.body;
+    let { Amount, Currency, PaymentMethod, order_id, BookingId, Item } = req.body;
 
     if (!Amount || !PaymentMethod || !BookingId) {
         res.status(400);
@@ -58,16 +58,34 @@ const createPayment = asyncHandler(async (req, res) => {
         });
         const monthlyPayment = parseFloat(bookingExists.MonthlyPayment);
 
+
+        // Initialize PayHere payment
+        const paymentData = {
+            merchant_id: process.env.PAYHERE_MERCHANT_ID, // Replace with your PayHere Merchant ID
+            return_url: 'http://your-frontend-url.com/payment-success', // Redirect after payment
+            cancel_url: 'http://your-frontend-url.com/payment-cancel', // Redirect if payment is canceled
+            notify_url: 'http://your-backend-url.com/payment-notify', // Webhook for payment notifications
+            order_id: order_id,
+            items: Item,
+            amount: Amount,
+            currency: Currency,
+
+
+        };
+
+        // Redirect user to PayHere checkout page
         res.send({
-            message: "Payment create Successfully",
+            message: "Your Pending Payment create Successfully",
             payment: payment,
+            checkout_url: `${PAYHERE_CHECKOUT_URL}?${new URLSearchParams(paymentData).toString()}`,
         });
 
 
 
+
     } catch (error) {
-        res.status(500).json({ message: "payment failed" });
-        throw new Error("Error creating Payment" + error.message);
+        console.error('Error initializing payment:', error);
+        res.status(500).json({ error: 'Payment initialization failed' });
     }
 
 })

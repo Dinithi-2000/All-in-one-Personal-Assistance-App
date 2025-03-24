@@ -1,8 +1,12 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AgreementDetails({ selectProvider, selectCategory }) {
   const [bookDetail, setBookDetail] = useState({});
+  const [showPaymentOption, setShowPaymentOption] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getBookingDetail = () => {
@@ -46,7 +50,18 @@ export default function AgreementDetails({ selectProvider, selectCategory }) {
         <strong>Service Charge : LKR.</strong>
         {bookDetail.MonthlyPayment}
       </p>
-      <button type="button" className="btn btn-primary">
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() =>
+          navigate("/payment/PaymentOption", {
+            state: {
+              bookingid: bookDetail.BookingID,
+              amount: bookDetail.MonthlyPayment,
+            },
+          })
+        }
+      >
         checkOut
       </button>
     </div>

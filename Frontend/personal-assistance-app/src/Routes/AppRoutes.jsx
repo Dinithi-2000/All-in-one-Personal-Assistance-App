@@ -6,6 +6,7 @@ import PrivateRoute from "./PrivateRoute";
 import PaymentDashboard from "../Component/Pages/PaymentDashboard";
 import { BackgroundGradient } from "../Component/UI/background-gradient";
 import PaymentStack from "../Component/UI/PaymentStack";
+import PaymentMethod from "../Component/UI/PaymentMethod";
 
 export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
   return (
@@ -18,6 +19,7 @@ export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/payment" element={<PaymentDashboard />}>
             <Route path="MakePayment" element={<BackgroundGradient />} />
+            <Route path="PaymentOption" element={<PaymentMethod />} />
           </Route>
         </Route>
       </Route>

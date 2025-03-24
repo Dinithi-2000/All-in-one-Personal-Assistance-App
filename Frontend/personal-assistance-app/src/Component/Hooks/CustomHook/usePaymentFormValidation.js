@@ -13,14 +13,14 @@ const usePaymentFormValidation = () => {
             if (!cardCredentials.cardHolderName || cardCredentials.cardHolderName === "") {
                 tempError.cardHolderName = "card Holder name required";
             }
-            if (!cardCredentials.cardNumber || String(cardCredentials.cardNumber).length < 20) {
+            if (!cardCredentials.cardNumber || String(cardCredentials.cardNumber).replace(/\s/g, "").length !== 16) {
                 tempError.cardNumber = "Card Number Required";
-
             }
 
-            if (!cardCredentials.cvv || String(cardCredentials.cvv).length !== 3) {
-                tempError.cvv = "Cvv Required";
+            if (!cardCredentials.cvv || !/^\d{3}$/.test(cardCredentials.cvv)) {
+                tempError.cvv = "CVV must be 3 digits";
             }
+
 
 
         }
