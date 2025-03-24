@@ -21,7 +21,7 @@ export default function PaymentDashboard() {
       <div className="min-h-screen w-full flex flex-col ml-[5%] mr-[60px] -mt-[50px]">
         <SideNavBar />
       </div>
-      <div className="flex-grow max-w-4xl p-4 justify-center mt-[40px] ml-[60%]">
+      <div className="flex-grow max-w-4xl p-4  mt-[20px] ml-[50%]">
         {isPaymentPath ? <PaymentStack /> : <Outlet />}
       </div>
     </div>

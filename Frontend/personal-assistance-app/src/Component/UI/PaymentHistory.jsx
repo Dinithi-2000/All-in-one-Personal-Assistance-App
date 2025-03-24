@@ -1,55 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import axios from "axios";
 
 export default function PaymentHistory() {
-  const [payments, setPayments] = useState([
-    {
-      id: 1,
-      date: "2023-10-01",
-      amount: 100,
-      description: "Service Charge",
-      status: "Complete",
-    },
-    {
-      id: 2,
-      date: "2023-10-05",
-      amount: 200,
-      description: "Service Charge",
-      status: "Complete",
-    },
-    {
-      id: 3,
-      date: "2023-10-10",
-      amount: 150,
-      description: "Service Charge",
-      status: "Complete",
-    },
-    {
-      id: 4,
-      date: "2023-10-15",
-      amount: 300,
-      description: "Service Charge",
-      status: "Complete",
-    },
-  ]);
+  const [payments, setPayments] = useState([]);
 
   //state manage for date filter
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [filteredPayments, setFilteredPayments] = useState(payments);
+  const [filteredPayments, setFilteredPayments] = useState([]);
+
+  useEffect(() => {
+    const getHistory = () => {
+      axios
+        .get("http://localhost:8070/home/payment/paymentHistory")
+        .then((res) => {
+          console.log(res);
+          setPayments(res.data.payment);
+          alert(res.data.message || "Payments retrieved successfully.");
+          setFilteredPayments(res.data.payment);
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    };
+    getHistory();
+  }, []);
 
   //handling Function
   const handleDates = () => {
+    if (!startDate && !endDate) {
+      setFilteredPayments(payments);
+      return;
+    }
     const paymentFiller = payments.filter((pay) => {
-      const paymentDate = new Date(pay.date);
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
+      const paymentDate = new Date(pay.PaymentDate);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
       //if user not select start date
-      if (!startDate && !endDate) {
-        return true;
+      if (startDate && endDate) {
+        return paymentDate >= start && paymentDate <= end;
       }
       if (!startDate) {
         return paymentDate >= start;
@@ -57,14 +49,17 @@ export default function PaymentHistory() {
       if (!endDate) {
         return paymentDate <= end;
       }
-      return paymentDate >= start && paymentDate <= end;
+      return true;
     });
     setFilteredPayments(paymentFiller);
   };
   return (
     <div className="container m-6 mx-auto p-4 text-center">
       <h2 className="text-2xl font-bold mb-4">Payment History</h2>
-      <div className="flex gap-4 mb-6 items-end">
+      <div
+        className="flex gap-4 mb-6 items-end justify-center justify-items-center
+"
+      >
         <div>
           <label
             htmlFor="startDate"
@@ -104,62 +99,60 @@ export default function PaymentHistory() {
           </button>
         </div>
       </div>
-      {/*
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead className="bg-gray-800 text-white">
-          <tr>
-            <th className="px-4 py-2">ID</th>
-            <th className="px-4 py-2">Date</th>
-            <th className="px-4 py-2">Amount</th>
-            <th className="px-4 py-2">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredPayments.map((payment) => (
-            <tr key={payment.id} className="hover:bg-gray-100">
-              <td className="px-4 py-2 ">{payment.id}</td>
-              <td className="px-4 py-2 ">{payment.date}</td>
-              <td className="px-4 py-2 ">${payment.amount}</td>
-              <td className="px-4 py-2 ">{payment.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>*/}
-      <table class="table  table-hover table-striped-row">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Payment Details</th>
-            <th scope="col">Payment Status</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody class="table-group-divider">
-          {filteredPayments.map((pay) => (
+      <div className="overflow-auto" style={{ maxHeight: "500px" }}>
+        <table className="table  table-hover table-striped-row">
+          <thead className="sticky top-0">
             <tr>
-              <th scope="row">1</th>
-              <td>
-                <p>{pay.date}</p>
-                <p>{pay.amount}</p>
-                <p>{pay.description}</p>
-              </td>
-              <td>{pay.status}</td>
-              <td></td>
+              <th scope="col">#</th>
+              <th scope="col">Payment Details</th>
+              <th scope="col">Booking Details</th>
+              <th scope="col">Payment Status</th>
+              <th scope="col">Action</th>
             </tr>
-          ))}
-          <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td colspan="2">Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="table-group-divider">
+            {filteredPayments.length > 0 ? (
+              filteredPayments.map((pay, index) => (
+                <tr key={pay.paymentID}>
+                  <th scope="row" className="text-left px-4 py-2">
+                    {index + 1}
+                  </th>
+                  <td className="text-left px-4 py-2 min-w-[250px]">
+                    <p className="whitespace-nowrap">
+                      Payment Date:
+                      {new Date(pay.PaymentDate).toLocaleDateString()}
+                    </p>
+                    <p>Service Amount: {pay.Amount}</p>
+                    <p>Payment Method: {pay.paymentMethodName || "N/A"}</p>
+                  </td>
+                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
+                    <p>BookingId: {pay.bookingDetails?.bookingID || "N/A"}</p>
+                    <p>
+                      Agreement Duration:{" "}
+                      {pay.bookingDetails?.agreemetnDuration || "N/A"}
+                    </p>
+                    <p>Provider: {pay.bookingDetails?.providerName || "N/A"}</p>
+                  </td>
+                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
+                    {pay.Status}
+                  </td>
+                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
+                    <button className="btn btn-sm btn-primary">
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center text-muted">
+                  No payments found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 
 export default function PaymentMethod() {
   const [selectedType, setSelectedType] = useState(null);
-  const [saveCard, setSaveCard] = useState({});
+  const [saveCard, setSaveCard] = useState([]);
   const location = useLocation();
   const { bookingid, amount } = location.state || {};
 
@@ -68,15 +68,18 @@ export default function PaymentMethod() {
               <h2 className="text-lg text-[#000080] font-semibold mb-2 whitespace-nowrap">
                 Your Saved Option:
               </h2>
-              {saveCard && (
-                <button
-                  key={saveCard.id}
-                  onClick={() => handleSelectedPayment(saveCard.PaymentMethod)}
-                  className="px-18 py-1 w-full text-[#000080] rounded-lg text-center bg-gray-200 mb-4"
-                >
-                  <p>**** **** **** {saveCard.cardNumber?.slice(-4)}</p>
-                </button>
-              )}
+              {saveCard &&
+                saveCard.length > 0 &&
+                saveCard.map((card) => (
+                  <button
+                    key={card.id}
+                    onClick={() => handleSelectedPayment(card.paymentMethod)}
+                    className="px-18 py-1 w-full text-[#000080] rounded-lg text-center bg-gray-200 mb-4"
+                  >
+                    <p>**** **** **** {card.cardNumber.slice(-4)}</p>
+                  </button>
+                ))}
+
               <h2 className="text-lg text-[#000080] font-semibold mb-4 whitespace-nowrap pr-10">
                 Choose Payment Type:
               </h2>

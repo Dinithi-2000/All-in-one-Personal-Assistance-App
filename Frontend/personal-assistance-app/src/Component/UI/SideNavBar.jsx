@@ -39,9 +39,9 @@ function SideNavBar() {
               </a>
             </li>
             <li>
-              <a href="#">
-                <i className="fa fa-credit-card"></i>Payment History
-              </a>
+              <Link to="/payment/PaymentHistory">
+                <i className="fa fa-credit-card"></i>Monthly Service Payment
+              </Link>
             </li>
 
             <li>
