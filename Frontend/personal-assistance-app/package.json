@@ -26,6 +26,7 @@
     "react-router-dom": "6",
     "react-scripts": "5.0.1",
     "style-loader": "^4.0.0",
+    "sweetalert2": "^11.17.2",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.13",
     "web-vitals": "^2.1.0"

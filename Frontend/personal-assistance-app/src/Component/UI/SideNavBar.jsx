@@ -1,7 +1,7 @@
 import React from "react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./../../Styles/navbar.css";
-import { Link, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 function SideNavBar() {
   return (
     <div className="main_contatent">
@@ -34,13 +34,13 @@ function SideNavBar() {
               </Link>
             </li>
             <li>
-              <a href="#">
+              <Link to="/payment/RefundHistory">
                 <i className="fa fa-credit-card"></i>Refund Service Payment
-              </a>
+              </Link>
             </li>
             <li>
               <Link to="/payment/PaymentHistory">
-                <i className="fa fa-credit-card"></i>Monthly Service Payment
+                <i className="fa fa-credit-card"></i>Payment History
               </Link>
             </li>
 

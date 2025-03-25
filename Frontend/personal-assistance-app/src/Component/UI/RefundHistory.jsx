@@ -3,41 +3,37 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import axios from "axios";
-import Swal from "sweetalert2";
 
-export default function PaymentHistory() {
-  const [payments, setPayments] = useState([]);
-
+export default function RefundHistory() {
+  const [refunds, setRefunds] = useState([]);
   //state manage for date filter
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [filteredPayments, setFilteredPayments] = useState([]);
+  const [filteredRefund, setFilteredRefund] = useState([]);
 
   useEffect(() => {
-    const getHistory = () => {
+    const getRefund = () => {
       axios
-        .get("http://localhost:8070/home/payment/paymentHistory")
+        .get("http://localhost:8070/home/Refund/retrieveRefund")
         .then((res) => {
           console.log(res);
-          setPayments(res.data.payment);
-          alert(res.data.message || "Payments retrieved successfully.");
-          setFilteredPayments(res.data.payment);
+          setRefunds(res.data.refund);
+          setFilteredRefund(res.data.refund);
         })
         .catch((error) => {
           alert(error.message);
         });
     };
-    getHistory();
+    getRefund();
   }, []);
-
   //handling Function
   const handleDates = () => {
     if (!startDate && !endDate) {
-      setFilteredPayments(payments);
+      setFilteredRefund(refunds);
       return;
     }
-    const paymentFiller = payments.filter((pay) => {
-      const paymentDate = new Date(pay.PaymentDate);
+    const refundFiller = refunds.filter((refund) => {
+      const paymentDate = new Date(refund.requestAt);
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
       //if user not select start date
@@ -52,49 +48,15 @@ export default function PaymentHistory() {
       }
       return true;
     });
-    setFilteredPayments(paymentFiller);
+    setFilteredRefund(refundFiller);
   };
 
-  const handleRequest = async (paymentID) => {
-    if (
-      window.confirm(
-        "Are you sure you want to request a refund for this payment?",
-      )
-    ) {
-      //add sweet alertbox to get reason
-      const { value: reason } = await Swal.fire({
-        title: "Refund Request",
-        input: "textarea",
-        inputLabel: "Reason for refund",
-        inputPlaceholder: "Please explain why you are requesting a refund...",
-        inputAttributes: {
-          "aria-label": "Type your refund reason here",
-        },
-        showCancelButton: true,
-        inputValidator: (value) => {
-          if (!value) {
-            return "You need to provide a reason!";
-          }
-        },
-      });
+  const handleRequest = () => {};
 
-      if (reason) {
-        const response = await axios.post(
-          "http://localhost:8070/home/Refund/requestRefund",
-          {
-            userId: "67db7f7145aae4033ea34d42",
-            paymentId: paymentID,
-            reason: reason,
-          },
-        );
-
-        alert(response.data.message || "Refund request submitted successfully");
-      }
-    }
-  };
   return (
     <div className="container m-6 mx-auto p-4 mt-[0] text-center">
-      <h2 className="text-2xl font-bold mb-4 text-white">Payment History</h2>
+      <h2 className="text-2xl font-bold mb-4 text-white">Refund History</h2>
+
       <div
         className="flex gap-4 mb-6 items-end justify-center justify-items-center
 "
@@ -145,52 +107,35 @@ export default function PaymentHistory() {
               <th scope="col" className="text-indigo">
                 #
               </th>
-              <th scope="col">Payment Details</th>
-              <th scope="col">Booking Details</th>
-              <th scope="col">Payment Status</th>
-              <th scope="col">Action</th>
+              <th scope="col">Refund Details</th>
+              <th scope="col">Refund Reason</th>
+              <th scope="col">Refund Status</th>
             </tr>
           </thead>
           <tbody className="table-group-divider">
-            {filteredPayments.length > 0 ? (
-              filteredPayments.map((pay, index) => (
-                <tr key={pay.paymentID}>
+            {filteredRefund.length > 0 ? (
+              filteredRefund.map((pay, index) => (
+                <tr key={pay.refundId}>
                   <th scope="row" className="text-left px-4 py-2">
                     {index + 1}
                   </th>
                   <td className="text-left px-4 py-2 min-w-[250px]">
                     <p className="whitespace-nowrap">
-                      Payment Date:
-                      {new Date(pay.PaymentDate).toLocaleDateString()}
+                      Refund ID: {pay.refundId}
                     </p>
-                    <p>Service Amount: {pay.Amount}</p>
-                    <p>Payment Method: {pay.paymentMethodName || "N/A"}</p>
-                  </td>
-                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
-                    <p>BookingId: {pay.bookingDetails?.bookingID || "N/A"}</p>
-                    <p>
-                      Agreement Duration:{" "}
-                      {pay.bookingDetails?.agreemetnDuration || "N/A"}
+                    <p className="whitespace-nowrap">
+                      Refund Date:
+                      {new Date(pay.requestAt).toLocaleDateString()}
                     </p>
-                    <p>Provider: {pay.bookingDetails?.providerName || "N/A"}</p>
+                    <p className="whitespace-nowrap">
+                      <p>Refund Amount: {pay.amount}</p>
+                    </p>
                   </td>
                   <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
-                    {pay.Status}
+                    {pay.reason}
                   </td>
-                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
-                    <button
-                      className="btn btn-sm btn-primary"
-                      onClick={() => handleRequest(pay.paymentID)}
-                      disabled={
-                        pay.Status === "REFUNDED" ||
-                        pay.Status === "COMPLETED" ||
-                        pay.Status === "CANCELLED"
-                      }
-                    >
-                      {pay.Status === "REFUNDED"
-                        ? "Refund Requested"
-                        : "Refund Request"}
-                    </button>
+                  <td className="text-center px-4 py-2 min-w-[250px] whitespace-nowrap">
+                    {pay.status}
                   </td>
                 </tr>
               ))

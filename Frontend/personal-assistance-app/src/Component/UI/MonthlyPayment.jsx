@@ -1,5 +1,4 @@
 import React from "react";
-import ServiceCatergoty from "./ServiceCatergoty";
 import { BackgroundGradient } from "./background-gradient";
 
 export default function MonthlyPayment() {
