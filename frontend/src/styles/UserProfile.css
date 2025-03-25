@@ -1,0 +1,101 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+
+/* Profile Container */
+.profile-container {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Profile Box */
+.profile-box {
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+/* Title */
+h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* Profile Sections */
+.profile-section {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: left;
+}
+
+/* Section Headings */
+.profile-section h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* Input Fields */
+input, select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+/* ✅ Blue Edit & Save Buttons */
+.edit-button, .save-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+  background-color: #007bff; /* ✅ Blue Color */
+  color: white;
+  transition: background 0.3s ease-in-out;
+}
+
+/* Hover Effect */
+.edit-button:hover, .save-button:hover {
+  background-color: #0056b3; /* ✅ Darker Blue */
+}
+
+/* Responsive Design */
+@media screen and (max-width: 480px) {
+  .profile-box {
+      width: 90%;
+  }
+
+  .edit-button, .save-button {
+      font-size: 14px;
+  }
+}
+
+
