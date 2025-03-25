@@ -8,6 +8,7 @@ import { BackgroundGradient } from "../Component/UI/background-gradient";
 import PaymentMethod from "../Component/UI/PaymentMethod";
 import PaymentHistory from "../Component/UI/PaymentHistory";
 import RefundHistory from "../Component/UI/RefundHistory";
+import ServiceSelection from "../Component/Pages/ServiceSelection";
 
 export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
   return (
@@ -23,9 +24,20 @@ export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
             <Route path="PaymentOption" element={<PaymentMethod />} />
             <Route path="PaymentHistory" element={<PaymentHistory />} />
             <Route path="RefundHistory" element={<RefundHistory />} />
+            
           </Route>
+          <Route path="/serviceselection" element={<ServiceSelection />}>
+            <Route path="MakePayment" element={<BackgroundGradient />} />
+            <Route path="PaymentOption" element={<PaymentMethod />} />
+            <Route path="PaymentHistory" element={<PaymentHistory />} />
+            <Route path="RefundHistory" element={<RefundHistory />} />
+            
+          </Route>
+          <Route path="/serviceselection" element={<ServiceSelection />} />
         </Route>
+        
       </Route>
+      
     </Routes>
   );
 }
