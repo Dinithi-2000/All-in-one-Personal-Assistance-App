@@ -1,21 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
-import PaymentDashboard from './Component/Pages/PaymentDashboard';
-
-import AppRoutes from './Routes/AppRoutes';
 import { useState } from 'react';
-import NavBar from './Component/UI/NavBar';
-import { BrowserRouter } from 'react-router-dom';
+import AppRoutes from './Routes/AppRoutes';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  // Function to handle login
+  const handleLogin = (username) => {
+    setIsAuthenticated(true);
+    // Hardcoded admin check
+    setIsAdmin(username === "SerenniAdmin");
+  };
+
   return (
-    <BrowserRouter>
-      <div className="App">
-        <AppRoutes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
-      </div>
-    </BrowserRouter>
+    <div className="App">
+      <AppRoutes
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+        isAdmin={isAdmin}
+        handleLogin={handleLogin}
+      />
+    </div>
   );
 }
 
