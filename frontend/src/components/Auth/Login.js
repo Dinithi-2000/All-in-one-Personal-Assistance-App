@@ -3,17 +3,40 @@ import { Form, Input, Button, message } from 'antd';
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
-import "./auth.css"
+import "./auth.css";
+
 const Login = () => {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm(); // Add form instance
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
       await login(values);
     } catch (error) {
-      message.error(error.response?.data?.message || 'Login failed');
+      // Handle specific error cases
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      
+      if (errorMessage.toLowerCase().includes('email') || 
+          errorMessage.toLowerCase().includes('user')) {
+        form.setFields([
+          {
+            name: 'email',
+            errors: [errorMessage],
+          },
+        ]);
+      } else if (errorMessage.toLowerCase().includes('password') || 
+                 errorMessage.toLowerCase().includes('credentials')) {
+        form.setFields([
+          {
+            name: 'password',
+            errors: [errorMessage],
+          },
+        ]);
+      } else {
+        message.error(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -23,7 +46,12 @@ const Login = () => {
     <div className="auth">
       <div className="auth-glass-card">
         <h2>Login</h2>
-        <Form name="login" className='j' onFinish={onFinish}>
+        <Form 
+          form={form} // Connect the form instance
+          name="login" 
+          className='j' 
+          onFinish={onFinish}
+        >
           <Form.Item
             name="email"
             rules={[
@@ -53,4 +81,6 @@ const Login = () => {
       </div>
     </div>
   );
-}; export default Login;
+};
+
+export default Login;

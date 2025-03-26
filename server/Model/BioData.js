@@ -20,4 +20,4 @@ const bioDataSchema = new mongoose.Schema({
   bloodType: { type: String }
 }, { timestamps: true });
 
-module.exports = mongoose.model('BioData', bioDataSchema);
+module.exports = mongoose.model('Bio', bioDataSchema);

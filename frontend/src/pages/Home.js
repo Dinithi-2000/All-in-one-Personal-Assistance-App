@@ -13,8 +13,19 @@ const Home = () => {
         {user ? (
           <Result
             status="success"
-            title={`Welcome back, ${user.name}!`}
-            subTitle="You are successfully logged in."
+            title={
+              <span style={{ color: '#fff' }}>
+                Welcome back, {user.name}!
+              </span>
+            }
+            color="#fff"
+            subTitle={
+              <span style={{ color: '#fff' }}>
+
+                You are successfully logged in.
+              </span>
+            }
+
             extra={[
               <Link to="/profile" key="profile">
                 <Button type="primary">Go to Profile</Button>
@@ -36,7 +47,7 @@ const Home = () => {
           />
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

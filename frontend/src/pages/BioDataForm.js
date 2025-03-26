@@ -6,7 +6,6 @@ const BioDataForm = () => {
   const [form] = Form.useForm();
   const { bioData, saveBioData, loading } = useAuth();
   const [visible, setVisible] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
 
   useEffect(() => {
     if (bioData && visible) {
@@ -32,42 +31,46 @@ const BioDataForm = () => {
 
   const showModal = () => {
     setVisible(true);
-    setSubmitError(null);
     form.resetFields();
   };
 
   const handleCancel = () => {
     form.resetFields();
-    setSubmitError(null);
     setVisible(false);
   };
 
   const onFinish = async (values) => {
     try {
-      setSubmitError(null);
       await saveBioData(values);
       message.success('Personal information saved successfully');
       handleCancel();
     } catch (error) {
       console.error('Form submission error:', error);
       
-      // Handle different error formats
-      let errorMessage = "Failed to save data. Please try again.";
-      
-      if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error.message) {
-        errorMessage = error.message;
-      } else if (error.response?.data) {
-        // Handle API response errors
-        const apiError = error.response.data;
-        errorMessage = apiError.message || 
-                       apiError.error || 
-                       JSON.stringify(apiError);
+      // Handle field-specific errors from backend
+      if (error.response?.data?.field) {
+        const { field, message: errorMessage } = error.response.data;
+        
+        // Handle nested fields (like address fields)
+        const fieldName = field.includes('.') ? field.split('.') : field;
+        
+        form.setFields([{
+          name: fieldName,
+          errors: [errorMessage]
+        }]);
+        
+        // Scroll to the error field
+        const element = document.querySelector(`[name="${field}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } 
+      // Handle other error formats
+      else if (error.message) {
+        message.error(error.message);
+      } else {
+        message.error('Failed to save data. Please try again.');
       }
-
-      setSubmitError(errorMessage);
-      message.error(errorMessage);
     }
   };
   
@@ -89,17 +92,12 @@ const BioDataForm = () => {
         width={800}
         destroyOnClose
       >
-        {submitError && (
-          <div style={{ color: 'red', marginBottom: 16, textAlign: 'center' }}>
-            {submitError}
-          </div>
-        )}
-        
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
         >
+          {/* Name Fields */}
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -121,6 +119,7 @@ const BioDataForm = () => {
             </Col>
           </Row>
 
+          {/* Contact Fields */}
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -148,6 +147,7 @@ const BioDataForm = () => {
             </Col>
           </Row>
 
+          {/* NIC Field - This will show the duplicate NIC error */}
           <Form.Item
             name="nic"
             label="NIC Number"
@@ -164,6 +164,7 @@ const BioDataForm = () => {
 
           <Divider orientation="left">Address Information</Divider>
 
+          {/* Address Fields */}
           <Form.Item
             name={['address', 'street']}
             label="Street Address"

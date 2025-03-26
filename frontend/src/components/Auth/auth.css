@@ -13,7 +13,7 @@
 }
 
 .auth-glass-card {
-  background: rgba(41, 39, 39, 0.1);
+  background: rgba(14, 14, 14, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 20px;

@@ -146,7 +146,7 @@ const ProfilePage = () => {
             <Card title="Account Information" style={{ borderRadius: 8, boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)' }}>
               <Descriptions column={1}>
                 <Descriptions.Item label="Username">
-                  <Text strong>{user?.username}</Text>
+                  <Text strong>{user?.name}</Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Account Created">
                   <Text>
