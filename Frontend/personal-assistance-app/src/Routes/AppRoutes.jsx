@@ -14,6 +14,9 @@ import AdminDashboard from "../Component/Pages/Admindashboard/AdminDashboard";
 import LoginPage from "../Component/UI/LoginPage";
 import Overview from "../Component/Pages/Admindashboard/Overview";
 
+import ServiceSelection from "../Component/Pages/ServiceSelection";
+
+
 // You'll need to create this
 
 export default function AppRoutes({
@@ -39,9 +42,20 @@ export default function AppRoutes({
             <Route path="PaymentOption" element={<PaymentMethod />} />
             <Route path="PaymentHistory" element={<PaymentHistory />} />
             <Route path="RefundHistory" element={<RefundHistory />} />
+            
           </Route>
+          <Route path="/serviceselection" element={<ServiceSelection />}>
+            <Route path="MakePayment" element={<BackgroundGradient />} />
+            <Route path="PaymentOption" element={<PaymentMethod />} />
+            <Route path="PaymentHistory" element={<PaymentHistory />} />
+            <Route path="RefundHistory" element={<RefundHistory />} />
+            
+          </Route>
+          <Route path="/serviceselection" element={<ServiceSelection />} />
         </Route>
+        
       </Route>
+
 
       {/* Admin Route */}
       <Route
@@ -58,6 +72,7 @@ export default function AppRoutes({
 
       {/* Catch-all Route */}
       <Route path="*" element={<Navigate to="/" />} />
+
     </Routes>
   );
 }
