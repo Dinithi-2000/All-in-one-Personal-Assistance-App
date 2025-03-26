@@ -4,7 +4,7 @@ import SideBar from "./Common/SideBar";
 
 const AdminLayout = () => {
   return (
-    <div className="flex h-screen w-screen bg-indigo-900 text-gray-100 overflow-hidden ml-[32%] mr-[50%]">
+    <div className="flex h-screen w-screen bg-indigo-900 text-gray-100 overflow-auto ml-[32%]">
       {/* Sidebar */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-90" />

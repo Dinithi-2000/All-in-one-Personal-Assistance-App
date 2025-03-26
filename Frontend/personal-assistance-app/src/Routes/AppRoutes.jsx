@@ -10,9 +10,16 @@ import PaymentHistory from "../Component/UI/PaymentHistory";
 import RefundHistory from "../Component/UI/RefundHistory";
 import AdminRoute from "./AdminRoute";
 import AdminLayout from "../Component/UI/AdminDashboard/AdminLayout";
-import AdminDashboard from "../Component/Pages/Admindashboard/AdminDashboard";
 import LoginPage from "../Component/UI/LoginPage";
 import Overview from "../Component/Pages/Admindashboard/Overview";
+import ProfitLoss from "../Component/Pages/Admindashboard/ProfitLoss";
+import SalaryCalculation from "../Component/Pages/Admindashboard/SalaryCalculation";
+import Transactions from "../Component/Pages/Admindashboard/Transactions";
+import ServicePage from "../Component/Pages/Admindashboard/ServicePage";
+import ProviderPage from "../Component/Pages/Admindashboard/ProviderPage";
+import RefundPage from "../Component/Pages/Admindashboard/RefundPage";
+import Settings from "../Component/Pages/Admindashboard/Settings";
+import Users from "../Component/Pages/Admindashboard/Users";
 
 // You'll need to create this
 
@@ -52,7 +59,14 @@ export default function AppRoutes({
       >
         <Route element={<AdminLayout />}>
           <Route index element={<Overview />} />
-          {/*<Route path="overview" element={<Overview />} />*/}
+          <Route path="user" element={<Users />} />
+          <Route path="servicePage" element={<ServicePage />} />
+          <Route path="transaction" element={<Transactions />} />
+          <Route path="provider" element={<ProviderPage />} />
+          <Route path="profitLoss" element={<ProfitLoss />} />
+          <Route path="salary" element={<SalaryCalculation />} />
+          <Route path="refund" element={<RefundPage />} />
+          <Route path="setting" element={<Settings />} />
         </Route>
       </Route>
 

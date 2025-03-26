@@ -6,8 +6,8 @@ const NavBar = () => {
     <nav className="bg-[#f5f5f5] shadow-lg w-full">
       {/* Soft-off-white background */}
       <div className="w-full mx-auto ">
-        <div className="flex justify-between gap-x-40 pl-10">
-          <div className="flex space-x-5 p-2 gap-x-24">
+        <div className="flex justify-between gap-x-38 pl-8 mr-[10px] ">
+          <div className="flex space-x-5 p-2 gap-x-28">
             {/* Logo or Brand Name */}
             <div className="space-x-2 ">
               <Link to="/" className="flex items-center py-4 px-2 no-underline">
@@ -18,7 +18,7 @@ const NavBar = () => {
             </div>
 
             {/* Navigation Links */}
-            <div className="hidden md:flex items-center space-x- gap-x-10">
+            <div className="hidden md:flex items-center space-x- gap-x-8">
               <Link
                 to="/"
                 className="py-4 px-2 text-[#003366] font-semibold hover:text-[#40E0D0] transition duration-300 relative group no-underline"
@@ -55,6 +55,16 @@ const NavBar = () => {
               >
                 <span className="group-hover:bg-gradient-to-r group-hover:from-[#40E0D0] group-hover:via-[#9333ea] group-hover:to-[#40E0D0] group-hover:bg-clip-text group-hover:text-transparent">
                   Payment
+                </span>
+
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#40E0D0] via-[#9333ea] to-[#40E0D0] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+              </Link>
+              <Link
+                to="/"
+                className="py-4 px-2 text-[#003366] font-semibold hover:text-[#40E0D0] transition duration-300 relative group no-underline"
+              >
+                <span className="group-hover:bg-gradient-to-r group-hover:from-[#40E0D0] group-hover:via-[#9333ea] group-hover:to-[#40E0D0] group-hover:bg-clip-text group-hover:text-transparent">
+                  FeedBacks
                 </span>
 
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#40E0D0] via-[#9333ea] to-[#40E0D0] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>

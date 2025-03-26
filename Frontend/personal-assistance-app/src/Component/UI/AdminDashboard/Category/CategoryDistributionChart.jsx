@@ -1,22 +1,24 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
   PieChart,
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 
-const RevenuByService = [
-  { name: "BabySitting", value: 400 },
-  { name: "DayCare", value: 300 },
-  { name: "HomeNurse", value: 200 },
-  { name: "Tutor", value: 100 },
+const categoryData = [
+  { name: "Child Care", value: 6 },
+  { name: "Elder Care", value: 5 },
+  { name: "Pet Care", value: 4 },
+  { name: "Education", value: 2 },
+  { name: "Kitchen", value: 3 },
 ];
-const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE"];
-const RevenueByServiceChart = () => {
+
+const COLORS = ["#6366F1", "#8B5CF6", "#EC4899", "#10B981", "#F59E0B"];
+
+const CategoryDistributionChart = () => {
   return (
     <motion.div
       className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
@@ -24,17 +26,17 @@ const RevenueByServiceChart = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >
-      <h2 className="text-xl font-semibold text-gray-100 mb-4">
-        Revenue by Services
+      <h2 className="text-lg font-medium mb-4 text-gray-100">
+        Category Distribution
       </h2>
-
-      <div style={{ width: "100%", height: 300 }}>
-        <ResponsiveContainer>
+      <div className="h-80">
+        <ResponsiveContainer width={"100%"} height={"100%"}>
           <PieChart>
             <Pie
-              data={RevenuByService}
-              cx="50%"
-              cy="50%"
+              data={categoryData}
+              cx={"50%"}
+              cy={"50%"}
+              labelLine={false}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
@@ -42,7 +44,7 @@ const RevenueByServiceChart = () => {
                 `${name} ${(percent * 100).toFixed(0)}%`
               }
             >
-              {RevenuByService.map((entry, index) => (
+              {categoryData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}
@@ -63,4 +65,4 @@ const RevenueByServiceChart = () => {
     </motion.div>
   );
 };
-export default RevenueByServiceChart;
+export default CategoryDistributionChart;
