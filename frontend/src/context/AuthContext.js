@@ -153,21 +153,32 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Save biomedical data (create or update)
-  const saveBioData = async (data) => {
-    try {
-      setLoading(true);
-      const res = await api.post('/biodata', data);
-      setBioData(res.data);
-      message.success('Biomedical data saved successfully');
-      return res.data;
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Failed to save biomedical data';
-      message.error(errorMsg);
-      throw error;
-    } finally {
-      setLoading(false);
+const saveBioData = async (data) => {
+  try {
+    setLoading(true);
+    const response = await api.post('/biodata', data); // or your API endpoint
+    setBioData(response.data);
+    return response.data;
+  } catch (error) {
+    // Make sure to throw the error with proper message
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      const errorMessage = error.response.data?.message || 
+                         error.response.data?.error || 
+                         'Failed to save data';
+      throw new Error(errorMessage);
+    } else if (error.request) {
+      // The request was made but no response was received
+      throw new Error('No response from server. Please check your connection.');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      throw new Error(error.message || 'An error occurred');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Delete biomedical data
   const deleteBioData = async () => {

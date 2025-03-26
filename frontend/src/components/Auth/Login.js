@@ -3,7 +3,7 @@ import { Form, Input, Button, message } from 'antd';
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
-
+import "./auth.css"
 const Login = () => {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -20,10 +20,10 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="auth">
+      <div className="auth-glass-card">
         <h2>Login</h2>
-        <Form name="login" onFinish={onFinish}>
+        <Form name="login" className='j' onFinish={onFinish}>
           <Form.Item
             name="email"
             rules={[

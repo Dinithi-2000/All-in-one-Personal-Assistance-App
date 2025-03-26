@@ -1,0 +1,102 @@
+.auth {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  background: url("https://images.pexels.com/photos/774042/pexels-photo-774042.jpeg")
+    no-repeat center center;
+  background-size: cover;
+  padding: 20px;
+}
+
+.j {
+}
+
+.auth-glass-card {
+  background: rgba(41, 39, 39, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  padding: 40px;
+  width: fit-content;
+  /* max-width: 450px; */
+  color: white;
+  text-align: center;
+}
+
+.auth-glass-card.login {
+  background: rgba(41, 128, 185, 0.15);
+}
+
+.auth-glass-card.register {
+  background: rgba(142, 68, 173, 0.15);
+}
+
+.auth-glass-card h2 {
+  color: white;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.auth-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.auth-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  height: 45px;
+  border-radius: 8px !important;
+  margin-bottom: 15px;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.auth-input .ant-input-prefix {
+  color: rgba(255, 255, 255, 0.6) !important;
+  margin-right: 10px;
+}
+
+.auth-button {
+  height: 45px;
+  border-radius: 8px !important;
+  font-weight: 600;
+  margin-top: 10px;
+  background: linear-gradient(45deg, #1890ff, #0050b3);
+  border: none;
+}
+
+.auth-button:hover {
+  background: linear-gradient(45deg, #0050b3, #1890ff);
+}
+
+.auth-links {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-links a {
+  color: white;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.auth-links a:hover {
+  color: #e6f7ff;
+}
+
+/* Ant Design form item adjustments */
+.ant-form-item {
+  margin-bottom: 20px;
+}
+
+.ant-form-item-explain {
+  color: #ffccc7 !important;
+}

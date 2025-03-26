@@ -1,48 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Modal, message } from 'antd';
+import { Form, Input, Button, Modal, message, Row, Col, Divider } from 'antd';
 import { useAuth } from '../context/AuthContext';
-
-const { Option } = Select;
-const { TextArea } = Input;
 
 const BioDataForm = () => {
   const [form] = Form.useForm();
   const { bioData, saveBioData, loading } = useAuth();
   const [visible, setVisible] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   useEffect(() => {
     if (bioData && visible) {
       form.setFieldsValue({
+        firstName: bioData.firstName,
+        lastName: bioData.lastName,
+        email: bioData.email,
+        phoneNumber: bioData.phoneNumber,
+        nic: bioData.nic,
+        address: bioData.address || {
+          street: '',
+          city: '',
+          state: '',
+          postalCode: '',
+          country: ''
+        },
         age: bioData.age,
         gender: bioData.gender,
-        height: bioData.height,
-        weight: bioData.weight,
-        bloodType: bioData.bloodType,
-        allergies: bioData.allergies || '',
-        medicalConditions: bioData.medicalConditions || ''
+        bloodType: bioData.bloodType
       });
     }
   }, [bioData, form, visible]);
 
   const showModal = () => {
     setVisible(true);
+    setSubmitError(null);
+    form.resetFields();
   };
 
   const handleCancel = () => {
     form.resetFields();
+    setSubmitError(null);
     setVisible(false);
   };
 
   const onFinish = async (values) => {
     try {
+      setSubmitError(null);
       await saveBioData(values);
-      message.success('Biomedical data saved successfully');
+      message.success('Personal information saved successfully');
       handleCancel();
     } catch (error) {
       console.error('Form submission error:', error);
+      
+      // Handle different error formats
+      let errorMessage = "Failed to save data. Please try again.";
+      
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data) {
+        // Handle API response errors
+        const apiError = error.response.data;
+        errorMessage = apiError.message || 
+                       apiError.error || 
+                       JSON.stringify(apiError);
+      }
+
+      setSubmitError(errorMessage);
+      message.error(errorMessage);
     }
   };
-
+  
   return (
     <>
       <Button 
@@ -50,101 +78,141 @@ const BioDataForm = () => {
         onClick={showModal}
         style={{ marginBottom: 16 }}
       >
-        {bioData ? 'Update Biomedical Data' : 'Add Biomedical Data'}
+        {bioData ? 'Update Information' : 'Add Personal Information'}
       </Button>
 
       <Modal
-        title={bioData ? "Update Biomedical Data" : "Add Biomedical Data"}
+        title={bioData ? "Update Personal Information" : "Add Personal Information"}
         visible={visible}
         onCancel={handleCancel}
         footer={null}
         width={800}
+        destroyOnClose
       >
+        {submitError && (
+          <div style={{ color: 'red', marginBottom: 16, textAlign: 'center' }}>
+            {submitError}
+          </div>
+        )}
+        
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          initialValues={{
-            gender: 'male',
-            bloodType: 'A+'
-          }}
         >
-          <Form.Item
-            name="age"
-            label="Age"
-            rules={[{ 
-              required: true, 
-              message: 'Please input your age',
-              type: 'number',
-              min: 1,
-              max: 120
-            }]}
-          >
-            <Input type="number" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="firstName"
+                label="First Name"
+                rules={[{ required: true, message: 'Please input your first name' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="lastName"
+                label="Last Name"
+                rules={[{ required: true, message: 'Please input your last name' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: 'Please input your email' },
+                  { type: 'email', message: 'Please enter a valid email address' }
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="phoneNumber"
+                label="Phone Number"
+                rules={[
+                  { required: true, message: 'Please input your phone number' },
+                  { pattern: /^[0-9]{10,15}$/, message: 'Please enter 10-15 digit phone number' }
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Form.Item
-            name="gender"
-            label="Gender"
-            rules={[{ required: true, message: 'Please select your gender' }]}
+            name="nic"
+            label="NIC Number"
+            rules={[
+              { required: true, message: 'Please input your NIC number' },
+              { 
+                pattern: /^([0-9]{9}[vVxX]|[0-9]{12})$/,
+                message: 'Please enter valid NIC (9 digits + V/X or 12 digits)'
+              }
+            ]}
           >
-            <Select>
-              <Option value="male">Male</Option>
-              <Option value="female">Female</Option>
-              <Option value="other">Other</Option>
-            </Select>
+            <Input placeholder="e.g., 200034001V or 200034001816" />
           </Form.Item>
+
+          <Divider orientation="left">Address Information</Divider>
 
           <Form.Item
-            name="height"
-            label="Height (cm)"
-            rules={[{ 
-              required: true, 
-              message: 'Please input your height',
-              pattern: new RegExp(/^[0-9]+$/),
-              message: 'Please enter a valid number'
-            }]}
+            name={['address', 'street']}
+            label="Street Address"
+            rules={[{ required: true, message: 'Please input street address' }]}
           >
-            <Input />
+            <Input placeholder="Street address" />
           </Form.Item>
 
-          <Form.Item
-            name="weight"
-            label="Weight (kg)"
-            rules={[{ 
-              required: true, 
-              message: 'Please input your weight',
-              pattern: new RegExp(/^[0-9]+$/),
-              message: 'Please enter a valid number'
-            }]}
-          >
-            <Input />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name={['address', 'city']}
+                label="City"
+                rules={[{ required: true, message: 'Please input city' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name={['address', 'state']}
+                label="State/Province"
+                rules={[{ required: true, message: 'Please input state/province' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Form.Item
-            name="bloodType"
-            label="Blood Type"
-            rules={[{ required: true, message: 'Please select your blood type' }]}
-          >
-            <Select>
-              <Option value="A+">A+</Option>
-              <Option value="A-">A-</Option>
-              <Option value="B+">B+</Option>
-              <Option value="B-">B-</Option>
-              <Option value="AB+">AB+</Option>
-              <Option value="AB-">AB-</Option>
-              <Option value="O+">O+</Option>
-              <Option value="O-">O-</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="allergies" label="Allergies (if any)">
-            <TextArea rows={2} placeholder="List any allergies you have" />
-          </Form.Item>
-
-          <Form.Item name="medicalConditions" label="Medical Conditions (if any)">
-            <TextArea rows={2} placeholder="List any medical conditions you have" />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name={['address', 'postalCode']}
+                label="Postal Code"
+                rules={[{ required: true, message: 'Please input postal code' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name={['address', 'country']}
+                label="Country"
+                rules={[{ required: true, message: 'Please input country' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
 
           <Form.Item>
             <Button 

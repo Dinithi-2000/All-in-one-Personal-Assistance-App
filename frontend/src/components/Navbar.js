@@ -36,7 +36,7 @@ const Navbar = () => {
     <div className="navbar">
       <div className="navbar-left">
         <Link to="/" className="navbar-brand">
-          Fitness Pro
+          Seranilux
         </Link>
       </div>
       <div className="navbar-right">

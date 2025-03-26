@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Form, Input, Button, message } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
-
+import "../components/Auth/auth.css"
 const ForgotPassword = () => {
   const { forgotPassword } = useAuth();
   const navigate = useNavigate();
@@ -36,8 +36,8 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="auth">
+      <div className="auth-glass-card">
         <h2>Forgot Password</h2>
         <Form form={form} name="forgot-password" onFinish={onFinish}>
           <Form.Item
