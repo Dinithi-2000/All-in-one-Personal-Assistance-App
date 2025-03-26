@@ -71,7 +71,7 @@ const NavBar = () => {
               Become A service Provider
             </Link>
             <Link
-              to="/twitter"
+              to="/login"
               className="py-2 px-4  text-[#003366] font-semibold border-3 border-sky-500 rounded-md hover:text-[#40E0D0] transition duration-300 no-underline whitespace-nowrap block"
             >
               Log In

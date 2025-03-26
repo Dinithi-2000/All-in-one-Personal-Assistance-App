@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Layout from "../Component/UI/Layout";
 import HomePage from "../Component/Pages/HomePage";
 import PrivateRoute from "./PrivateRoute";
@@ -8,15 +8,31 @@ import { BackgroundGradient } from "../Component/UI/background-gradient";
 import PaymentMethod from "../Component/UI/PaymentMethod";
 import PaymentHistory from "../Component/UI/PaymentHistory";
 import RefundHistory from "../Component/UI/RefundHistory";
+import AdminRoute from "./AdminRoute";
+import AdminLayout from "../Component/UI/AdminDashboard/AdminLayout";
+import AdminDashboard from "../Component/Pages/Admindashboard/AdminDashboard";
+import LoginPage from "../Component/UI/LoginPage";
+import Overview from "../Component/Pages/Admindashboard/Overview";
 
-export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
+// You'll need to create this
+
+export default function AppRoutes({
+  isAuthenticated,
+  setIsAuthenticated,
+  isAdmin,
+  handleLogin,
+}) {
   return (
     <Routes>
-      {/*set public route*/}
+      {/* Public routes */}
       <Route path="/" element={<Layout />}>
-        <Route index element={<HomePage />}></Route>
-        {/*<Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated}/>}>login</Route>*/}
-        {/*Protected Path*/}
+        <Route index element={<HomePage />} />
+        <Route
+          path="/login"
+          element={<LoginPage handleLogin={handleLogin} />}
+        />
+
+        {/* Protected User Route */}
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/payment" element={<PaymentDashboard />}>
             <Route path="MakePayment" element={<BackgroundGradient />} />
@@ -26,6 +42,22 @@ export default function AppRoutes({ isAuthenticated, setIsAuthenticated }) {
           </Route>
         </Route>
       </Route>
+
+      {/* Admin Route */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin} />
+        }
+      >
+        <Route element={<AdminLayout />}>
+          <Route index element={<Overview />} />
+          {/*<Route path="overview" element={<Overview />} />*/}
+        </Route>
+      </Route>
+
+      {/* Catch-all Route */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
