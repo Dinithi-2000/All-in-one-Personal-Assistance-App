@@ -13,60 +13,16 @@ const usePaymentFormValidation = () => {
             if (!cardCredentials.cardHolderName || cardCredentials.cardHolderName === "") {
                 tempError.cardHolderName = "card Holder name required";
             }
-
-            //card number validation
-            if (!cardCredentials.cardNumber) {
-                tempError.cardNumber = "card Number required";
-                if (String(cardCredentials.cardNumber).replace(/\s/g, "").length !== 16) {
-                    tempError.cardNumber = "Invalid Card Number";
-                }
+            if (!cardCredentials.cardNumber || String(cardCredentials.cardNumber).replace(/\s/g, "").length !== 16) {
+                tempError.cardNumber = "Card Number Required";
             }
 
-            //cvv validation
-
-            if (!cardCredentials.cvv) {
-                tempError.cvv = "CVV required";
-
-                if (!/^\d{3}$/.test(cardCredentials.cvv)) {
-                    tempError.cvv = "CVV must be 3 digits";
-                }
+            if (!cardCredentials.cvv || !/^\d{3}$/.test(cardCredentials.cvv)) {
+                tempError.cvv = "CVV must be 3 digits";
             }
-            //expiry date
-
-            if (!cardCredentials.expiryDate) {
-                tempError.expiryDate = "Expiry date required";
-            } else {
-                // Check format MM/YY or MM/YYYY
-                if (!/^\d{2}\/\d{2,4}$/.test(cardCredentials.expiryDate)) {
-                    tempError.expiryDate = "Invalid format (use MM/YY or MM/YYYY)";
-                } else {
-                    const [month, year] = cardCredentials.expiryDate.split('/');
-                    const monthNum = parseInt(month, 10);
-                    const yearNum = parseInt(year, 10);
-                    const currentDate = new Date();
-                    const currentYear = currentDate.getFullYear();
-                    const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed
-
-                    // Convert 2-digit year to 4-digit (assuming 2000-2099)
-                    const fullYear = year.length === 2 ? 2000 + yearNum : yearNum;
-                    // Validate month
-                    if (monthNum < 1 || monthNum > 12) {
-                        tempError.expiryDate = "Invalid month (must be 01-12)";
-                    }
-                    // Validate year (not in the past)
-                    else if (fullYear < currentYear ||
-                        (fullYear === currentYear && monthNum < currentMonth)) {
-                        tempError.expiryDate = "Card has expired";
-                    }
-                    // Validate year not too far in the future (optional)
-                    else if (fullYear > currentYear + 20) {
-                        tempError.expiryDate = "Invalid expiry year";
-                    }
 
 
 
-                }
-            }
         }
         else if (paymentType === 'payhere') {
             const mailregex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;

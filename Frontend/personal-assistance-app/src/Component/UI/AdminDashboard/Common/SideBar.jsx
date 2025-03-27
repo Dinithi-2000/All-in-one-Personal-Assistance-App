@@ -1,6 +1,8 @@
+// Frontend/personal-assistance-app/src/Component/UI/AdminDashboard/Common/SideBar.js
 import {
   BarChart2,
   Blocks,
+  Calendar, // Add Calendar icon for Bookings
   ChefHat,
   Menu,
   Settings,
@@ -19,50 +21,18 @@ const SIDEBAR_ITEMS = [
     color: "#6366f1",
     href: "/admin",
   },
+  { name: "Services", icon: Blocks, color: "#8B5CF6", href: "/services" },
+  { name: "Users", icon: Users, color: "#EC4899", href: "/users" },
+  { name: "Financial", icon: Wallet, color: "#10B981", href: "/financial" },
+  { name: "Provider", icon: ChefHat, color: "#F59E0B", href: "/provider" },
   {
-    name: "Services",
-    icon: Blocks,
-    color: "#8B5CF6",
-    href: "/admin/servicePage",
+    name: "Bookings", // Add Bookings item
+    icon: Calendar,
+    color: "#2DD4BF", // Teal color to complement the existing palette
+    href: "/admin/bookings",
   },
-  { name: "Users", icon: Users, color: "#EC4899", href: "/admin/user" },
-  {
-    name: "Transactions",
-    icon: Wallet,
-    color: "#10B981",
-    href: "/transaction",
-  },
-  {
-    name: "Provider",
-    icon: ChefHat,
-    color: "#F59E0B",
-    href: "/admin/provider",
-  },
-
-  {
-    name: "Profit/Loss",
-    icon: TrendingUp,
-    color: "#3B82F6",
-    href: "/admin/profitLoss",
-  },
-  {
-    name: "Salary ",
-    icon: TrendingUp,
-    color: "#3B82F6",
-    href: "/admin/salary",
-  },
-  {
-    name: "Refund",
-    icon: TrendingUp,
-    color: "#3B82F6",
-    href: "/admin/refund",
-  },
-  {
-    name: "Settings",
-    icon: Settings,
-    color: "#6EE7B7",
-    href: "/admin/setting",
-  },
+  { name: "Analytics", icon: TrendingUp, color: "#3B82F6", href: "/analytics" },
+  { name: "Settings", icon: Settings, color: "#6EE7B7", href: "/settings" },
 ];
 
 const SideBar = () => {
@@ -114,4 +84,5 @@ const SideBar = () => {
     </motion.div>
   );
 };
+
 export default SideBar;

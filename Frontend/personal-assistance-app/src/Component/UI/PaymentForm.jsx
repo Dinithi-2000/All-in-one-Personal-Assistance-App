@@ -186,26 +186,8 @@ export default function PaymentForm({
                     type="text"
                     name="expiryDate"
                     value={cardCredentials.expiryDate || ""}
-                    onChange={(e) => {
-                      let value = e.target.value;
-                      // Auto-insert slash after 2 digits
-                      if (
-                        value.length === 2 &&
-                        !cardCredentials.expiryDate.includes("/")
-                      ) {
-                        value += "/";
-                      }
-                      // Limit to MM/YY format (7 chars max for MM/YYYY)
-                      if (value.length <= 7) {
-                        handleInputChange({
-                          target: {
-                            name: "expiryDate",
-                            value: value,
-                          },
-                        });
-                      }
-                    }}
-                    placeholder="MM/YY"
+                    onChange={handleInputChange}
+                    placeholder="Expiry Date"
                     className="w-[150px] py-2 px-4 border rounded "
                   />
                   {error.expiryDate && (
