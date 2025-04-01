@@ -52,10 +52,25 @@ export default function PaymentForm({
   //handling function
   const handleInputChange = (event) => {
     const { value, name } = event.target;
-    setCardCredentials({
-      ...cardCredentials,
-      [name]: value,
-    });
+    if (name === "cardNumber") {
+      // Remove all non-digit characters
+      const numbersOnly = value.replace(/\D/g, "");
+
+      // Update your state with numbers only (before formatting)
+      setCardCredentials((prev) => ({
+        ...prev,
+        [name]: numbersOnly,
+      }));
+
+      // Optionally, you can validate here and set error state if needed
+    } else {
+      // Handle other fields normally
+      setCardCredentials((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+
     clearForm(name);
   };
 
@@ -175,6 +190,7 @@ export default function PaymentForm({
                   onChange={handleInputChange}
                   placeholder="Card Number"
                   className="w-full py-2 px-4 border rounded "
+                  maxLength={19}
                 />
                 {error.cardNumber && (
                   <p className="text-red-500 text-sm">{error.cardNumber}</p>
