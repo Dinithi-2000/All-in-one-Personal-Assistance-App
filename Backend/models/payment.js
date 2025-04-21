@@ -64,7 +64,7 @@ const createPayment = asyncHandler(async (req, res) => {
             merchant_id: process.env.PAYHERE_MERCHANT_ID, // Replace with your PayHere Merchant ID
             return_url: 'http://your-frontend-url.com/payment-success', // Redirect after payment
             cancel_url: 'http://your-frontend-url.com/payment-cancel', // Redirect if payment is canceled
-            notify_url: 'http://your-backend-url.com/payment-notify', // Webhook for payment notifications
+            notify_url: 'http://localhost:8070/api/payment-notify', // Webhook for payment notifications
             order_id: order_id,
             items: Item,
             amount: Amount,
