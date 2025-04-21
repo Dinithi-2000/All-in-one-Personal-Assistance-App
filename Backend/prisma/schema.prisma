@@ -136,7 +136,7 @@ model ServiceProvider{
     customer Customer_Provider[]
     providerSalary ProviderSalary?
     service Service @relation(fields: [ServiceType],references: [ServiceID])
-
+}
 model Customer_Provider{
     id String @id @default(auto()) @map("_id") @db.ObjectId
     customer String @db.ObjectId
