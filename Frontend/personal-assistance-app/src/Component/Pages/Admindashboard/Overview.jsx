@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 
 import Header from "../../UI/AdminDashboard/Common/Header";
 import StatCard from "../../UI/AdminDashboard/Common/StatCard";
+import RevenueByServiceChart from "../../UI/AdminDashboard/Revenue/RevenueByServiceChart";
+import CategoryDistributionChart from "../../UI/AdminDashboard/Category/CategoryDistributionChart";
+import ProfitLossOverviewChart from "../../UI/AdminDashboard/ProfitLoss/ProfitLossOverviewChart";
 
 const Overview = () => {
   return (
@@ -12,7 +15,7 @@ const Overview = () => {
       <main className="max-w-screen mx-auto py-8 px-0 lg:px-8">
         {/* STATS */}
         <motion.div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-9"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-9 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -37,6 +40,12 @@ const Overview = () => {
             color="#10B981"
           />
         </motion.div>
+         {/*add Charts*/}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <RevenueByServiceChart />
+          <CategoryDistributionChart />
+          <ProfitLossOverviewChart />
+        </div>
       </main>
     </div>
   );
