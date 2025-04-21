@@ -9,6 +9,7 @@ import { savedPaymentRouter } from "./routes/savedPaymentRoute.js"
 import { financialActivityRoute } from "./routes/financialActivity.js"
 import { PaymentGatewayRoute } from "./routes/PaymentGatewayRoute.js"
 import { bookingRouter } from "./routes/bookingRoutes.js";
+import ServiceProviderRouter from './routes/serviceProviderRoute.js';
 
 
 
@@ -52,4 +53,5 @@ app.use("/api", PaymentGatewayRoute)
 app.use("/home/payment/savedPayment", savedPaymentRouter)
 app.use("/adminDashBoard/Financial", financialActivityRoute)
 app.use("/home/booking", bookingRouter);
+app.use("/home/serviceProvider", ServiceProviderRouter)
 
