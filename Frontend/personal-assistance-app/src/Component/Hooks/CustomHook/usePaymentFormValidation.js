@@ -13,8 +13,7 @@ const usePaymentFormValidation = () => {
             if (!cardCredentials.cardHolderName || cardCredentials.cardHolderName === "") {
                 tempError.cardHolderName = "card Holder name required";
             }
-
-            //card number validation
+           //card number validation
             if (!cardCredentials.cardNumber) {
                 tempError.cardNumber = "card Number required";
                 if (String(cardCredentials.cardNumber).replace(/\s/g, "").length !== 16) {

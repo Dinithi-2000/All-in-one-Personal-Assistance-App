@@ -202,7 +202,7 @@ export default function PaymentForm({
                     type="text"
                     name="expiryDate"
                     value={cardCredentials.expiryDate || ""}
-                    onChange={(e) => {
+                   onChange={(e) => {
                       let value = e.target.value;
                       // Auto-insert slash after 2 digits
                       if (

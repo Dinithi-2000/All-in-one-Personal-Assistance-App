@@ -12,7 +12,7 @@ const Overview = () => {
     <div className="flex-1 w-64 relative z-10  ml-[2%] ">
       <Header title="Overview" />
 
-      <main className="max-w-screen mx-auto py-8 px-0 lg:px-8 ">
+      <main className="max-w-screen mx-auto py-8 px-0 lg:px-8">
         {/* STATS */}
         <motion.div
           className="grid grid-cols-2 sm:grid-cols-4 gap-9 mb-8"
@@ -40,8 +40,7 @@ const Overview = () => {
             color="#10B981"
           />
         </motion.div>
-
-        {/*add Charts*/}
+         {/*add Charts*/}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <RevenueByServiceChart />
           <CategoryDistributionChart />

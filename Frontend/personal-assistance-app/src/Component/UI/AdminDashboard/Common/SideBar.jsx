@@ -1,6 +1,8 @@
+// Frontend/personal-assistance-app/src/Component/UI/AdminDashboard/Common/SideBar.js
 import {
   BarChart2,
   Blocks,
+  Calendar, // Add Calendar icon for Bookings
   ChefHat,
   Menu,
   Settings,
@@ -19,13 +21,19 @@ const SIDEBAR_ITEMS = [
     color: "#6366f1",
     href: "/admin",
   },
-  {
+ {
     name: "Services",
     icon: Blocks,
     color: "#8B5CF6",
     href: "/admin/servicePage",
   },
   { name: "Users", icon: Users, color: "#EC4899", href: "/admin/user" },
+    {
+    name: "Bookings", // Add Bookings item
+    icon: Calendar,
+    color: "#2DD4BF", // Teal color to complement the existing palette
+    href: "/admin/bookings",
+  },
   {
     name: "Transactions",
     icon: Wallet,
@@ -63,6 +71,8 @@ const SIDEBAR_ITEMS = [
     color: "#6EE7B7",
     href: "/admin/setting",
   },
+
+  
 ];
 
 const SideBar = () => {
@@ -114,4 +124,5 @@ const SideBar = () => {
     </motion.div>
   );
 };
+
 export default SideBar;
