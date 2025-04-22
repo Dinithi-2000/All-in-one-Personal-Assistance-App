@@ -11,6 +11,9 @@ import { PaymentGatewayRoute } from "./routes/PaymentGatewayRoute.js"
 import { bookingRouter } from "./routes/bookingRoutes.js";
 import ServiceProviderRouter from './routes/serviceProviderRoute.js';
 
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import bioDataRoutes from './routes/bioDataRoutes.js';
 
 
 
@@ -62,4 +65,8 @@ app.use("/home/payment/savedPayment", savedPaymentRouter)
 app.use("/adminDashBoard/Financial", financialActivityRoute)
 app.use("/home/booking", bookingRouter);
 app.use("/home/serviceProvider", ServiceProviderRouter)
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/biodata', bioDataRoutes);
 
