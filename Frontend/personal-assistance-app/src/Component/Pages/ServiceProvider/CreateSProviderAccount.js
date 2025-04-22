@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-import { 
+import {
   Container,
   TextField,
   Button,
@@ -15,7 +14,11 @@ import {
   IconButton,
   Avatar,
   Box,
-  Chip
+  Chip,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormLabel,
 } from '@mui/material';
 import { CloudUpload, Visibility, VisibilityOff, Person, Email } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
@@ -66,7 +69,11 @@ const CreateAccount = () => {
     password: '',
     confirmPassword: '',
     policeClearance: null,
-    photo: null, // Add photo field
+    photo: null,
+    nic: '',
+    birthCertificate: null,
+    availability: '',
+    gender: '',
     agreedToTerms: false,
     showPassword: false,
   });
@@ -82,10 +89,15 @@ const CreateAccount = () => {
     confirmPassword: '',
     policeClearance: '',
     photo: '',
+    nic: '',
+    birthCertificate: '',
+    availability: '',
+    gender: '',
     agreedToTerms: '',
   });
 
-  const [policeClearanceFileName, setPoliceClearanceFileName] = useState(''); 
+  const [policeClearanceFileName, setPoliceClearanceFileName] = useState('');
+  const [birthCertificateFileName, setBirthCertificateFileName] = useState('');
 
   const validateForm = () => {
     let isValid = true;
@@ -95,12 +107,16 @@ const CreateAccount = () => {
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First Name is required';
       isValid = false;
+    } else {
+      newErrors.firstName = '';
     }
 
     // Last Name validation
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Last Name is required';
       isValid = false;
+    } else {
+      newErrors.lastName = '';
     }
 
     // Email validation
@@ -111,6 +127,8 @@ const CreateAccount = () => {
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = 'Invalid email format';
       isValid = false;
+    } else {
+      newErrors.email = '';
     }
 
     // Mobile validation
@@ -121,6 +139,8 @@ const CreateAccount = () => {
     } else if (!mobileRegex.test(formData.mobile)) {
       newErrors.mobile = 'Mobile must be 9 digits';
       isValid = false;
+    } else {
+      newErrors.mobile = '';
     }
 
     // Password validation
@@ -131,6 +151,8 @@ const CreateAccount = () => {
     } else if (!passwordRegex.test(formData.password)) {
       newErrors.password = 'Password must contain at least 6 characters, one uppercase, one lowercase, one number, and one special character';
       isValid = false;
+    } else {
+      newErrors.password = '';
     }
 
     // Confirm Password validation
@@ -140,30 +162,64 @@ const CreateAccount = () => {
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
       isValid = false;
+    } else {
+      newErrors.confirmPassword = '';
     }
 
     // Police Clearance validation
     if (!formData.policeClearance) {
       newErrors.policeClearance = 'Police Clearance Certificate is required';
       isValid = false;
-    }
-
-    // Police Clearance validation
-    if (!formData.policeClearance) {
-      newErrors.policeClearance = 'Police Clearance Certificate is required';
-      isValid = false;
+    } else {
+      newErrors.policeClearance = '';
     }
 
     // Photo validation
     if (!formData.photo) {
       newErrors.photo = 'Profile photo is required';
       isValid = false;
+    } else {
+      newErrors.photo = '';
+    }
+
+    // NIC validation
+    if (!formData.nic.trim()) {
+      newErrors.nic = 'NIC is required';
+      isValid = false;
+    } else {
+      newErrors.nic = '';
+    }
+
+    // Birth Certificate validation
+    if (!formData.birthCertificate) {
+      newErrors.birthCertificate = 'Birth Certificate is required';
+      isValid = false;
+    } else {
+      newErrors.birthCertificate = '';
+    }
+
+    // Availability validation
+    if (!formData.availability) {
+      newErrors.availability = 'Availability is required';
+      isValid = false;
+    } else {
+      newErrors.availability = '';
+    }
+
+    // Gender validation
+    if (!formData.gender) {
+      newErrors.gender = 'Gender is required';
+      isValid = false;
+    } else {
+      newErrors.gender = '';
     }
 
     // Terms agreement validation
     if (!formData.agreedToTerms) {
       newErrors.agreedToTerms = 'You must agree to the terms and conditions';
       isValid = false;
+    } else {
+      newErrors.agreedToTerms = '';
     }
 
     setErrors(newErrors);
@@ -175,9 +231,9 @@ const CreateAccount = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, photo: reader.result }); // Update formData with the photo URL
+        setFormData({ ...formData, photo: reader.result });
       };
-      reader.readAsDataURL(file); // Convert the file to a base64 URL
+      reader.readAsDataURL(file);
     }
   };
 
@@ -185,25 +241,32 @@ const CreateAccount = () => {
     const file = e.target.files[0];
     if (file) {
       setFormData({ ...formData, policeClearance: file });
-      setPoliceClearanceFileName(file.name); // Set the file name for display
+      setPoliceClearanceFileName(file.name);
     }
   };
 
-  
+  const handleBirthCertificateChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, birthCertificate: file });
+      setBirthCertificateFileName(file.name);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-  
+
     if (!validateForm()) {
       setLoading(false);
       return;
     }
-  
+
     try {
       const profileData = {
         name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
+email: formData.email,
         password: formData.password,
         serviceType: serviceData.serviceType || 'General',
         location: serviceData.location || 'Default Location',
@@ -212,22 +275,27 @@ const CreateAccount = () => {
         about: 'Sample about text',
         selectedServices: serviceData.selectedServices || ['Default Service'],
         policeClearance: URL.createObjectURL(formData.policeClearance),
-        photo: formData.photo || 'https://via.placeholder.com/200',// Default photo (or handle user-uploaded photo)
-        selectedPetTypes: serviceData.selectedPetTypes || [], // Optional field
-        selectedSyllabi: serviceData.selectedSyllabi || [], // Optional field
-        selectedSubjects: serviceData.selectedSubjects || [], // Optional field
-        selectedGrades: serviceData.selectedGrades || [], // Optional field
-        selectedAgeGroups: serviceData.selectedAgeGroups || [], // Optional field
+        photo: formData.photo || 'https://via.placeholder.com/200',
+        selectedPetTypes: serviceData.selectedPetTypes || [],
+        selectedSyllabi: serviceData.selectedSyllabi || [],
+        selectedSubjects: serviceData.selectedSubjects || [],
+        selectedGrades: serviceData.selectedGrades || [],
+        selectedAgeGroups: serviceData.selectedAgeGroups || [],
+        userType: 'sp', // Default value as per schema
+        nic: formData.nic,
+        birthCertificate: URL.createObjectURL(formData.birthCertificate),
+        availability: formData.availability,
+        gender: formData.gender,
       };
 
       console.log('Profile Data:', profileData);
-  
+
       const response = await axios.post(`${API_BASE_URL}/create-service-provider`, profileData);
       localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
       navigate('/viewspprofile');
     } catch (err) {
       setError('Registration failed. Please try again.');
-      console.error('Error:', err); // Log the error for debugging
+      console.error('Error:', err);
     } finally {
       setLoading(false);
     }
@@ -250,7 +318,7 @@ const CreateAccount = () => {
         )}
 
         <Grid container spacing={3}>
-           {/* First Name */}
+          {/* First Name */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -292,7 +360,7 @@ const CreateAccount = () => {
             />
           </Grid>
 
-              {/* Email */}
+          {/* Email */}
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -318,7 +386,7 @@ const CreateAccount = () => {
             />
           </Grid>
 
-{/* Mobile Number */}
+          {/* Mobile Number */}
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -351,7 +419,25 @@ const CreateAccount = () => {
             />
           </Grid>
 
-{/* Password */}
+          {/* NIC */}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="NIC *"
+              variant="outlined"
+              value={formData.nic}
+              onChange={(e) => setFormData({ ...formData, nic: e.target.value })}
+              error={!!errors.nic}
+              helperText={errors.nic}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#40E0D0' },
+                },
+              }}
+            />
+          </Grid>
+
+          {/* Password */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -398,48 +484,92 @@ const CreateAccount = () => {
             />
           </Grid>
 
- {/* Police Clearance Report Input Field */}
- <Grid item xs={12}>
-    {policeClearanceFileName && ( // Display the uploaded file name
-      <Box sx={{ mb: 2 }}>
-        <Chip
-          label={`Uploaded: ${policeClearanceFileName}`}
-          onDelete={() => {
-            setFormData({ ...formData, policeClearance: null });
-            setPoliceClearanceFileName('');
-          }}
-          sx={{ backgroundColor: '#40E0D0', color: 'white' }}
-        />
-      </Box>
-    )}
-    <Button
-      component="label"
-      variant="outlined"
-      startIcon={<CloudUpload />}
-      sx={{
-        width: '100%',
-        py: 2,
-        border: '2px dashed #40E0D0',
-        color: '#000080',
-        '&:hover': {
-          border: '2px dashed #38CAB8',
-        },
-      }}
-    >
-      Upload Police Clearance Certificate *
-      <input
-        type="file"
-        hidden
-        accept=".pdf,.jpg,.png"
-        onChange={handlePoliceClearanceChange}
-      />
-    </Button>
-    {errors.policeClearance && (
-      <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
-        {errors.policeClearance}
-      </Typography>
-    )}
-  </Grid>
+          {/* Police Clearance Report Input Field */}
+          <Grid item xs={12}>
+            {policeClearanceFileName && (
+              <Box sx={{ mb: 2 }}>
+                <Chip
+                  label={`Uploaded: ${policeClearanceFileName}`}
+                  onDelete={() => {
+                    setFormData({ ...formData, policeClearance: null });
+                    setPoliceClearanceFileName('');
+                  }}
+                  sx={{ backgroundColor: '#40E0D0', color: 'white' }}
+                />
+              </Box>
+            )}
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<CloudUpload />}
+              sx={{
+                width: '100%',
+                py: 2,
+                border: '2px dashed #40E0D0',
+                color: '#000080',
+                '&:hover': {
+                  border: '2px dashed #38CAB8',
+                },
+              }}
+            >
+              Upload Police Clearance Certificate *
+              <input
+                type="file"
+                hidden
+                accept=".pdf,.jpg,.png"
+                onChange={handlePoliceClearanceChange}
+              />
+            </Button>
+            {errors.policeClearance && (
+              <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                {errors.policeClearance}
+              </Typography>
+            )}
+          </Grid>
+
+          {/* Birth Certificate Input Field */}
+          <Grid item xs={12}>
+            {birthCertificateFileName && (
+              <Box sx={{ mb: 2 }}>
+                <Chip
+                  label={`Uploaded: ${birthCertificateFileName}`}
+                  onDelete={() => {
+                    setFormData({ ...formData, birthCertificate: null });
+                    setBirthCertificateFileName('');
+                  }}
+                  sx={{ backgroundColor: '#40E0D0', color: 'white' }}
+                />
+              </Box>
+            )}
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<CloudUpload />}
+              sx={{
+                width: '100%',
+                py: 2,
+                border: '2px dashed #40E0D0',
+                color: '#000080',
+                '&:hover': {
+                  border: '2px dashed #38CAB8',
+                },
+              }}
+            >
+              Upload Birth Certificate *
+              <input
+                type="file"
+                hidden
+                accept=".pdf,.jpg,.png"
+                onChange={handleBirthCertificateChange}
+              />
+            </Button>
+            {errors.birthCertificate && (
+              <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                {errors.birthCertificate}
+              </Typography>
+            )}
+          </Grid>
+
           {/* Profile Photo */}
           <Grid item xs={12}>
             {formData.photo && (
@@ -478,6 +608,46 @@ const CreateAccount = () => {
             )}
           </Grid>
 
+          {/* Availability */}
+          <Grid item xs={12}>
+            <FormControl component="fieldset" error={!!errors.availability}>
+              <FormLabel component="legend">Availability *</FormLabel>
+              <RadioGroup
+                row
+                value={formData.availability}
+                onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
+              >
+                <FormControlLabel value="yes" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="No" />
+              </RadioGroup>
+              {errors.availability && (
+                <Typography variant="caption" color="error" sx={{ display: 'block' }}>
+                  {errors.availability}
+                </Typography>
+              )}
+            </FormControl>
+          </Grid>
+
+          {/* Gender */}
+          <Grid item xs={12}>
+            <FormControl component="fieldset" error={!!errors.gender}>
+              <FormLabel component="legend">Gender *</FormLabel>
+              <RadioGroup
+                row
+                value={formData.gender}
+                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+              >
+                <FormControlLabel value="male" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Male" />
+                <FormControlLabel value="female" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Female" />
+                <FormControlLabel value="other" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Other" />
+              </RadioGroup>
+              {errors.gender && (
+                <Typography variant="caption" color="error" sx={{ display: 'block' }}>
+                  {errors.gender}
+                </Typography>
+              )}
+            </FormControl>
+          </Grid>
 
           {/* Terms and Conditions */}
           <Grid item xs={12}>
@@ -514,7 +684,7 @@ const CreateAccount = () => {
             )}
           </Grid>
 
-{/* Create Account Button */}
+          {/* Create Account Button */}
           <Grid item xs={12}>
             <StyledButton
               fullWidth

@@ -17,6 +17,11 @@ const ServiceProviderSchema = new mongoose.Schema({
   selectedSubjects: { type: [String] },
   selectedGrades: { type: [String] },
   selectedAgeGroups: { type: [String] },
+  userType: { type: String, default: 'sp' },
+  nic: { type: String, required: true },
+  birthCertificate: { type: String, required: true },
+  availability: { type: String, enum: ['yes', 'no'], required: true },
+  gender: { type: String, required: true },
 });
 
 const ServiceProvider = mongoose.model('ServiceProvider', ServiceProviderSchema);

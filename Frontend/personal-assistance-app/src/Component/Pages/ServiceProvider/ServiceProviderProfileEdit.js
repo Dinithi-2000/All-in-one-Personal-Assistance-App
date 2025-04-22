@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
 import { useNavigate, useLocation } from 'react-router-dom';
-import { updateServiceProvider } from './api'; 
 import {
   Box,
   Container,
@@ -15,8 +13,10 @@ import {
   MenuItem,
   Checkbox,
   FormControlLabel,
-  InputAdornment,
-  IconButton,
+  Radio,
+  RadioGroup,
+  FormLabel,
+  Chip,
   Avatar,
   Paper
 } from '@mui/material';
@@ -29,19 +29,15 @@ const API_BASE_URL = 'http://localhost:8070/home/serviceProvider'; // Backend ba
 const EditServiceProviderProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const { serviceType, id } = location.state || {};
-  console.log('ID from location.state:', id); // Debugging
+  console.log('ID from location.state:', id);
 
   const [profileData, setProfileData] = useState(initialProfileData(serviceType));
   const [errors, setErrors] = useState({});
   const [photoFile, setPhotoFile] = useState(null);
-  const [photo, setPhoto] = useState(null);
-
+  const [policeClearanceFileName, setPoliceClearanceFileName] = useState('');
+  const [birthCertificateFileName, setBirthCertificateFileName] = useState('');
   const [loading, setLoading] = useState(false);
-const [error, setError] = useState(null);
-const [formData, setFormData] = useState({});
-const [serviceData, setServiceData] = useState({});
 
   useEffect(() => {
     const savedData = localStorage.getItem('serviceProviderProfile');
@@ -49,90 +45,28 @@ const [serviceData, setServiceData] = useState({});
       try {
         const parsedData = JSON.parse(savedData);
         console.log('Retrieved Profile Data:', parsedData);
-        setProfileData(parsedData);
+        setProfileData({
+          ...initialProfileData(serviceType),
+          ...parsedData,
+          payRate: parsedData.payRate || [500, 2000],
+          selectedPetTypes: parsedData.selectedPetTypes || [],
+          selectedSyllabi: parsedData.selectedSyllabi || [],
+          selectedSubjects: parsedData.selectedSubjects || [],
+          selectedGrades: parsedData.selectedGrades || [],
+          selectedAgeGroups: parsedData.selectedAgeGroups || [],
+        });
+        if (parsedData.policeClearance) {
+          setPoliceClearanceFileName('Police Clearance Uploaded');
+        }
+        if (parsedData.birthCertificate) {
+          setBirthCertificateFileName('Birth Certificate Uploaded');
+        }
       } catch (error) {
         console.error('Error parsing profile data:', error);
       }
     }
   }, [serviceType]);
 
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = { ...errors };
-  
-    // First Name validation
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First Name is required';
-      isValid = false;
-    }
-  
-    // Last Name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last Name is required';
-      isValid = false;
-    }
-  
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
-      isValid = false;
-    }
-  
-    // Mobile validation
-    const mobileRegex = /^[0-9]{9}$/;
-    if (!formData.mobile) {
-      newErrors.mobile = 'Mobile number is required';
-      isValid = false;
-    } else if (!mobileRegex.test(formData.mobile)) {
-      newErrors.mobile = 'Mobile must be 9 digits';
-      isValid = false;
-    }
-  
-    // Password validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = 'Password must contain at least 6 characters, one uppercase, one lowercase, one number, and one special character';
-      isValid = false;
-    }
-  
-    // Confirm Password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm password';
-      isValid = false;
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-      isValid = false;
-    }
-  
-    // Police Clearance validation
-    if (!formData.policeClearance) {
-      newErrors.policeClearance = 'Police Clearance Certificate is required';
-      isValid = false;
-    }
-  
-    // Photo validation
-    if (!formData.photo) {
-      newErrors.photo = 'Profile photo is required';
-      isValid = false;
-    }
-  
-    // Terms agreement validation
-    if (!formData.agreedToTerms) {
-      newErrors.agreedToTerms = 'You must agree to the terms and conditions';
-      isValid = false;
-    }
-  
-    setErrors(newErrors);
-    return isValid;
-  };
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfileData({ ...profileData, [name]: value });
@@ -150,46 +84,66 @@ const [serviceData, setServiceData] = useState({});
     }
   };
 
+  const handlePoliceClearanceChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileData({ ...profileData, policeClearance: URL.createObjectURL(file) });
+      setPoliceClearanceFileName(file.name);
+    }
+  };
+
+  const handleBirthCertificateChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileData({ ...profileData, birthCertificate: URL.createObjectURL(file) });
+      setBirthCertificateFileName(file.name);
+    }
+  };
+
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
-    console.log(`Checkbox ${name} is ${checked ? 'checked' : 'unchecked'}`);
     setProfileData((prevState) => ({
       ...prevState,
       selectedServices: checked
         ? [...prevState.selectedServices, name]
         : prevState.selectedServices.filter((service) => service !== name),
     }));
-    console.log('Updated selectedServices:', profileData.selectedServices);
   };
 
-  const handleUpdate = async (id, updatedData) => {
-    try {
-      const response = await updateServiceProvider(id, updatedData);
-      console.log('Update successful:', response);
-      // Optionally, show a success message to the user
-      alert('Profile updated successfully!');
-    } catch (error) {
-      console.error('Error updating service provider:', error);
-      // Optionally, show an error message to the user
-      alert('Failed to update profile. Please try again.');
+  const validateForm = () => {
+    const validationErrors = validateProfile(profileData);
+    const additionalErrors = {};
+
+    if (!profileData.nic?.trim()) {
+      additionalErrors.nic = 'NIC is required';
     }
+    if (!profileData.birthCertificate) {
+      additionalErrors.birthCertificate = 'Birth Certificate is required';
+    }
+    if (!profileData.availability) {
+      additionalErrors.availability = 'Availability is required';
+    }
+    if (!profileData.gender) {
+      additionalErrors.gender = 'Gender is required';
+    }
+
+    const allErrors = { ...validationErrors, ...additionalErrors };
+    setErrors(allErrors);
+    return Object.keys(allErrors).length === 0;
   };
 
-  
-const handleSaveProfile = async () => {
-  if (loading) return; // Prevent multiple submissions
-  setLoading(true);
+  const handleSaveProfile = async () => {
+    if (loading) return;
+    setLoading(true);
 
-  const validationErrors = validateProfile(profileData);
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    setLoading(false);
-    return;
-  }
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
 
-  try {
-    const updatedData = {
-      name: profileData.name,
+    try {
+      const updatedData = {
+        name: profileData.name,
         email: profileData.email,
         password: profileData.password,
         serviceType: profileData.serviceType,
@@ -205,80 +159,33 @@ const handleSaveProfile = async () => {
         selectedSubjects: profileData.selectedSubjects || [],
         selectedGrades: profileData.selectedGrades || [],
         selectedAgeGroups: profileData.selectedAgeGroups || [],
-
-    };
-
-    console.log('Updating profile with ID:', id);
-    console.log('Updated data:', updatedData);
-
-    const response = await updateServiceProvider(id, updatedData);
-    console.log('Update response:', response);
-
-    if (response && response.data) {
-      localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
-      navigate('/viewspprofile');
-    } else {
-      throw new Error('Invalid response from server');
-    }
-  } catch (error) {
-    console.error('Error updating profile:', error);
-    alert('Failed to update profile. Please try again.');
-  } finally {
-    setLoading(false); // Reset loading state
-  }
-};
-
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-  
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
-  
-    try {
-      const updatedData = {
-        name: profileData.name,
-        email: profileData.email,
-        password: profileData.password,
-        serviceType: profileData.serviceType, 
-        location: profileData.location,
-        payRate: profileData.payRate,
-        selectedLanguages: profileData.selectedLanguages,
-        about: profileData.about,
-        selectedServices: profileData.selectedServices,
-        policeClearance: profileData.policeClearance, 
-        photo: profileData.photo || 'https://via.placeholder.com/200', 
-        selectedPetTypes: profileData.selectedPetTypes || [],
-        selectedSyllabi: profileData.selectedSyllabi || [],
-        selectedSubjects: profileData.selectedSubjects || [],
-        selectedGrades: profileData.selectedGrades || [],
-        selectedAgeGroups: profileData.selectedAgeGroups || [],
+        userType: 'sp', // Default value as per schema
+        nic: profileData.nic,
+        birthCertificate: profileData.birthCertificate,
+        availability: profileData.availability,
+        gender: profileData.gender,
       };
-  
+
       console.log('Updating profile with ID:', id);
       console.log('Updated data:', updatedData);
-  
-      // Call the update API
-      const response = await updateServiceProvider(id, updatedData);
+
+      const response = await axios.put(`${API_BASE_URL}/update-service-provider/${id}`, updatedData);
       console.log('Update response:', response);
-  
-      // Save the updated data to localStorage
-      localStorage.setItem('serviceProviderProfile', JSON.stringify(updatedData));
-  
-      
-      navigate('/viewspprofile');
-    } catch (err) {
-      setError(`Failed to update profile: ${err.message}`); 
-      console.error('Error:', err.response?.data || err.message); 
+
+      if (response && response.data) {
+        localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
+        navigate('/viewspprofile');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
     } finally {
-      setLoading(false); //loadding state reset
+      setLoading(false);
     }
   };
-  
+
   const getServicesOffered = () => {
     switch (serviceType) {
       case 'PetCare':
@@ -302,74 +209,67 @@ const handleSaveProfile = async () => {
     switch (serviceType) {
       case 'PetCare':
         return (
-          <>
-            {/* Pet Types */}
-            <Grid item xs={12}>
-              <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
-                Pet Types
-              </Typography>
-              {['Dogs', 'Cats', 'Birds', 'Fish'].map((pet) => (
-                <FormControlLabel
-                  key={pet}
-                  control={
-                    <Checkbox
-                      name={pet}
-                      checked={profileData.selectedPetTypes?.includes(pet) || false}
-                      onChange={(e) => {
-                        const { name, checked } = e.target;
-                        setProfileData((prevState) => ({
-                          ...prevState,
-                          selectedPetTypes: checked
-                            ? [...prevState.selectedPetTypes, name]
-                            : prevState.selectedPetTypes.filter((type) => type !== name),
-                        }));
-                      }}
-                      sx={{ color: '#40E0D0' }}
-                    />
-                  }
-                  label={pet}
-                />
-              ))}
-            </Grid>
-          </>
+          <Grid item xs={12}>
+            <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
+              Pet Types
+            </Typography>
+            {['Dogs', 'Cats', 'Birds', 'Fish'].map((pet) => (
+              <FormControlLabel
+                key={pet}
+                control={
+                  <Checkbox
+                    name={pet}
+                    checked={profileData.selectedPetTypes?.includes(pet) || false}
+                    onChange={(e) => {
+                      const { name, checked } = e.target;
+                      setProfileData((prevState) => ({
+                        ...prevState,
+                        selectedPetTypes: checked
+                          ? [...prevState.selectedPetTypes, name]
+                          : prevState.selectedPetTypes.filter((type) => type !== name),
+                      }));
+                    }}
+                    sx={{ color: '#40E0D0' }}
+                  />
+                }
+                label={pet}
+              />
+            ))}
+          </Grid>
         );
       case 'ChildCare':
         return (
-          <>
-            {/* Age Groups */}
-            <Grid item xs={12}>
-              <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
-                Age Groups
-              </Typography>
-              {['Newborn', 'Toddler', 'Pre-school', 'Primary School', 'Teenager (12+ years)'].map((age) => (
-                <FormControlLabel
-                  key={age}
-                  control={
-                    <Checkbox
-                      name={age}
-                      checked={profileData.selectedAgeGroups?.includes(age) || false}
-                      onChange={(e) => {
-                        const { name, checked } = e.target;
-                        setProfileData((prevState) => ({
-                          ...prevState,
-                          selectedAgeGroups: checked
-                            ? [...prevState.selectedAgeGroups, name]
-                            : prevState.selectedAgeGroups.filter((group) => group !== name),
-                        }));
-                      }}
-                      sx={{ color: '#40E0D0' }}
-                    />
-                  }
-                  label={age}
-                />
-              ))}
-            </Grid>
-          </>
+          <Grid item xs={12}>
+            <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
+              Age Groups
+            </Typography>
+            {['Newborn', 'Toddler', 'Pre-school', 'Primary School', 'Teenager (12+ years)'].map((age) => (
+              <FormControlLabel
+                key={age}
+                control={
+                  <Checkbox
+                    name={age}
+                    checked={profileData.selectedAgeGroups?.includes(age) || false}
+                    onChange={(e) => {
+                      const { name, checked } = e.target;
+                      setProfileData((prevState) => ({
+                        ...prevState,
+                        selectedAgeGroups: checked
+                          ? [...prevState.selectedAgeGroups, name]
+                          : prevState.selectedAgeGroups.filter((group) => group !== name),
+                      }));
+                    }}
+                    sx={{ color: '#40E0D0' }}
+                  />
+                }
+                label={age}
+              />
+            ))}
+          </Grid>
         );
       case 'Education':
         return (
           <>
-            {/* Syllabus */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
                 Syllabus
@@ -397,7 +297,6 @@ const handleSaveProfile = async () => {
                 />
               ))}
             </Grid>
-            {/* Subjects */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
                 Subjects
@@ -425,7 +324,6 @@ const handleSaveProfile = async () => {
                 />
               ))}
             </Grid>
-            {/* Grades */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
                 Grades
@@ -465,12 +363,11 @@ const handleSaveProfile = async () => {
   }
 
   return (
-    
     <Container
       maxWidth="md"
       sx={{
         py: 4,
-        backgroundColor: '#FAF9F6', 
+        backgroundColor: '#FAF9F6',
         minHeight: '100vh',
       }}
     >
@@ -500,7 +397,7 @@ const handleSaveProfile = async () => {
                 component="label"
                 startIcon={<CloudUpload />}
                 sx={{
-                  backgroundColor: '#40E0D0', // Turquoise blue
+                  backgroundColor: '#40E0D0',
                   color: 'white',
                   '&:hover': {
                     backgroundColor: '#38CAB8',
@@ -510,9 +407,8 @@ const handleSaveProfile = async () => {
                 Upload Photo
                 <input
                   type="file"
-                  hidden 
+                  hidden
                   accept="image/*"
-                  
                   onChange={handlePhotoChange}
                 />
               </Button>
@@ -520,11 +416,16 @@ const handleSaveProfile = async () => {
                 fullWidth
                 label="Or Enter Image URL"
                 name="photo"
-                value={profileData.photo}
+                value={profileData.photo || ''}
                 onChange={handleChange}
                 sx={{ flex: 1 }}
               />
             </Box>
+            {errors.photo && (
+              <Typography color="error" variant="caption">
+                {errors.photo}
+              </Typography>
+            )}
           </Grid>
 
           {/* Common Fields */}
@@ -537,6 +438,31 @@ const handleSaveProfile = async () => {
               onChange={handleChange}
               error={!!errors.name}
               helperText={errors.name}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={profileData.email || ''}
+              onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="NIC"
+              name="nic"
+              value={profileData.nic || ''}
+              onChange={handleChange}
+              error={!!errors.nic}
+              helperText={errors.nic}
               sx={{ mb: 2 }}
             />
           </Grid>
@@ -564,43 +490,42 @@ const handleSaveProfile = async () => {
               )}
             </FormControl>
           </Grid>
-    
-{/* Pay Rate */}
 
-<Grid item xs={12} sm={6}>
-  <TextField
-    fullWidth
-    label="Min Hourly Rate (RS)"
-    name="payRate[0]"
-    type="number"
-    value={profileData.payRate[0] || 500}
-    onChange={(e) => {
-      const newPayRate = [...profileData.payRate];
-      newPayRate[0] = e.target.value;
-      setProfileData({ ...profileData, payRate: newPayRate });
-    }}
-    error={!!errors.payRate}
-    helperText={errors.payRate}
-    sx={{ mb: 2 }}
-  />
-</Grid>
-<Grid item xs={12} sm={6}>
-  <TextField
-    fullWidth
-    label="Max Hourly Rate (RS)"
-    name="payRate[1]"
-    type="number"
-    value={profileData.payRate[1] || 2000}
-    onChange={(e) => {
-      const newPayRate = [...profileData.payRate];
-      newPayRate[1] = e.target.value;
-      setProfileData({ ...profileData, payRate: newPayRate });
-    }}
-    error={!!errors.payRate}
-    helperText={errors.payRate}
-    sx={{ mb: 2 }}
-  />
-</Grid>
+          {/* Pay Rate */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Min Hourly Rate (RS)"
+              name="payRate[0]"
+              type="number"
+              value={profileData.payRate[0] || 500}
+              onChange={(e) => {
+                const newPayRate = [...profileData.payRate];
+                newPayRate[0] = e.target.value;
+                setProfileData({ ...profileData, payRate: newPayRate });
+              }}
+              error={!!errors.payRate}
+              helperText={errors.payRate}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Max Hourly Rate (RS)"
+              name="payRate[1]"
+              type="number"
+              value={profileData.payRate[1] || 2000}
+              onChange={(e) => {
+                const newPayRate = [...profileData.payRate];
+                newPayRate[1] = e.target.value;
+                setProfileData({ ...profileData, payRate: newPayRate });
+              }}
+              error={!!errors.payRate}
+              helperText={errors.payRate}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
 
           {/* Languages Spoken */}
           <Grid item xs={12}>
@@ -651,43 +576,158 @@ const handleSaveProfile = async () => {
             />
           </Grid>
 
-
-          {/* Services Offered */}
-          {serviceType !== 'Education' && (
+          {/* Police Clearance */}
           <Grid item xs={12}>
-            <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
-              Services Offered
-            </Typography>
-            {getServicesOffered().map((service) => (
-              <FormControlLabel
-                key={service}
-                control={
-                  <Checkbox
-                    name={service}
-                    checked={profileData.selectedServices?.includes(service) || false}
-                    //onChange={handleCheckboxChange}
-                    onChange={(e) => {
-                      const { name, checked } = e.target;
-                      setProfileData((prevState) => ({
-                        ...prevState,
-                        selectedServices: checked
-                          ? [...prevState.selectedServices, name]
-                          : prevState.selectedServices.filter((s) => s !== name),
-                      }));
-                    }}
-                    sx={{ color: '#40E0D0' }}
-                  />
-                }
-                label={service}
+            {policeClearanceFileName && (
+              <Box sx={{ mb: 2 }}>
+                <Chip
+                  label={`Uploaded: ${policeClearanceFileName}`}
+                  onDelete={() => {
+                    setProfileData({ ...profileData, policeClearance: null });
+                    setPoliceClearanceFileName('');
+                  }}
+                  sx={{ backgroundColor: '#40E0D0', color: 'white' }}
+                />
+              </Box>
+            )}
+            <Button
+              variant="contained"
+              component="label"
+              startIcon={<CloudUpload />}
+              sx={{
+                backgroundColor: '#40E0D0',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#38CAB8',
+                },
+              }}
+            >
+              Upload Police Clearance
+              <input
+                type="file"
+                hidden
+                accept=".pdf,.jpg,.png"
+                onChange={handlePoliceClearanceChange}
               />
-            ))}
-            {errors.selectedServices && (
-              <Typography color="error" variant="caption">
-                {errors.selectedServices}
+            </Button>
+            {errors.policeClearance && (
+              <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
+                {errors.policeClearance}
               </Typography>
             )}
           </Grid>
-           )}
+
+          {/* Birth Certificate */}
+          <Grid item xs={12}>
+            {birthCertificateFileName && (
+              <Box sx={{ mb: 2 }}>
+                <Chip
+                  label={`Uploaded: ${birthCertificateFileName}`}
+                  onDelete={() => {
+                    setProfileData({ ...profileData, birthCertificate: null });
+                    setBirthCertificateFileName('');
+                  }}
+                  sx={{ backgroundColor: '#40E0D0', color: 'white' }}
+                />
+              </Box>
+            )}
+            <Button
+              variant="contained"
+              component="label"
+              startIcon={<CloudUpload />}
+              sx={{
+                backgroundColor: '#40E0D0',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#38CAB8',
+                },
+              }}
+            >
+              Upload Birth Certificate
+              <input
+                type="file"
+                hidden
+                accept=".pdf,.jpg,.png"
+                onChange={handleBirthCertificateChange}
+              />
+            </Button>
+            {errors.birthCertificate && (
+              <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
+                {errors.birthCertificate}
+              </Typography>
+            )}
+          </Grid>
+
+          {/* Availability */}
+          <Grid item xs={12}>
+            <FormControl component="fieldset" error={!!errors.availability}>
+              <FormLabel component="legend">Availability *</FormLabel>
+              <RadioGroup
+                row
+                name="availability"
+                value={profileData.availability || ''}
+                onChange={handleChange}
+              >
+                <FormControlLabel value="yes" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Yes" />
+                <FormControlLabel value="no" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="No" />
+              </RadioGroup>
+              {errors.availability && (
+                <Typography color="error" variant="caption">
+                  {errors.availability}
+                </Typography>
+              )}
+            </FormControl>
+          </Grid>
+
+          {/* Gender */}
+          <Grid item xs={12}>
+            <FormControl component="fieldset" error={!!errors.gender}>
+              <FormLabel component="legend">Gender *</FormLabel>
+              <RadioGroup
+                row
+                name="gender"
+                value={profileData.gender || ''}
+                onChange={handleChange}
+              >
+                <FormControlLabel value="male" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Male" />
+                <FormControlLabel value="female" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Female" />
+                <FormControlLabel value="other" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Other" />
+              </RadioGroup>
+              {errors.gender && (
+                <Typography color="error" variant="caption">
+                  {errors.gender}
+                </Typography>
+              )}
+            </FormControl>
+          </Grid>
+
+          {/* Services Offered */}
+          {serviceType !== 'Education' && (
+            <Grid item xs={12}>
+              <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
+                Services Offered
+              </Typography>
+              {getServicesOffered().map((service) => (
+                <FormControlLabel
+                  key={service}
+                  control={
+                    <Checkbox
+                      name={service}
+                      checked={profileData.selectedServices?.includes(service) || false}
+                      onChange={handleCheckboxChange}
+                      sx={{ color: '#40E0D0' }}
+                    />
+                  }
+                  label={service}
+                />
+              ))}
+              {errors.selectedServices && (
+                <Typography color="error" variant="caption">
+                  {errors.selectedServices}
+                </Typography>
+              )}
+            </Grid>
+          )}
 
           {/* Service-Specific Fields */}
           {renderServiceSpecificFields()}
@@ -696,9 +736,10 @@ const handleSaveProfile = async () => {
           <Grid item xs={12}>
             <Button
               variant="contained"
-              color="primary"
               onClick={handleSaveProfile}
-              sx={{backgroundColor: '#40E0D0', // Turquoise blue
+              disabled={loading}
+              sx={{
+                backgroundColor: '#40E0D0',
                 color: 'white',
                 py: 1.5,
                 px: 4,
@@ -707,11 +748,11 @@ const handleSaveProfile = async () => {
                 },
               }}
             >
-              Save Profile
+              {loading ? 'Saving...' : 'Save Profile'}
             </Button>
           </Grid>
         </Grid>
-        </Paper>
+      </Paper>
     </Container>
   );
 };

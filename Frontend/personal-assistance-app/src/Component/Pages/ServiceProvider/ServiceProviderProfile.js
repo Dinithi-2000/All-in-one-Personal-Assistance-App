@@ -9,12 +9,9 @@ import {
   Box,
   Grid,
   Avatar,
+  Link,
 } from '@mui/material';
-import { deleteServiceProvider } from './api';
-
-import { updateServiceProvider } from './api';
-
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, Description } from '@mui/icons-material';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8070/home/serviceProvider'; // Backend base URL
@@ -41,105 +38,117 @@ const ServiceProviderProfile = () => {
       }
     }
   }, []);
+
   if (!profileData) {
     return <div>Loading...</div>; // Show loading state if profileData is not available
   }
 
   const handleEdit = () => {
-    // Pass the `id` and `serviceType` when navigating to the edit page
-    navigate('/editspprofile', { 
-      state: { 
-        serviceType: profileData.serviceType, 
-        id: profileData._id // Ensure this is the correct ID field
-      } 
+    navigate('/editspprofile', {
+      state: {
+        serviceType: profileData.serviceType,
+        id: profileData._id,
+      },
     });
   };
-  
-  /*const handleDelete = async () => {
-    try {
-      await deleteServiceProvider(profileData._id); // Use the _id
-      localStorage.removeItem('serviceProviderProfile');
-      navigate('/deleteaccount');
-    } catch (error) {
-      console.error('Error deleting profile:', error);
-      alert('Failed to delete profile. Please try again.');
-    }
-  };*/
-  // In ServiceProviderProfile.js
-const handleDelete = () => {
-  navigate('/deleteaccount', { state: { profileData } });
-};
 
-  
-  
+  const handleDelete = () => {
+    navigate('/deleteaccount', { state: { profileData } });
+  };
+
   return (
-    <Container maxWidth="md" 
-    sx={{ py: 4 ,
-       backgroundColor: '#FAF9F6', // Soft off-white background
-      minHeight: '100vh',
+    <Container
+      maxWidth="md"
+      sx={{
+        py: 4,
+        backgroundColor: '#FAF9F6', // Soft off-white background
+        minHeight: '100vh',
       }}
-      >
-      <Paper elevation={3} 
-      sx={{ p: 4,
-         borderRadius: 3 ,
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          borderRadius: 3,
           backgroundColor: 'white',
-          }}>
-            {/* Header Section */}
+        }}
+      >
+        {/* Header Section */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <Typography variant="h4" sx={{ color: '#001F3F', fontWeight: 'bold' }}>
+          <Typography variant="h4" sx={{ color: '#001F3F', fontWeight: 'bold' }}>
             {profileData.serviceType || 'Service Provider Profile'}
           </Typography>
           <Box>
-          <Button variant="contained" startIcon={<Edit />} onClick={handleEdit}
-        sx={{
-          backgroundColor: '#40E0D0', // Turquoise blue
-          color: 'white',
-          mr: 2,
-          '&:hover': {
-            backgroundColor: '#38CAB8',
-          },
-        }}
-        >
-          
-        
-  Edit Profile
-</Button>
-          <Button variant="contained" startIcon={<Delete />} color="error" onClick={handleDelete}
-          sx={{
-            backgroundColor: '#FF7F50', // Coral
-            color: 'white',
-            '&:hover': {
-              backgroundColor: '#FF6347',
-            },
-          }}
-          >
-            Delete Profile
-          </Button>
-        </Box>
+            <Button
+              variant="contained"
+              startIcon={<Edit />}
+              onClick={handleEdit}
+              sx={{
+                backgroundColor: '#40E0D0', // Turquoise blue
+                color: 'white',
+                mr: 2,
+                '&:hover': {
+                  backgroundColor: '#38CAB8',
+                },
+              }}
+            >
+              Edit Profile
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Delete />}
+              color="error"
+              onClick={handleDelete}
+              sx={{
+                backgroundColor: '#FF7F50', // Coral
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#FF6347',
+                },
+              }}
+            >
+              Delete Profile
+            </Button>
+          </Box>
         </Box>
 
         <Grid container spacing={4}>
           {/* Profile Photo and Basic Info */}
           <Grid item xs={12} md={4}>
-          <Avatar
+            <Avatar
               src={profileData.photo}
               alt="Profile Photo"
               sx={{ width: 150, height: 150, mb: 2 }}
             />
-            <Typography variant="h5" sx={{ color: '#001F3F', fontWeight: 'bold' }} //gutterBottom
-            >
+            <Typography variant="h5" sx={{ color: '#001F3F', fontWeight: 'bold' }}>
               {profileData.name || 'No Name Provided'}
             </Typography>
-            <Typography variant="subtitle1" sx={{ color: '#001F3F' }} //color="textSecondary"
-            >
+            <Typography variant="subtitle1" sx={{ color: '#001F3F' }}>
               📍 {profileData.location || 'No Location Provided'} | {profileData.serviceType || 'No Service Type Provided'}
             </Typography>
+            <Typography variant="body1" sx={{ color: '#001F3F', mt: 1 }}>
+              <strong>NIC:</strong> {profileData.nic || 'Not Provided'}
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#001F3F', mt: 1 }}>
+              <strong>Availability:</strong> {profileData.availability || 'Not Provided'}
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#001F3F', mt: 1 }}>
+              <strong>Gender:</strong> {profileData.gender || 'Not Provided'}
+            </Typography>
+            {profileData.birthCertificate && (
+              <Box sx={{ mt: 1 }}>
+                <Link href={profileData.birthCertificate} target="_blank" sx={{ color: '#40E0D0' }}>
+                  <Description sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                  View Birth Certificate
+                </Link>
+              </Box>
+            )}
           </Grid>
 
           <Grid item xs={12} md={8}>
-             {/* About Me Section */}
-             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6"  sx={{color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
+            {/* About Me Section */}
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
                 About Me
               </Typography>
               <Typography variant="body1" sx={{ color: '#001F3F' }}>
@@ -149,11 +158,12 @@ const handleDelete = () => {
 
             {/* Pay Rate Section */}
             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom sx={{color: '#001F3F', fontWeight: 'bold', mb: 2  }}>
+              <Typography variant="h6" gutterBottom sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
                 Hourly Rate Range
               </Typography>
-              <Chip label={`Rs. ${profileData.payRate[0]} - Rs. ${profileData.payRate[1]}`} 
-              sx={{ backgroundColor: '#40E0D0', color: 'white' }}
+              <Chip
+                label={`Rs. ${profileData.payRate[0]} - Rs. ${profileData.payRate[1]}`}
+                sx={{ backgroundColor: '#40E0D0', color: 'white' }}
               />
             </Box>
 
@@ -164,10 +174,10 @@ const handleDelete = () => {
                   Languages Spoken
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {profileData.selectedLanguages.map((lang) => (
-                  <Chip key={lang} label={lang} sx={{ backgroundColor: '#40E0D0', color: 'white' }} />
-                ))}
-              </Box>
+                  {profileData.selectedLanguages.map((lang) => (
+                    <Chip key={lang} label={lang} sx={{ backgroundColor: '#40E0D0', color: 'white' }} />
+                  ))}
+                </Box>
               </Box>
             )}
 
@@ -188,14 +198,14 @@ const handleDelete = () => {
             {/* Pet Types */}
             {profileData.selectedPetTypes?.length > 0 && (
               <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" gutterBottom sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2}}>
+                <Typography variant="h6" gutterBottom sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
                   Pet Types
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {profileData.selectedPetTypes.map((pet) => (
-                  <Chip key={pet} label={pet} sx={{backgroundColor: '#40E0D0', color: 'white'  }} />
-                ))}
-              </Box>
+                  {profileData.selectedPetTypes.map((pet) => (
+                    <Chip key={pet} label={pet} sx={{ backgroundColor: '#40E0D0', color: 'white' }} />
+                  ))}
+                </Box>
               </Box>
             )}
 
@@ -220,24 +230,24 @@ const handleDelete = () => {
                   Subjects
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {profileData.selectedSubjects.map((subject) => (
-                  <Chip key={subject} label={subject} sx={{backgroundColor: '#FF7F50', color: 'white'}} />
-                ))}
-              </Box>
+                  {profileData.selectedSubjects.map((subject) => (
+                    <Chip key={subject} label={subject} sx={{ backgroundColor: '#FF7F50', color: 'white' }} />
+                  ))}
+                </Box>
               </Box>
             )}
 
             {/* Grades */}
             {profileData.selectedGrades?.length > 0 && (
               <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{color: '#001F3F', fontWeight: 'bold', mb: 2}}>
+                <Typography variant="h6" sx={{ color: '#001F3F', fontWeight: 'bold', mb: 2 }}>
                   Grades
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {profileData.selectedGrades.map((grade) => (
-                  <Chip key={grade} label={grade} sx={{backgroundColor: '#40E0D0', color: 'white'}} />
-                ))}
-              </Box>
+                  {profileData.selectedGrades.map((grade) => (
+                    <Chip key={grade} label={grade} sx={{ backgroundColor: '#40E0D0', color: 'white' }} />
+                  ))}
+                </Box>
               </Box>
             )}
 
@@ -248,10 +258,10 @@ const handleDelete = () => {
                   Age Groups
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {profileData.selectedAgeGroups.map((age) => (
-                  <Chip key={age} label={age} sx={{ backgroundColor: '#FF7F50', color: 'white'  }} />
-                ))}
-              </Box>
+                  {profileData.selectedAgeGroups.map((age) => (
+                    <Chip key={age} label={age} sx={{ backgroundColor: '#FF7F50', color: 'white' }} />
+                  ))}
+                </Box>
               </Box>
             )}
           </Grid>

@@ -21,6 +21,10 @@ export const createServiceProvider = async (req, res) => {
       selectedSubjects,
       selectedGrades,
       selectedAgeGroups,
+      nic,
+      birthCertificate,
+      availability,
+      gender,
     } = req.body;
 
     // Validate required fields
@@ -35,7 +39,11 @@ export const createServiceProvider = async (req, res) => {
       !about ||
       !selectedServices ||
       !policeClearance ||
-      !photo
+      !photo ||
+      !nic ||
+      !birthCertificate ||
+      !availability ||
+      !gender
     ) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -57,6 +65,11 @@ export const createServiceProvider = async (req, res) => {
       selectedSubjects: selectedSubjects || [],
       selectedGrades: selectedGrades || [],
       selectedAgeGroups: selectedAgeGroups || [],
+      userType: 'sp', // Default value as per schema
+      nic,
+      birthCertificate,
+      availability,
+      gender,
     });
 
     await newServiceProvider.save();
