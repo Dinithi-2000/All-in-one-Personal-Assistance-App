@@ -42,7 +42,7 @@ import EducationService from '../Component/Pages/ServiceProvider/EducationServic
 
 import ServiceProviderProfile from '../Component/Pages/ServiceProvider/ServiceProviderProfile';
 import EditServiceProviderProfile from '../Component/Pages/ServiceProvider/ServiceProviderProfileEdit';
-
+import ServiceProviderHome from '../Component/Pages/ServiceProvider/HomePageApp';
 
 
 // You'll need to create this
@@ -90,6 +90,7 @@ export default function AppRoutes({
 
     <Route path='/viewspprofile' element={<ServiceProviderProfile/>}/>
     <Route path='/editspprofile' element={<EditServiceProviderProfile/>}/>
+    <Route path='/spdashboard' element={<ServiceProviderHome/>}/>
         </Route>
       </Route>
 

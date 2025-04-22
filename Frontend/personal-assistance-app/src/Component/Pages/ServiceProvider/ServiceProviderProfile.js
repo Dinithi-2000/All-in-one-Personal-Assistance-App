@@ -17,7 +17,7 @@ import { updateServiceProvider } from './api';
 import { Edit, Delete } from '@mui/icons-material';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3803/api'; // Backend base URL
+const API_BASE_URL = 'http://localhost:8070/home/serviceProvider'; // Backend base URL
 
 const ServiceProviderProfile = () => {
   const navigate = useNavigate();
