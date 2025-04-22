@@ -68,7 +68,7 @@ const NavBar = ({ handleLogout }) => {
 
           <div className="hidden md:flex items-center space-x-4">
             <Link
-              to="/createaccount"
+              to="/serviceselections"
               className="py-2 px-4 bg-teal-500 text-white font-semibold rounded-md hover:bg-teal-600 transition duration-300 no-underline whitespace-nowrap"
             >
               Become A Service Provider

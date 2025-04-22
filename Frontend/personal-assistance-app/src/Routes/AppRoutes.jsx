@@ -77,7 +77,7 @@ export default function AppRoutes({
           <Route path="/my-bookings" element={<MyBookings />} />
 
           <Route path='/createaccount' element={<CreateAccount/>}/>
-    <Route path='/serviceselection1' element={<ServiceSelection1/>}/>
+    <Route path='/serviceselections' element={<ServiceSelection1/>}/>
     <Route path='/spdashboard' element={<ServiceProviderDashboard />} />
     
     <Route path='/deleteaccount' element={<DeleteAccount/>}/>
