@@ -12,8 +12,13 @@ const usePaymentFormValidation = () => {
         if (paymentType === 'visa' || paymentType === 'master') {
             if (!cardCredentials.cardHolderName || cardCredentials.cardHolderName === "") {
                 tempError.cardHolderName = "card Holder name required";
+
+                if (!/^[A-Za-z\s-]+$/.test(cardCredentials.cardHolderName)) {
+                    tempError.cardHolderName = "Invalid Character in Name"
+                }
             }
-           //card number validation
+
+            //card number validation
             if (!cardCredentials.cardNumber) {
                 tempError.cardNumber = "card Number required";
                 if (String(cardCredentials.cardNumber).replace(/\s/g, "").length !== 16) {
