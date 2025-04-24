@@ -6,7 +6,7 @@ import UserModel from '../models/UserModel.js';
 
 const router = express.Router();
 
-// MARK: User Profile Details
+// Get user details
 router.get(
     '/',
     expressAsyncHandler(async (req, res) => {
@@ -25,6 +25,34 @@ router.get(
         return res.status(500).send({ message: error.message });
       }
     }),
-  );
+);
 
-  export default router;
+// Update user details
+router.patch(
+  '/update-profile',expressAsyncHandler(async (req, res) => {
+    const { firstName, lastName, mobile, birthDay, gender,about } = req.body;
+
+    try {
+    
+      await UserModel.updateOne(
+        { _id: req.user.id },
+        {
+          $set: {
+            firstName,
+            lastName,
+            mobile,
+            birthDay,
+            gender,
+            about,
+          },
+        },
+      );
+  
+      return res.status(200).send({ message: 'User details updated.' });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
+export default router;
