@@ -1,8 +1,60 @@
 import asyncHandler from "express-async-handler"
 import { prisma } from "../config/prismaConfig.js"
 import { ObjectId } from "mongodb";
+import crypto from "crypto";
+
 
 const PAYHERE_CHECKOUT_URL = 'https://sandbox.payhere.lk/pay/checkout';
+
+const handlePayhereNotification = asyncHandler(async (req, res) => {
+    const { order_id, paymentID, status_code, md5sig } = req.body
+
+
+    const merchant_secret = process.env.PAYHERE_SECRET_KEY;
+
+
+    // First hash the merchant secret
+    const hashedSecret = crypto
+        .createHash("md5")
+        .update(merchant_secret)
+        .digest("hex")
+        .toUpperCase();
+
+
+    const localMd5sig = crypto
+        .createHash('md5')
+        .update(merchant_secret + order_id + paymentID + status_code + hashedSecret)
+        .digest('hex')
+        .toUpperCase();
+
+    if (md5sig !== localMd5sig) {
+        return res.status(400).send("Invalid Signature");
+    }
+
+    try {
+        const payment = await prisma.payment.update({
+            where: {
+                booking: {
+                    BookingID: order_id
+                }
+            },
+            data: {
+                Status: status_code === "2" ? "COMPLETED" : "FAILED",
+                paymentID: paymentID,
+                paymentData: new Date()
+            }
+        });
+
+        res.status(200).send("Payment Status Updated");
+    } catch (error) {
+        console.error("Error updating payment status:", error);
+        res.status(500).send("Error updating payment status");
+    }
+
+});
+
+
+
 //create paymente
 const createPayment = asyncHandler(async (req, res) => {
     console.log("Create Payment");
@@ -61,24 +113,29 @@ const createPayment = asyncHandler(async (req, res) => {
 
         // Initialize PayHere payment
         const paymentData = {
-             merchant_id: process.env.PAYHERE_MERCHANT_ID,
-            merchant_secret: process.env.PAYHERE_SECRET_KEY,
-            return_url: 'http://your-frontend-url.com/payment-success', // Redirect after payment
-            cancel_url: 'http://your-frontend-url.com/payment-cancel', // Redirect if payment is canceled
+            merchant_id: process.env.PAYHERE_MERCHANT_ID,
+            return_url: 'http://localhost:3000/payment', // Redirect after payment
+            cancel_url: 'http://localhost:3000/MakePayment', // Redirect if payment is canceled
             notify_url: 'http://localhost:8070/api/payment-notify', // Webhook for payment notifications
-            order_id: order_id,
-            items: Item,
-            amount: Amount,
+            order_id: order_id.toString,
+            items: Item.toString,
+            amount: Amount.toString,
             currency: Currency,
+            first_name: 'Dini',
+            last_name: 'Gamage',
+            email: 'sdinithi7@gmail.com',
+            phone: '0711490271',
+            country: 'Sri Lanka'
 
 
         };
 
         // Redirect user to PayHere checkout page
+        const queryString = new URLSearchParams(paymentData).toString();
         res.send({
             message: "Your Pending Payment create Successfully",
             payment: payment,
-            checkout_url: `${PAYHERE_CHECKOUT_URL}?${new URLSearchParams(paymentData).toString()}`,
+            checkout_url: `${PAYHERE_CHECKOUT_URL}?${queryString}`,
         });
 
 
@@ -373,4 +430,4 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
         });
     }
 })
-export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary, retrieveBookingDetails };
+export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary, retrieveBookingDetails, handlePayhereNotification };
