@@ -3,6 +3,8 @@ import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import speakeasy from 'speakeasy';
 import { generateToken } from '../utils.js';
+
+//import models
 import UserModel from '../models/UserModel.js';
 
 

@@ -37,10 +37,7 @@ mongoose
   .catch(err => {
     console.log(`connection error 💩: ${err}`);
   });
-//start server
-app.listen(PORT, () => {
-    console.log(`server start and running ${PORT}`);
-})
+
 
 app.use('/api',routes);
 
