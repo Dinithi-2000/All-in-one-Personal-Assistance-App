@@ -112,6 +112,7 @@ export default function PaymentForm({
             cardHolderName: cardCredentials.cardHolderName,
           },
         );
+
         setAlert({ type: "success", message: "Payment successful!" });
 
         //redirect to dashboard
@@ -119,9 +120,12 @@ export default function PaymentForm({
           navigate("/payment");
         }, 2000);
       }
+      const data = response.data;
 
-      //redirect to payhere checkout page
-      window.location.href = response.data.checkout_url;
+      if (data.session && data.session.url) {
+        console.log("url accessed");
+        window.location.href = data.session.url;
+      }
     } catch (error) {
       setAlert({
         type: "error",
