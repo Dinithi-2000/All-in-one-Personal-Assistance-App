@@ -1,9 +1,7 @@
 import asyncHandler from "express-async-handler"
 import { prisma } from "../config/prismaConfig.js"
 import { ObjectId } from "mongodb";
-import crypto from "crypto";
 import Stripe from "stripe";
-
 
 //create paymente
 const createPayment = asyncHandler(async (req, res) => {
@@ -39,7 +37,6 @@ const createPayment = asyncHandler(async (req, res) => {
         }
 
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             mode: 'payment',
@@ -64,7 +61,6 @@ const createPayment = asyncHandler(async (req, res) => {
         })
 
 
-
         //create payment
         const payment = await prisma.payment.create({
 
@@ -84,7 +80,7 @@ const createPayment = asyncHandler(async (req, res) => {
 
 
         });
-        const monthlyPayment = parseFloat(bookingExists.MonthlyPayment)
+        const monthlyPayment = parseFloat(bookingExists.MonthlyPayment);
         res.status(200).json({ message: 'Successfully Paid', session })
 
     } catch (error) {
