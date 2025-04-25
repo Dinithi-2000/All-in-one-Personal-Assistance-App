@@ -25,7 +25,8 @@ import ProviderPage from "../Component/Pages/Admindashboard/ProviderPage";
 import RefundPage from "../Component/Pages/Admindashboard/RefundPage";
 import Settings from "../Component/Pages/Admindashboard/Settings";
 import Users from "../Component/Pages/Admindashboard/Users";
-
+import PaymentSuccess from "../Component/UI/PaymenSuccess";
+import PaymentCancel from "../Component/UI/PaymentCancel";
 
 // You'll need to create this
 
@@ -36,7 +37,6 @@ export default function AppRoutes({
   handleLogin,
 }) {
   return (
-    
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Layout />}>
@@ -54,17 +54,17 @@ export default function AppRoutes({
             <Route path="PaymentOption" element={<PaymentMethod />} />
             <Route path="PaymentHistory" element={<PaymentHistory />} />
             <Route path="RefundHistory" element={<RefundHistory />} />
+            <Route path="payment_Success" element={<PaymentSuccess />} />
+            <Route path="payment_Cancel" element={<PaymentCancel />} />
           </Route>
           <Route path="/serviceselection" element={<ServiceSelection />} />
           <Route path="/my-bookings" element={<MyBookings />} />
-          
         </Route>
       </Route>
 
-
       {/* Admin Route */}
-     
-<Route
+
+      <Route
         path="/admin"
         element={
           <AdminRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin} />
@@ -80,7 +80,8 @@ export default function AppRoutes({
           <Route path="salary" element={<SalaryCalculation />} />
           <Route path="refund" element={<RefundPage />} />
           <Route path="setting" element={<Settings />} />
-          <Route path="bookings" element={<AdminBookings />} /> {/* New route */}
+          <Route path="bookings" element={<AdminBookings />} />{" "}
+          {/* New route */}
         </Route>
       </Route>
 

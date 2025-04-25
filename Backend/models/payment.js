@@ -2,57 +2,7 @@ import asyncHandler from "express-async-handler"
 import { prisma } from "../config/prismaConfig.js"
 import { ObjectId } from "mongodb";
 import crypto from "crypto";
-
-
-const PAYHERE_CHECKOUT_URL = 'https://sandbox.payhere.lk/pay/checkout';
-
-const handlePayhereNotification = asyncHandler(async (req, res) => {
-    const { order_id, paymentID, status_code, md5sig } = req.body
-
-
-    const merchant_secret = process.env.PAYHERE_SECRET_KEY;
-
-
-    // First hash the merchant secret
-    const hashedSecret = crypto
-        .createHash("md5")
-        .update(merchant_secret)
-        .digest("hex")
-        .toUpperCase();
-
-
-    const localMd5sig = crypto
-        .createHash('md5')
-        .update(merchant_secret + order_id + paymentID + status_code + hashedSecret)
-        .digest('hex')
-        .toUpperCase();
-
-    if (md5sig !== localMd5sig) {
-        return res.status(400).send("Invalid Signature");
-    }
-
-    try {
-        const payment = await prisma.payment.update({
-            where: {
-                booking: {
-                    BookingID: order_id
-                }
-            },
-            data: {
-                Status: status_code === "2" ? "COMPLETED" : "FAILED",
-                paymentID: paymentID,
-                paymentData: new Date()
-            }
-        });
-
-        res.status(200).send("Payment Status Updated");
-    } catch (error) {
-        console.error("Error updating payment status:", error);
-        res.status(500).send("Error updating payment status");
-    }
-
-});
-
+import Stripe from "stripe";
 
 
 //create paymente
@@ -88,6 +38,32 @@ const createPayment = asyncHandler(async (req, res) => {
             throw new Error("Invalid Booking ID");
         }
 
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            success_url: `${process.env.CLIENT_SITE_URL}payment/paymentSuccess`,
+            cancel_url: `${process.env.CLIENT_SITE_URL}payment/paymentCancel`,
+            customer_email: 'sdinithi7@gmail.com',
+            client_reference_id: BookingId,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        unit_amount: Amount * 100,
+                        product_data: {
+                            name: 'Booking Payment'
+                        },
+
+                    },
+                    quantity: 1,
+                },
+            ],
+
+        })
+
+
 
         //create payment
         const payment = await prisma.payment.create({
@@ -108,38 +84,8 @@ const createPayment = asyncHandler(async (req, res) => {
 
 
         });
-        const monthlyPayment = parseFloat(bookingExists.MonthlyPayment);
-
-
-        // Initialize PayHere payment
-        const paymentData = {
-            merchant_id: process.env.PAYHERE_MERCHANT_ID,
-            return_url: 'http://localhost:3000/payment', // Redirect after payment
-            cancel_url: 'http://localhost:3000/MakePayment', // Redirect if payment is canceled
-            notify_url: 'http://localhost:8070/api/payment-notify', // Webhook for payment notifications
-            order_id: order_id.toString,
-            items: Item.toString,
-            amount: Amount.toString,
-            currency: Currency,
-            first_name: 'Dini',
-            last_name: 'Gamage',
-            email: 'sdinithi7@gmail.com',
-            phone: '0711490271',
-            country: 'Sri Lanka'
-
-
-        };
-
-        // Redirect user to PayHere checkout page
-        const queryString = new URLSearchParams(paymentData).toString();
-        res.send({
-            message: "Your Pending Payment create Successfully",
-            payment: payment,
-            checkout_url: `${PAYHERE_CHECKOUT_URL}?${queryString}`,
-        });
-
-
-
+        const monthlyPayment = parseFloat(bookingExists.MonthlyPayment)
+        res.status(200).json({ message: 'Successfully Paid', session })
 
     } catch (error) {
         console.error('Error initializing payment:', error);
@@ -430,4 +376,4 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
         });
     }
 })
-export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary, retrieveBookingDetails, handlePayhereNotification };
+export { createPayment, retrievAllPayments, filterPaymentHistory, retriveServiceCategory, retrieveSelectedProvider, makeProviderSalary, retrieveBookingDetails };
