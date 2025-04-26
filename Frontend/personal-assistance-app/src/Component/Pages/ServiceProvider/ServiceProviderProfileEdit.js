@@ -170,21 +170,22 @@ const EditServiceProviderProfile = () => {
       console.log('Updated data:', updatedData);
 
       const response = await axios.put(`${API_BASE_URL}/update-service-provider/${id}`, updatedData);
-      console.log('Update response:', response);
+    console.log('Update response:', response);
 
-      if (response && response.data) {
-        localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
-        navigate('/viewspprofile');
-      } else {
-        throw new Error('Invalid response from server');
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
-    } finally {
-      setLoading(false);
+    if (response && response.data) {
+      // Store the actual service provider data, not the wrapped response
+      localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data.data));
+      navigate('/viewspprofile');
+    } else {
+      throw new Error('Invalid response from server');
     }
-  };
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    alert('Failed to update profile. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getServicesOffered = () => {
     switch (serviceType) {
