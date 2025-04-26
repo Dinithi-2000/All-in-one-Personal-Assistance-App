@@ -4,6 +4,8 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 export default function PaymentHistory() {
   const [payments, setPayments] = useState([]);
@@ -29,6 +31,47 @@ export default function PaymentHistory() {
     };
     getHistory();
   }, []);
+
+  const generatePDF = (payment) => {
+    const doc = new jsPDF();
+
+    //title
+    doc.setFontSize(20);
+    doc.text("SereniLux ", 105, 20, { align: "center" });
+
+    doc.setFontSize(18);
+    doc.text("Payment Slip", 105, 28, { align: "center" });
+
+    //details
+    doc.setFontSize(12);
+    doc.text(`Recipt ID: ${payment.paymentID}`, 14, 45);
+    doc.text(
+      `Date: ${new Date(payment.PaymentDate).toLocaleDateString()}`,
+      14,
+      53,
+    );
+    doc.text(`Booking Id :${payment.bookingDetails?.bookingID}`, 14, 61);
+    doc.text(
+      `Service Provider :${payment.bookingDetails?.providerName}`,
+      14,
+      69,
+    );
+    doc.text(
+      `Agreement Duration :${payment.bookingDetails?.agreemetnDuration}`,
+      14,
+      76,
+    );
+    doc.text(`PaymentMethod :${payment.paymentMethodName}`, 14, 84);
+    doc.text(`Service :${payment.bookingDetails?.Booking_Service}`, 14, 92);
+    doc.text(`Status :${payment.Status}`, 14, 100);
+
+    doc.line(14, 120, 196, 120);
+
+    doc.setFontSize(10);
+    doc.text("Thank you for your payment!", 105, 128, { align: "center" });
+
+    doc.save(`payment_recipt_${payment.paymentID}.pdf`);
+  };
 
   //handling Function
   const handleDates = () => {
@@ -93,7 +136,7 @@ export default function PaymentHistory() {
     }
   };
   return (
-    <div className="container m-6 mx-auto p-4 mt-[0] text-center">
+    <div className="container m-7 mx-auto p-4 mt-[0] text-center">
       <h2 className="text-2xl font-bold mb-4 text-white">Payment History</h2>
       <div
         className="flex gap-4 mb-6 items-end justify-center justify-items-center
@@ -193,7 +236,12 @@ export default function PaymentHistory() {
                     </button>
                     <br />
                     <br />
-                    <button className="btn btn-sm btn-primary">Slip</button>
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => generatePDF(pay)}
+                    >
+                      Slip
+                    </button>
                   </td>
                 </tr>
               ))
