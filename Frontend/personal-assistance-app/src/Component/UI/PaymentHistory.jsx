@@ -191,6 +191,9 @@ export default function PaymentHistory() {
                         ? "Refund Requested"
                         : "Refund Request"}
                     </button>
+                    <br />
+                    <br />
+                    <button className="btn btn-sm btn-primary">Slip</button>
                   </td>
                 </tr>
               ))

@@ -9,7 +9,7 @@ import { savedPaymentRouter } from "./routes/savedPaymentRoute.js"
 import { financialActivityRoute } from "./routes/financialActivity.js"
 import { PaymentGatewayRoute } from "./routes/PaymentGatewayRoute.js"
 import { bookingRouter } from "./routes/bookingRoutes.js";
-
+import { schedulePaymentComplete } from "./services/paymentschedule.js"
 
 
 
@@ -46,6 +46,8 @@ app.listen(PORT, () => {
     console.log(`server start and running ${PORT}`);
 })
 
+
+
 app.use("/home/payment", paymentRoute)
 app.use("/home/Refund", RefundRouter)
 app.use("/api", PaymentGatewayRoute)
@@ -53,3 +55,4 @@ app.use("/home/payment/savedPayment", savedPaymentRouter)
 app.use("/adminDashBoard/Financial", financialActivityRoute)
 app.use("/home/booking", bookingRouter);
 
+schedulePaymentComplete();
