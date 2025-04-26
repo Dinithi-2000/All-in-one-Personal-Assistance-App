@@ -1,5 +1,5 @@
 import asyncHandler from "express-async-handler"
-import { prisma } from "../config/prismaConfig.js"
+import { prisma } from "../../config/prismaConfig.js"
 
 //Add expenses
 export const addExpenses = asyncHandler(async (req, res) => {

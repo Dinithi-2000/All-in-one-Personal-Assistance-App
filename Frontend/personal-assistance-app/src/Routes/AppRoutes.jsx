@@ -54,8 +54,8 @@ export default function AppRoutes({
             <Route path="PaymentOption" element={<PaymentMethod />} />
             <Route path="PaymentHistory" element={<PaymentHistory />} />
             <Route path="RefundHistory" element={<RefundHistory />} />
-            <Route path="payment_Success" element={<PaymentSuccess />} />
-            <Route path="payment_Cancel" element={<PaymentCancel />} />
+            <Route path="paymentSuccess" element={<PaymentSuccess />} />
+            <Route path="paymentCancel" element={<PaymentCancel />} />
           </Route>
           <Route path="/serviceselection" element={<ServiceSelection />} />
           <Route path="/my-bookings" element={<MyBookings />} />
