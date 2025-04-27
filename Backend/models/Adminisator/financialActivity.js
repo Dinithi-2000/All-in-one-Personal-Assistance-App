@@ -4,12 +4,13 @@ import { prisma } from "../../config/prismaConfig.js"
 //Add expenses
 export const addExpenses = asyncHandler(async (req, res) => {
 
-    const { Expense, Amount } = req.body;
+    const { date, expense, amount } = req.body;
     try {
         const addDetails = await prisma.expenses.create({
             data: {
-                Expense: Expense,
-                Amount: Amount,
+                Date: new Date(date),
+                Expense: expense,
+                Amount: parseFloat(amount),
             }
 
         })
@@ -17,6 +18,27 @@ export const addExpenses = asyncHandler(async (req, res) => {
     } catch (error) {
         console.error("prossesing Error");
         res.status(500).json({ message: "Error occured when processing expenses." });
+    }
+})
+
+//update expenses
+export const updateExpense = asyncHandler(async (req, res) => {
+    try {
+        const { id, date, expence, amount } = req.body;
+        console.log(req.body);
+
+        const updateDetail = await prisma.expenses.update({
+            where: {
+                id: id
+            },
+            data: {
+                Date: new Date(date),
+                Expense: expence,
+                Amount: parseFloat(amount),
+            }
+        })
+    } catch (error) {
+        console.log("Processing error");
     }
 })
 
@@ -32,6 +54,51 @@ export const retrieveExpenses = asyncHandler(async (req, res) => {
         res.status(500).json({ message: "retrieve expence occured error" });
     }
 
+})
+
+export const retrieveTotatlExpense = asyncHandler(async (req, res) => {
+
+    try {
+
+        const monthlyExpense = await prisma.expenses.findMany();
+
+        const monthlyTotls = {};
+
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        //retrieve current data
+        const currentDate = new Date();
+        const currentMonthIndex = currentDate.getMonth();
+
+        monthlyExpense.forEach(expenses => {
+            const date = new Date(expenses.Date);
+            console.log(date);
+            const monthIndex = date.getMonth();
+
+            if (monthIndex <= currentMonthIndex) {
+                const monthName = months[monthIndex];
+
+                if (!monthlyTotls[monthName]) {
+                    monthlyTotls[monthName] = 0;
+                }
+
+                monthlyTotls[monthName] += expenses.Amount;
+            }
+        });
+
+        const result = months.slice(0, currentMonthIndex + 1)
+            .map(mon => {
+                const total = monthlyTotls[mon] || 0;
+                return { month: mon, expense: total };
+            });
+
+
+        res.send({ monthlyExpense: result });
+
+
+    } catch (error) {
+        res.status(500).json({ message: "Retrieve monthly expenses error" });
+    }
 })
 //reove expenses
 export const deleteExpenses = asyncHandler(async (req, res) => {

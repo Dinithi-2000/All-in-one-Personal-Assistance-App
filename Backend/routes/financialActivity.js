@@ -1,5 +1,5 @@
 import express from 'express'
-import { addExpenses, retrieveExpenses, deleteExpenses, addProfitLoss } from '../models/Adminisator/financialActivity.js';
+import { addExpenses, retrieveExpenses, deleteExpenses, addProfitLoss, retrieveTotatlExpense, updateExpense } from '../models/Adminisator/financialActivity.js';
 import { totalBooking, totalServices, totaProviders, totatlUsers } from '../models/Adminisator/overview.js';
 
 
@@ -11,6 +11,11 @@ router.post("/AddNewExpence", addExpenses);
 //retrieve
 router.get("/getExpences", retrieveExpenses)
 
+//retrieve expense by month
+router.get("/expensesMonth", retrieveTotatlExpense)
+
+//update
+router.post("/updateExpense", updateExpense)
 //delete esxpences
 router.delete("/deleteExpneces/:id", deleteExpenses)
 

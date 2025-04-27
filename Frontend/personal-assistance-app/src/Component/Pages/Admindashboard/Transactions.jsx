@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../UI/AdminDashboard/Common/Header";
 import ExpenseChart from "../../UI/AdminDashboard/ExpensesHandle/ExpenseChart";
 import ExpensesList from "../../UI/AdminDashboard/ExpensesHandle/ExpensesList";
 import AddExpenses from "../../UI/AdminDashboard/ExpensesHandle/AddExpenses";
+import axios from "axios";
 
 export default function Transactions() {
   const [showForm, setShowForm] = useState(false);
