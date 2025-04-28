@@ -6,6 +6,15 @@ import ProtectedRoute from "./Routes/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Profile from "pages/Profile";
+import ServicePage from './pages/Services'
+import ServiceSelection from "./Component/ServiceProvider/ServiceSelection";
+import HouseCleaningService from "Component/ServiceProvider/HouseCleaningService";
+import KitchenServiceSelection from "Component/ServiceProvider/KitchenServiceSelection";
+import ChildCareService from "Component/ServiceProvider/ChildCareServiceSelection";
+import ElderCareService from "Component/ServiceProvider/ElderCareServiceSelection";
+import PetCareService from "Component/ServiceProvider/PetCareServiceSelection";
+import EducationService from "Component/ServiceProvider/EducationServiceSelection";
+
 
 function AuthRedirector() {
   const [loading, setLoading] = useState(true);
@@ -43,6 +52,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* <Route path="/service-selections" element={<ServiceSelection />} /> */}
         <Route path="/" element={<AuthRedirector />} />
         <Route path="/signin" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -59,6 +69,70 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/services"
+          element={
+            <ProtectedRoute>
+              <ServicePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/service-selections"
+          element={
+            <ProtectedRoute>
+              <ServiceSelection />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/housec-selection"
+          element={
+            <ProtectedRoute>
+              <HouseCleaningService />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/kitchens-selection"
+          element={
+            <ProtectedRoute>
+              <KitchenServiceSelection />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/childcares-selection"
+          element={
+            <ProtectedRoute>
+              <ChildCareService />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/elderc-selection"
+          element={
+            <ProtectedRoute>
+              <ElderCareService />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/petcares-selection"
+          element={
+            <ProtectedRoute>
+              <PetCareService />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/educations-selection"
+          element={
+            <ProtectedRoute>
+              <EducationService />
             </ProtectedRoute>
           }
         />
