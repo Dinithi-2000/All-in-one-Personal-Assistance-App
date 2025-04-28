@@ -1,14 +1,27 @@
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const NavBar = ({ handleLogout, user  }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const onLogout = () => {
-    handleLogout();
-    navigate("/");
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You will be logged out from your account.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#0d9488', 
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, Logout!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+        navigate("/");
+      }
+    });
   };
 
   return (
@@ -68,16 +81,19 @@ const NavBar = ({ handleLogout, user  }) => {
             >
               Become A Service Provider
             </Link>
-            <Link to="/profile" className="flex items-center space-x-2">
-              <img
-                src={user.profileImage}
-                className="w-10 h-10 rounded-full"
-                alt={user.name}
-              />
-              <span className="text-[#003366] font-semibold">
-                {user.name}
-              </span>
-            </Link>
+            {!user ? (
+              <div className="animate-pulse h-10 w-24 bg-gray-200 rounded"></div>
+            ) : (
+              <Link to="/profile" className="flex items-center space-x-2">
+                <img
+                  src={user.profileImage || "/Images/person2.png"} 
+                  className="w-10 h-10 rounded-full"
+                  alt={user.firstName}
+                />
+                <span className="text-[#003366] font-semibold">{user.name}</span>
+              </Link>
+            )}
+
             <button
               onClick={onLogout}
               className="py-2 px-4 text-[#003366] font-semibold border border-teal-500 rounded-md hover:bg-teal-500 hover:text-white transition duration-300 whitespace-nowrap"

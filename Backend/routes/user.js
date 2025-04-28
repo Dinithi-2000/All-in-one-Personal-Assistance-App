@@ -19,8 +19,6 @@ router.get(
         if (!user) {
           return res.status(400).send({ message: 'User Not Found.' });
         }
-        console.log(user);
-        
   
         return res.status(200).send(user);
       } catch (error) {

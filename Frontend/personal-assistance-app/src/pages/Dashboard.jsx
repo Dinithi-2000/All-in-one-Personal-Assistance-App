@@ -23,8 +23,11 @@ const Dashboard = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log(response.data);
+        
 
         setUserData(response.data);
+        localStorage.setItem("userData", JSON.stringify(response.data));
       } catch (error) {
         console.error("Failed to fetch user:", error);
 
@@ -42,7 +45,8 @@ const Dashboard = () => {
 
   // Sample Logout Function
   const handleLogout = () => {
-    localStorage.removeItem("authToken"); // Remove token from localStorage
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
     navigate("/"); // Redirect to home
   };
 

@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
+import Profile from "pages/Profile";
 
 function AuthRedirector() {
   const [loading, setLoading] = useState(true);
@@ -50,6 +51,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
