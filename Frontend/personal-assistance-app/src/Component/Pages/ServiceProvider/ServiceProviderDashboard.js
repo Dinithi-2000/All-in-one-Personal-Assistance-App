@@ -226,8 +226,8 @@ const SidebarNavigation = ({ activeSection, setActiveSection, navigate }) => (
       {[
         { icon: <Dashboard />, text: 'Dashboard', section: 'dashboard' },
         { icon: <Assignment />, text: 'Bookings' },
-        { icon: <Group />, text: 'Clients' },
-        { icon: <Support />, text: 'Payments' },
+        { icon: <Group />, text: 'Customers' },
+        { icon: <Support />, text: 'Salary' },
         { icon: <Description />, text: 'Reports', section: 'reports' },
         { icon: <Settings />, text: 'Reviews & Ratings' },
         { icon: <Notifications />, text: 'Notifications' }
