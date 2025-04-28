@@ -57,4 +57,26 @@ router.patch(
   }),
 );
 
+router.post('/register-service-provider',expressAsyncHandler(async(req,res) => {
+  try{
+    const user = await UserModel.find(req.user.id);
+
+    if(user){
+      return res.status(404).send({ message: 'User not found.'});
+    }
+    if(user.isServiceProvider == true){
+      return res.status(400).send(400).send({ message: 'Alredy registerd.'});
+    }
+
+    await UserModel.updateOne({ _id: user._id }, { $set: {
+      isServiceProvider: true
+    }} )
+
+    return res.status(200).send({ message: 'Success.'})
+
+  }catch(error){
+    return res.status(500).send({ message: error.message });
+  }
+}));
+
 export default router;

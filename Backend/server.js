@@ -7,7 +7,6 @@ import dotenv from "dotenv"
 // import Routes
 import routes from './routes/mainRoutes.js'
 
-
 //create express application instance
 const app = express();
 
