@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 
+
 import UserModel from '../models/UserModel.js';
 
 const router = express.Router();
@@ -14,7 +15,7 @@ router.get(
       try {
         const user = await UserModel.findOne(
           { _id: req.user.id },
-          'firstName middleName lastName mobile email profile_pic cover_pic birthDay gender ABN_Number bio about roleId isTasker isEmailVerified isMobileVerified isVerifiedUser education onbordingMessage externalSignUp createdAt updatedAt',
+          'firstName lastName mobile email profile_pic cover_pic birthDay gender isServiceProvider about  externalSignUp createdAt updatedAt',
         );
         if (!user) {
           return res.status(400).send({ message: 'User Not Found.' });
@@ -55,15 +56,16 @@ router.patch(
   }),
 );
 
-router.post('/register-service-provider',expressAsyncHandler(async(req,res) => {
+router.patch('/register-service-provider',expressAsyncHandler(async(req,res) => {
   try{
-    const user = await UserModel.find(req.user.id);
-
-    if(user){
+    const user = await UserModel.findById(req.user.id);
+   
+    if(!user){
       return res.status(404).send({ message: 'User not found.'});
     }
+    
     if(user.isServiceProvider == true){
-      return res.status(400).send(400).send({ message: 'Alredy registerd.'});
+      return res.status(400).send({ message: 'Alredy registerd.'});
     }
 
     await UserModel.updateOne({ _id: user._id }, { $set: {

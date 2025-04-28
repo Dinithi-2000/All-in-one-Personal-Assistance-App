@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../Component/UI/NavBar";
 import api from "Lib/api";
+import Swal from "sweetalert2";
 
 const Dashboard = () => {
   const [userData, setUserData] = useState({});
@@ -56,21 +57,6 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <h2 className="text-3xl font-bold text-[#003366]">Dashboard</h2>
         
-        {/* User Info Section */}
-        <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-          <div className="flex items-center space-x-4">
-            <img
-              src={userData.profile_pic}
-              alt={userData.profile_pic}
-              className="w-16 h-16 rounded-full"
-            />
-            <div>
-              <h3 className="text-xl font-semibold text-[#003366]">{userData.firstName}</h3>
-              <p className="text-sm text-gray-600">{userData.email}</p>
-            </div>
-          </div>
-        </div>
-
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
