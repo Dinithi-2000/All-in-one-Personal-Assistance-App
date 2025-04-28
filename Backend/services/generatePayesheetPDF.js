@@ -1,6 +1,6 @@
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 
-const generatePaySheetPDF = async (retrieveSelectedProvider, salaryDetails) => {
+export const generatePaySheetPDF = async (retrieveSelectedProvider, salaryDetails) => {
 
     //create new pdf
     const pdfDoc = await PDFDocument.create();

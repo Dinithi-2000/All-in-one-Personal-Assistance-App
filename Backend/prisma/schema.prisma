@@ -158,6 +158,7 @@ model Booking{
     BookingID String   @id @default(auto()) @map("_id") @db.ObjectId
     AgreementDuration String?
     Booking_Service String?
+    customerDetails String
     Provider String @db.ObjectId
     MonthlyPayment Float?
     BookingDate DateTime @default(now())
@@ -283,6 +284,8 @@ model profitLoss{
     type String?
     rate Float?
  }
+
+
 
 
 

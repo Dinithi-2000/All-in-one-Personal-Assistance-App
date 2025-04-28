@@ -2,6 +2,8 @@ import asyncHandler from "express-async-handler"
 import { prisma } from "../config/prismaConfig.js"
 import { ObjectId } from "mongodb";
 import Stripe from "stripe";
+import { salaryMail } from "../services/salaryMail.js";
+
 
 //create paymente
 const createPayment = asyncHandler(async (req, res) => {
@@ -273,36 +275,48 @@ const retrieveSelectedProvider = asyncHandler(async (req, res) => {
 const makeProviderSalary = asyncHandler(async (req, res) => {
     try {
         //retirev payments.
-        const completePayment = await prisma.payment.findMany({
-            where: {
-                Status: "COMPLETED",
-            },
+        const completePayments = await prisma.payment.findMany({
+            where: { Status: "COMPLETED" },
             include: {
                 booking: {
                     include: {
-                        serviceProvider: true,
-                    },
-                },
-            },
-        })
+                        serviceProvider: {
+                            include: {
+                                service: {  // Include service to get commission rate
+                                    select: { CommisionRate: true }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
 
         //retirev EPF ETF rate
         const rate = await prisma.deductionRate.findMany();
+        console.log(rate)
         const epfAmpount = rate.find(r => r.type === "EPF")?.rate || 0;
         const etfAmount = rate.find(r => r.type === "ETF")?.rate || 0;
+        console.log(epfAmpount);
+
+
 
         //group paymnet by provider
         const providerSalaries = {};
 
-        completePayment.forEach(payment => {
-            const providerId = payment.booking.serviceProvider.providerId;
+        completePayments.forEach(payment => {
+            const providerId = payment.booking.serviceProvider.ProviderID;
             const amount = payment.Amount;
+            const commissionRate = payment.booking?.serviceProvider?.service?.CommisionRate;
+            const finalCommissionRate = commissionRate !== undefined ? (commissionRate / 100) : 0.1; // Dividing by 100 if stored as percentage
+
+
 
             if (!providerSalaries[providerId]) {
                 providerSalaries[providerId] = {
                     totalEarning: 0,
-                    commission: 0,
+                    commissionRate: finalCommissionRate,
                     epfDeduct: 0,
                     etfDeduct: 0,
                     netSalary: 0,
@@ -311,12 +325,14 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
             providerSalaries[providerId].totalEarning += amount;
 
 
+
         });
 
         //calculate net salary
         for (const providerId in providerSalaries) {
             const totalEarning = providerSalaries[providerId].totalEarning;
-            const commisionRate = 0.1;
+            const commisionRate = providerSalaries[providerId].commissionRate;
+            console.log(commisionRate);
             const commission = totalEarning * commisionRate;
             const epf = ((totalEarning - commission) * epfAmpount);
             const etf = ((totalEarning - commission) * etfAmount);
@@ -356,9 +372,10 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
                     ProviderID: providerId
                 },
             });
-            const pdfBytes = await generatePaysheetPDF(provider, providerSalaries[providerId]);
-            //send pdf to provider's mail
-            await sendEmailWithPaysheet(provider, pdfBytes);
+            /* const pdfBytes = await generatePaySheetPDF(provider, providerSalaries[providerId]);
+             //send pdf to provider's mail*/
+            await salaryMail(provider.email, providerSalaries[providerId])
+
         }
         res.json({
             message: "Provider salaries calculated and updated successfully",
