@@ -1,6 +1,7 @@
 import express from 'express'
 import { addExpenses, retrieveExpenses, deleteExpenses, addProfitLoss, retrieveTotatlExpense, updateExpense } from '../models/Adminisator/financialActivity.js';
 import { totalBooking, totalServices, totaProviders, totatlUsers } from '../models/Adminisator/overview.js';
+import { addIncome, retreiveTotalRevenue, retrieveRevenue, updateRevenue, deleteRevenue } from '../models/Adminisator/Income.js';
 
 
 const router = express.Router();
@@ -33,5 +34,20 @@ router.get("/totService", totalServices)
 
 //tot provide
 router.get("/totProvider", totaProviders)
+
+//add income
+router.post("/addRevenue", addIncome)
+
+//retrieve income
+router.get("/retrieveRevenue", retrieveRevenue)
+
+//update revenue
+router.post("/updateRevenue", updateRevenue)
+
+//delete 
+router.delete("/deleteRevenue/:id", deleteRevenue)
+
+//retreieve total
+router.get("/getTotal", retreiveTotalRevenue)
 
 export { router as financialActivityRoute }
