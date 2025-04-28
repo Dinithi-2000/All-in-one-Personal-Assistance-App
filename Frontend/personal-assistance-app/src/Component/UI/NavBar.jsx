@@ -121,7 +121,7 @@ const NavBar = ({ handleLogout, user  }) => {
               </Link> )}
               { isProvider && (
               <Link
-                to="/payment"
+                to="/"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline"
               >
                 <span>Services</span>
