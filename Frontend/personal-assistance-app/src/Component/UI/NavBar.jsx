@@ -1,19 +1,14 @@
-// Frontend/personal-assistance-app/src/Component/UI/NavBar.js
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const NavBar = ({ handleLogout }) => {
+const NavBar = ({ handleLogout, user  }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const onLogout = () => {
     handleLogout();
     navigate("/");
-  };
-
-  const staticUser = {
-    name: "John Doe",
-    profileImage: "/Images/person2.png",
   };
 
   return (
@@ -75,12 +70,12 @@ const NavBar = ({ handleLogout }) => {
             </Link>
             <Link to="/profile" className="flex items-center space-x-2">
               <img
-                src={staticUser.profileImage}
+                src={user.profileImage}
                 className="w-10 h-10 rounded-full"
-                alt={staticUser.name}
+                alt={user.name}
               />
               <span className="text-[#003366] font-semibold">
-                {staticUser.name}
+                {user.name}
               </span>
             </Link>
             <button
@@ -151,12 +146,23 @@ const NavBar = ({ handleLogout }) => {
             >
               Become A Service Provider
             </Link>
-            <Link
-              to="/profile"
-              className="block py-2 px-4 text-[#003366] font-semibold hover:bg-teal-500 hover:text-white transition duration-300"
-            >
-              {staticUser.name}
-            </Link>
+            {user ? (
+              <Link to="/profile" className="flex items-center space-x-2">
+                <img
+                  src={user.profile_pic || "/Images/person2.png"} 
+                  className="w-10 h-10 rounded-full"
+                  alt={user.firstName}
+                />
+                <span className="text-[#003366] font-semibold">
+                  {user.firstName}
+                </span>
+                <span className="text-[#003366] font-semibold">
+                  {user.lastName}
+                </span>
+              </Link>
+            ) : (
+              <div>Loading...</div> // or show a login link if user not loaded
+            )}
             <button
               onClick={onLogout}
               className="block w-full text-left py-2 px-4 text-[#003366] font-semibold border border-teal-500 hover:bg-teal-500 hover:text-white transition duration-300"

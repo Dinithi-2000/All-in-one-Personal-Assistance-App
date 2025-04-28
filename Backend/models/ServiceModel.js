@@ -2,22 +2,14 @@ import mongoose from 'mongoose';
 
 const serviceSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, default: null },
-    mobile: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, require: true },
-    profile_pic: { type: String, default: null },
-    cover_pic: { type: String, default: null },
-    gender: { type: String, default: null },
-    birthDay: { type: Date, default: null },
-    bio: { type: String, default: null },
-    about: { type: String, default: null },
-    roleId: { type: Number, default: 1 },
-    isServiceProvider: { type: Boolean, default: false },
-    twoFactorAuthSecret: { type: String, default: null },
-    externalSignUp: { type: Boolean, default: false },
-    status: { type: Number, default: 1 },
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    serviceType: { type: String, required: true },
+    selectedServices: { type: [String], required: true },
+    location: { type: String, default: null },
+    payRate: { type: [String], default: null },
+    photo: { type: String, required: true },
+    policeClearance: { type: String, required: true },
+    availability: { type: String, default: null },
   },
   {
     timestamps: true,
@@ -25,4 +17,4 @@ const serviceSchema = new mongoose.Schema(
   },
 );
 
-export default mongoose.model('services', usersSchema);
+export default mongoose.model('provider_services', serviceSchema);

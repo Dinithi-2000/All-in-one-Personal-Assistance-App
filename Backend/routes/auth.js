@@ -49,13 +49,12 @@ router.post(
         const db_user = await UserModel.findOne({email});
   
         if (db_user) {
-          if (db_user.isVerifiedUser === true) {
-            return res.status(400).send({ message: 'User already Registered!' });
-          }
+         
+          return res.status(400).send({ message: 'User already Registered!' });
   
           //await sendOTP(db_user, otpMethod, token);
   
-          return res.send({ status: 'SUCCESS', message: 'Verification OTP sent' });
+          //return res.send({ status: 'SUCCESS', message: 'Verification OTP sent' });
         }
   
         const hashPassword = await bcrypt.hash(password, 8);
@@ -71,7 +70,7 @@ router.post(
   
         await user.save();
         
-        return res.send({ status: 'SUCCESS'});
+        return res.status(200).send({ message: 'success'});
         
       } catch (err) {
         return res.status(500).send({ message: err.message });

@@ -79,4 +79,13 @@ router.post('/register-service-provider',expressAsyncHandler(async(req,res) => {
   }
 }));
 
+router.post('/add-new-service',expressAsyncHandler(async(req,res) => {
+  try{
+    
+  }catch(error){
+    return res.status(500).send({ message: error.message });
+  }
+  return res.status()
+}))
+
 export default router;
