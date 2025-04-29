@@ -3,8 +3,9 @@ import { addExpenses, retrieveExpenses, deleteExpenses, addProfitLoss, retrieveT
 import { totalBooking, totalServices, totaProviders, totatlUsers } from '../models/Adminisator/overview.js';
 import { addIncome, retreiveTotalRevenue, retrieveRevenue, updateRevenue, deleteRevenue } from '../models/Adminisator/Income.js';
 
-import { getDeduction, getSalaryDetails, updteRate } from '../models/Adminisator/Salary.js';
+import { getDeduction, getSalaryDetails, TopEmployee, updteRate } from '../models/Adminisator/Salary.js';
 import { salaryMail } from '../services/salaryMail.js';
+
 
 const router = express.Router();
 
@@ -61,5 +62,7 @@ router.post("/sendMail", salaryMail)
 router.get("/getList", getDeduction)
 
 router.post("/updateSalary", updteRate)
+
+router.get("/topEarners", TopEmployee)
 
 export { router as financialActivityRoute }

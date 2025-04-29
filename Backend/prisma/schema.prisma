@@ -158,7 +158,6 @@ model Booking{
     BookingID String   @id @default(auto()) @map("_id") @db.ObjectId
     AgreementDuration String?
     Booking_Service String?
-    customerDetails String
     Provider String @db.ObjectId
     MonthlyPayment Float?
     BookingDate DateTime @default(now())
@@ -167,6 +166,8 @@ model Booking{
     customer Customer   @relation(fields: [CustomerID],references:[id])
     serviceProvider  ServiceProvider   @relation(fields: [Provider],references:[ProviderID])
     payment Payment[]   
+   
+   
 }
 
 model PaymentMethod{

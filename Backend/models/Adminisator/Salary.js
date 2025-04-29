@@ -24,6 +24,25 @@ export const getDeduction = asyncHandler(async (req, res) => {
     res.send({ list: getratelist })
 })
 
+export const TopEmployee = asyncHandler(async (req, res) => {
+    try {
+
+        const TopEmployee = await prisma.providerSalary.findMany({
+            orderBy: {
+                totSalary: 'desc',
+            },
+            take: 5,
+            include: {
+                serviceProvider: true,
+            },
+        });
+        res.send({ topemployee: TopEmployee })
+
+    } catch (error) {
+        console.log("Processing Error")
+    }
+})
+
 export const updteRate = asyncHandler(async (req, res) => {
     try {
         const { id, type, rate } = req.body;
@@ -45,3 +64,4 @@ export const updteRate = asyncHandler(async (req, res) => {
         console.log("Processing Error")
     }
 })
+
