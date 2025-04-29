@@ -80,7 +80,7 @@ const ChildCareService = () => {
       alert("Please select at least one language.");
       return;
     }
-    navigate('/createaccount', {
+    navigate('/add-service', {
       state: {
         serviceData: {
           serviceType: 'ChildCare',

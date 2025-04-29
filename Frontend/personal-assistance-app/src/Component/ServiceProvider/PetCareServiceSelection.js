@@ -88,7 +88,7 @@ const PetCareService = () => {
     localStorage.setItem('serviceProviderProfile', JSON.stringify(petCareData));
 
     // Navigate to the next page
-    navigate('/createaccount', {
+    navigate('/add-service', {
       state: {
         serviceData: petCareData,
       },

@@ -1,12 +1,25 @@
 import { Container, Box, Typography, Button, Select, MenuItem, Link, Paper } from '@mui/material';
 import { LocationOn, Assignment } from '@mui/icons-material';
-import { useState } from 'react';
+import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import NavBar from 'Component/UI/NavBar';
 
 const ServiceSelection = () => {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState({});
   const [selectedServiceType, setSelectedServiceType] = useState('ElderCare');
   const [selectedLocation, setSelectedLocation] = useState('Colombo');
+
+  useEffect(() => {
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      try {
+        setUserData(JSON.parse(storedUserData));
+      } catch (error) {
+        console.error("Failed to parse userData from localStorage:", error);
+      }
+    }
+  }, []);
 
   const handleGetStarted = () => {
     // Map service types to their corresponding routes
@@ -28,10 +41,20 @@ const ServiceSelection = () => {
     });
   };
 
+  // Sample Logout Function
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    navigate("/"); // Redirect to home
+  };
+
   return (
-    <Box sx={{ 
+    <div className="bg-gray-100 min-h-screen">
+      <NavBar handleLogout={handleLogout}  user={userData}/>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <Box sx={{ 
       backgroundColor: '#FAF9F6', 
-      minHeight: '100vh', 
+      minHeight: '10vh', 
       py: 8,
       display: 'flex',
       flexDirection: 'column',
@@ -177,6 +200,9 @@ const ServiceSelection = () => {
 
       </Container>
     </Box>
+      </div>
+    </div>
+    
   );
 };
 

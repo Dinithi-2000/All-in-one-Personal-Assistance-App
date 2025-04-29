@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
@@ -23,6 +23,9 @@ import {
 import { CloudUpload, Visibility, VisibilityOff, Person, Email } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
+import NavBar from 'Component/UI/NavBar';
+import api from 'Lib/api';
+import Swal from 'sweetalert2';
 
 const API_BASE_URL = 'http://localhost:8070/home/serviceProvider'; // Backend base URL
 
@@ -78,6 +81,7 @@ const CreateAccount = () => {
     showPassword: false,
   });
 
+  const [userData, setUserData] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({
@@ -99,72 +103,26 @@ const CreateAccount = () => {
   const [policeClearanceFileName, setPoliceClearanceFileName] = useState('');
   const [birthCertificateFileName, setBirthCertificateFileName] = useState('');
 
+  useEffect(() => {
+      const storedUserData = localStorage.getItem("userData");
+      if (storedUserData) {
+        try {
+          setUserData(JSON.parse(storedUserData));
+        } catch (error) {
+          console.error("Failed to parse userData from localStorage:", error);
+        }
+      }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    navigate("/"); // Redirect to home
+  };
+
   const validateForm = () => {
     let isValid = true;
     const newErrors = { ...errors };
-
-    // First Name validation
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First Name is required';
-      isValid = false;
-    } else {
-      newErrors.firstName = '';
-    }
-
-    // Last Name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last Name is required';
-      isValid = false;
-    } else {
-      newErrors.lastName = '';
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
-      isValid = false;
-    } else {
-      newErrors.email = '';
-    }
-
-    // Mobile validation
-    const mobileRegex = /^[0-9]{9}$/;
-    if (!formData.mobile) {
-      newErrors.mobile = 'Mobile number is required';
-      isValid = false;
-    } else if (!mobileRegex.test(formData.mobile)) {
-      newErrors.mobile = 'Mobile must be 9 digits';
-      isValid = false;
-    } else {
-      newErrors.mobile = '';
-    }
-
-    // Password validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = 'Password must contain at least 6 characters, one uppercase, one lowercase, one number, and one special character';
-      isValid = false;
-    } else {
-      newErrors.password = '';
-    }
-
-    // Confirm Password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm password';
-      isValid = false;
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-      isValid = false;
-    } else {
-      newErrors.confirmPassword = '';
-    }
 
     // Police Clearance validation
     if (!formData.policeClearance) {
@@ -182,21 +140,6 @@ const CreateAccount = () => {
       newErrors.photo = '';
     }
 
-    // NIC validation
-    if (!formData.nic.trim()) {
-      newErrors.nic = 'NIC is required';
-      isValid = false;
-    } else {
-      newErrors.nic = '';
-    }
-
-    // Birth Certificate validation
-    if (!formData.birthCertificate) {
-      newErrors.birthCertificate = 'Birth Certificate is required';
-      isValid = false;
-    } else {
-      newErrors.birthCertificate = '';
-    }
 
     // Availability validation
     if (!formData.availability) {
@@ -206,13 +149,6 @@ const CreateAccount = () => {
       newErrors.availability = '';
     }
 
-    // Gender validation
-    if (!formData.gender) {
-      newErrors.gender = 'Gender is required';
-      isValid = false;
-    } else {
-      newErrors.gender = '';
-    }
 
     // Terms agreement validation
     if (!formData.agreedToTerms) {
@@ -265,14 +201,11 @@ const CreateAccount = () => {
 
     try {
       const profileData = {
-        name: `${formData.firstName} ${formData.lastName}`,
-email: formData.email,
-        password: formData.password,
         serviceType: serviceData.serviceType || 'General',
         location: serviceData.location || 'Default Location',
         payRate: serviceData.payRate || [500, 2000],
         selectedLanguages: serviceData.selectedLanguages || ['English'],
-        about: 'Sample about text',
+        // about: 'Sample about text',
         selectedServices: serviceData.selectedServices || ['Default Service'],
         policeClearance: URL.createObjectURL(formData.policeClearance),
         photo: formData.photo || 'https://via.placeholder.com/200',
@@ -281,18 +214,36 @@ email: formData.email,
         selectedSubjects: serviceData.selectedSubjects || [],
         selectedGrades: serviceData.selectedGrades || [],
         selectedAgeGroups: serviceData.selectedAgeGroups || [],
-        userType: 'sp', // Default value as per schema
-        nic: formData.nic,
         birthCertificate: URL.createObjectURL(formData.birthCertificate),
         availability: formData.availability,
-        gender: formData.gender,
       };
 
-      console.log('Profile Data:', profileData);
+       const token = localStorage.getItem("authToken");
+      if (!token) {
+        Swal.fire("Not logged in", "Please sign in first.", "warning");
+        navigate("/signin");
+        return;
+      }
 
-      const response = await axios.post(`${API_BASE_URL}/create-service-provider`, profileData);
-      localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
-      navigate('/viewspprofile');
+      const response = await api.post('/service/add-new-service',profileData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      console.log(response);
+      
+
+      if(response.status == 201){
+        Swal.fire("Success", response.data.message, "success").then(() => {
+          navigate("/services");
+        });
+      }else{
+        Swal.fire("error", response.data.message , "error");
+      }
+
+    
     } catch (err) {
       setError('Registration failed. Please try again.');
       console.error('Error:', err);
@@ -302,13 +253,12 @@ email: formData.email,
   };
 
   return (
-    <StyledContainer maxWidth="sm">
-      <Typography variant="h3" align="center" gutterBottom sx={{ color: '#000080' }}>
-        Create Your Account
-      </Typography>
-      <Typography variant="subtitle1" align="center" gutterBottom sx={{ color: '#000080', mb: 4 }}>
-        Create an account to get started
-      </Typography>
+    <div className="bg-gray-100 min-h-screen">
+      <NavBar handleLogout={handleLogout}  user={userData}/>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <h2 className="text-3xl font-bold text-[#003366]">Add Service</h2>
+        
+        <StyledContainer maxWidth="sm">
 
       <StyledForm onSubmit={handleSubmit}>
         {error && (
@@ -318,171 +268,7 @@ email: formData.email,
         )}
 
         <Grid container spacing={3}>
-          {/* First Name */}
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="First Name *"
-              variant="outlined"
-              value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-              error={!!errors.firstName}
-              helperText={errors.firstName}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Person color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#40E0D0' },
-                },
-              }}
-            />
-          </Grid>
-          {/* Last Name */}
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Last Name *"
-              variant="outlined"
-              value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-              error={!!errors.lastName}
-              helperText={errors.lastName}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#40E0D0' },
-                },
-              }}
-            />
-          </Grid>
 
-          {/* Email */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Email *"
-              type="email"
-              variant="outlined"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              error={!!errors.email}
-              helperText={errors.email}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#40E0D0' },
-                },
-              }}
-            />
-          </Grid>
-
-          {/* Mobile Number */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Mobile Number *"
-              variant="outlined"
-              value={formData.mobile}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                setFormData({ ...formData, mobile: value });
-              }}
-              error={!!errors.mobile}
-              helperText={errors.mobile}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    +94
-                  </InputAdornment>
-                ),
-                inputProps: {
-                  maxLength: 9,
-                  inputMode: 'numeric',
-                  pattern: '[0-9]*',
-                },
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#40E0D0' },
-                },
-              }}
-            />
-          </Grid>
-
-          {/* NIC */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="NIC *"
-              variant="outlined"
-              value={formData.nic}
-              onChange={(e) => setFormData({ ...formData, nic: e.target.value })}
-              error={!!errors.nic}
-              helperText={errors.nic}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#40E0D0' },
-                },
-              }}
-            />
-          </Grid>
-
-          {/* Password */}
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Password *"
-              type={formData.showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              error={!!errors.password}
-              helperText={errors.password}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                    >
-                      {formData.showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#40E0D0' },
-                },
-              }}
-            />
-          </Grid>
-
-          {/* Confirm Password */}
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Confirm Password *"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#40E0D0' },
-                },
-              }}
-            />
-          </Grid>
 
           {/* Police Clearance Report Input Field */}
           <Grid item xs={12}>
@@ -628,26 +414,6 @@ email: formData.email,
             </FormControl>
           </Grid>
 
-          {/* Gender */}
-          <Grid item xs={12}>
-            <FormControl component="fieldset" error={!!errors.gender}>
-              <FormLabel component="legend">Gender *</FormLabel>
-              <RadioGroup
-                row
-                value={formData.gender}
-                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-              >
-                <FormControlLabel value="male" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Male" />
-                <FormControlLabel value="female" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Female" />
-                <FormControlLabel value="other" control={<Radio sx={{ color: '#40E0D0', '&.Mui-checked': { color: '#40E0D0' } }} />} label="Other" />
-              </RadioGroup>
-              {errors.gender && (
-                <Typography variant="caption" color="error" sx={{ display: 'block' }}>
-                  {errors.gender}
-                </Typography>
-              )}
-            </FormControl>
-          </Grid>
 
           {/* Terms and Conditions */}
           <Grid item xs={12}>
@@ -692,12 +458,16 @@ email: formData.email,
               disabled={loading}
               variant="contained"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'Add Service...' : 'Add Service'}
             </StyledButton>
           </Grid>
         </Grid>
       </StyledForm>
     </StyledContainer>
+
+      </div>
+    </div>
+   
   );
 };
 

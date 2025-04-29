@@ -61,10 +61,10 @@ export default function ServicePage() {
 
   const fetchServices = async () => {
     try {
-      const res = await api.get('/user/services', {
+      const res = await api.get('/service/get-my-services', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setServices(res.data.services || res.data);
+      setServices(res.data);
     } catch (err) {
       console.error('Failed to load services:', err);
       Swal.fire('Error', 'Could not fetch services.', 'error');
@@ -145,16 +145,20 @@ export default function ServicePage() {
                 className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition"
               >
                 <img
-                  src={service.imageUrl || PLACEHOLDER}
+                  src={service.photo || PLACEHOLDER}
                   alt={service.title}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-5">
-                  <h2 className="text-2xl font-semibold text-[#003366] mb-2">{service.title}</h2>
-                  <p className="text-gray-600 mb-4 line-clamp-3">{service.description}</p>
+                  <h2 className="text-2xl font-semibold text-[#003366] mb-2">{service.serviceType}</h2>
+                  <p className="text-gray-600 mb-4 line-clamp-3">{service.createdAt}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-teal-600">${service.price}</span>
-                    <span className="px-3 py-1 bg-gray-200 rounded-full text-sm text-gray-700">{service.category}</span>
+                  <div className="flex justify-between items-center">
+
+                    <span className="text-xl font-bold text-teal-600">${service.payRate[0]}</span> -
+                    <span className="text-xl font-bold text-teal-600">${service.payRate[1]}</span>
+                  </div>
+                    <span className="px-3 py-1 bg-gray-200 rounded-full text-sm text-gray-700">{service.serviceType}</span>
                   </div>
                 </div>
               </div>

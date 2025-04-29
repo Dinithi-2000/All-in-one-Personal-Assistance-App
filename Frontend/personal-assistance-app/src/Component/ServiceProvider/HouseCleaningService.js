@@ -78,7 +78,7 @@ const HouseCleaningService = () => {
       alert("Please select at least one language.");
       return;
     }
-    navigate('/createaccount', {
+    navigate('/add-service', {
       state: {
         serviceData: {
         serviceType: 'HouseCleaning', // Pass the correct serviceType

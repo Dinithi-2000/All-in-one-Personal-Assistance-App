@@ -82,7 +82,7 @@ const { location: selectedLocation, serviceType } = location.state || {};
     }
     
 
-    navigate('/createaccount', {
+    navigate('/add-service', {
       state: {
         serviceData: {
           serviceType:'KitchenHelpers',

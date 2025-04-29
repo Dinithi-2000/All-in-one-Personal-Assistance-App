@@ -84,7 +84,7 @@ const EducationService = () => {
       return;
     }
 
-    navigate('/createaccount', {
+    navigate('/add-service', {
       state: {
         serviceData: {
           serviceType:'Education', // Pass the correct serviceType,
