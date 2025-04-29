@@ -56,6 +56,28 @@ router.patch(
   }),
 );
 
+router.patch(
+  '/update-profile-pic-and-cover',expressAsyncHandler(async (req, res) => {
+    const { profile_pic,cover_pic } = req.body;
+
+    try {
+    
+      await UserModel.updateOne(
+        { _id: req.user.id },
+        {
+          $set: {
+            profile_pic,cover_pic
+          },
+        },
+      );
+  
+      return res.status(200).send({ message: 'User updated.' });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
 router.patch('/register-service-provider',expressAsyncHandler(async(req,res) => {
   try{
     const user = await UserModel.findById(req.user.id);

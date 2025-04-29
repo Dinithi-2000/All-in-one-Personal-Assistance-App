@@ -9,9 +9,9 @@ const serviceProviderSchema = new mongoose.Schema(
     location: { type: String, required: true }, // Changed from address to location
     payRate: { type: [Number], required: true },
     selectedLanguages: { type: [String], required: true },
-    about: { type: String, required: true },
+    about: { type: String, default: null },
     selectedServices: { type: [String], required: true },
-    policeClearance: { type: String, required: true },
+    policeClearance: { type: String },
     photo: { type: String, required: true },
     selectedPetTypes: { type: [String] },
     selectedSyllabi: { type: [String] },

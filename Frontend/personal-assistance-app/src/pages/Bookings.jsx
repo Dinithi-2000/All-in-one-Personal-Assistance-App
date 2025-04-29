@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import NavBar from "Component/UI/NavBar";
 
+const PLACEHOLDER =
+  "https://via.placeholder.com/400x200?text=Service+Image+Unavailable";
+
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,7 +42,7 @@ export default function MyBookings() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <NavBar user={userData} handleLogout={handleLogout} />
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-bold text-[#003366] mb-6">My Bookings</h1>
 
         {loading ? (
@@ -48,35 +51,65 @@ export default function MyBookings() {
           </div>
         ) : bookings.length === 0 ? (
           <div className="text-center text-gray-500 text-lg">
-            You have no bookings.
+            You have no bookings yet.
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {bookings.map((booking) => (
               <div
                 key={booking._id}
-                className="bg-white rounded-xl shadow-md p-5 space-y-2"
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
               >
-                <h2 className="text-xl font-semibold text-[#003366]">
-                  {booking.serviceId?.serviceType || "Unknown Service"}
-                </h2>
-                <p className="text-gray-700">
-                  <strong>Provider:</strong>{" "}
-                  {booking.providerId?.fullName || "Unknown"}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Agreement:</strong> {booking.agreementDuration}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Monthly Payment:</strong> Rs. {booking.monthlyPayment}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Date:</strong>{" "}
-                  {new Date(booking.bookingDate).toLocaleDateString()}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Time:</strong> {booking.bookingTime}
-                </p>
+                <img
+                  src={booking.serviceId?.photo || PLACEHOLDER}
+                  alt="Service"
+                  className="h-48 w-full object-cover"
+                />
+                <div className="p-5">
+                  <h2 className="text-xl font-semibold text-[#003366]">
+                    {booking.serviceId?.serviceType || "Service"}
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {booking.serviceId?.description || "No description."}
+                  </p>
+
+                  <p className="text-gray-700">
+                    <strong>Provider:</strong>{" "}
+                    {booking.providerId?.firstName || "Unknown"}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Email:</strong>{" "}
+                    {booking.providerId?.email || "N/A"}
+                  </p>
+
+                  <p className="text-gray-700">
+                    <strong>Agreement:</strong> {booking.agreementDuration}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Payment:</strong> Rs. {booking.monthlyPayment}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Date:</strong>{" "}
+                    {new Date(booking.bookingDate).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Time:</strong> {booking.bookingTime}
+                  </p>
+                  <p className="text-gray-700 mt-2">
+                    <strong>Status:</strong>{" "}
+                    <span
+                      className={`font-semibold ${
+                        booking.status === "PENDING"
+                          ? "text-yellow-600"
+                          : booking.status === "CONFIRMED"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {booking.status}
+                    </span>
+                  </p>
+                </div>
               </div>
             ))}
           </div>

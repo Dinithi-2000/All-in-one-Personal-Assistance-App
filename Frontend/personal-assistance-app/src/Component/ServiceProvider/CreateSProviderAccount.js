@@ -205,7 +205,7 @@ const CreateAccount = () => {
         location: serviceData.location || 'Default Location',
         payRate: serviceData.payRate || [500, 2000],
         selectedLanguages: serviceData.selectedLanguages || ['English'],
-        // about: 'Sample about text',
+        about: 'Sample about text',
         selectedServices: serviceData.selectedServices || ['Default Service'],
         policeClearance: URL.createObjectURL(formData.policeClearance),
         photo: formData.photo || 'https://via.placeholder.com/200',
@@ -379,7 +379,7 @@ const CreateAccount = () => {
                 },
               }}
             >
-              Upload Profile Photo *
+              Upload Service Photo *
               <input
                 type="file"
                 hidden

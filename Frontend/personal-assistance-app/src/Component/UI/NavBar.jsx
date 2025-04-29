@@ -48,10 +48,20 @@ const NavBar = ({ handleLogout, user  }) => {
           },
         }
       );
-      if(res.data.message == 'success'){
-        Swal.fire(res.data.message, "success");
-      }else{
-        Swal.fire( res.data.message, "success");
+      if (res.data.message === "success") {
+        
+        const updatedUserData = {
+          ...storedUser,
+          isServiceProvider: true, 
+        };
+        localStorage.setItem("userData", JSON.stringify(updatedUserData));
+  
+        Swal.fire("Success", "You are now a service provider!", "success").
+        then(() => {
+          navigate("/dashboard");
+        });
+      } else {
+        Swal.fire("Notice", res.data.message, "info");
       }
       
   

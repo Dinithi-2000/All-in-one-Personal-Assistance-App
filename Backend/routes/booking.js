@@ -15,7 +15,15 @@ router.get('/get-my-bookings',expressAsyncHandler(async(req,res) => {
         return res.status(404).send({ message: 'User Not Found.'})
     }
     try{
-        const bookings = await BookingModel.find({ userId: user._id });
+        const bookings = await BookingModel.find({ userId: user._id },'-userId -updatedAt').populate({
+            path: 'providerId',
+            model: UserModel,
+            select: 'firstName lastName profile_pic'
+        }).populate({
+            path: 'serviceId',
+            model: ServiceModel,
+            select: 'serviceType location photo'
+        });
 
         if(bookings.length > 0){
             return res.status(200).send(bookings);

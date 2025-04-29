@@ -10,7 +10,7 @@ const serviceSchema = new mongoose.Schema(
     selectedLanguages: { type: [String], required: true },
     photo: { type: String, required: true },
     //about: { type: String, required: true },
-    policeClearance: { type: String, required: true },
+    policeClearance: { type: String, default: null},
     availability: { type: String, default: null },
     selectedPetTypes: { type: [String] },
     selectedSyllabi: { type: [String] },
