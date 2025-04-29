@@ -12,32 +12,16 @@ export default function ServicePage() {
   const token = localStorage.getItem('authToken');
 
   // Static sample services to display when none exist
-  const sampleServices = [
-    {
-      _id: 'sample-1',
-      title: 'Home Cleaning',
-      description: 'Professional home cleaning: dusting, vacuuming, and mopping for a spotless home.',
-      price: '75',
-      category: 'Cleaning',
-      imageUrl: '/Images/sample-cleaning.jpg'
-    },
-    {
-      _id: 'sample-2',
-      title: 'Lawn Mowing',
-      description: 'Keep your lawn neat with expert mowing and edging services.',
-      price: '40',
-      category: 'Gardening',
-      imageUrl: '/Images/sample-gardening.jpg'
-    },
-    {
-      _id: 'sample-3',
-      title: 'Plumbing Repair',
-      description: 'Expert plumbing fixes for leaks, clogs, and installations.',
-      price: '120',
-      category: 'Repair',
-      imageUrl: '/Images/sample-plumbing.jpg'
-    }
-  ];
+  // const sampleServices = [
+  //   {
+  //     _id: 'sample-1',
+  //     title: 'Home Cleaning',
+  //     description: 'Professional home cleaning: dusting, vacuuming, and mopping for a spotless home.',
+  //     price: '75',
+  //     category: 'Cleaning',
+  //     imageUrl: '/Images/sample-cleaning.jpg'
+  //   },
+  // ];
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +48,11 @@ export default function ServicePage() {
       const res = await api.get('/service/get-my-services', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setServices(res.data);
+  
+      // Ensure it's always an array
+      const data = Array.isArray(res.data) ? res.data : [];
+  
+      setServices(data);
     } catch (err) {
       console.error('Failed to load services:', err);
       Swal.fire('Error', 'Could not fetch services.', 'error');
@@ -74,7 +62,7 @@ export default function ServicePage() {
   };
 
   // Decide whether to show real services or sample placeholders
-  const displayServices = !loading && services.length === 0 ? sampleServices : services;
+  const displayServices = !loading && services.length === 0 ;
 
   // Handle form inputs
   const handleChange = (e) => {
@@ -134,38 +122,44 @@ export default function ServicePage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600" />
+  <div className="flex justify-center items-center py-20">
+    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-600" />
+  </div>
+) : services.length === 0 ? (
+  <div className="text-center py-20 text-gray-500 text-xl">
+    You haven't added any services yet.
+  </div>
+) : (
+  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    {services.map(service => (
+      <div
+        key={service._id}
+        className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition"
+      >
+        <img
+          src={service.photo || PLACEHOLDER}
+          alt={service.title}
+          className="w-full h-48 object-cover"
+        />
+        <div className="p-5">
+          <h2 className="text-2xl font-semibold text-[#003366] mb-2">{service.serviceType}</h2>
+          <p className="text-gray-600 mb-4 line-clamp-3">{service.createdAt}</p>
+          <div className="flex justify-between items-center">
+            {Array.isArray(service.payRate) && service.payRate.length === 2 ? (
+              <>
+                <span className="text-xl font-bold text-teal-600">${service.payRate[0]}</span> -
+                <span className="text-xl font-bold text-teal-600">${service.payRate[1]}</span>
+              </>
+            ) : (
+              <span className="text-gray-500">No rate info</span>
+            )}
+            <span className="px-3 py-1 bg-gray-200 rounded-full text-sm text-gray-700">{service.serviceType}</span>
           </div>
-        ) : (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {displayServices.map(service => (
-              <div
-                key={service._id}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition"
-              >
-                <img
-                  src={service.photo || PLACEHOLDER}
-                  alt={service.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-5">
-                  <h2 className="text-2xl font-semibold text-[#003366] mb-2">{service.serviceType}</h2>
-                  <p className="text-gray-600 mb-4 line-clamp-3">{service.createdAt}</p>
-                  <div className="flex justify-between items-center">
-                  <div className="flex justify-between items-center">
-
-                    <span className="text-xl font-bold text-teal-600">${service.payRate[0]}</span> -
-                    <span className="text-xl font-bold text-teal-600">${service.payRate[1]}</span>
-                  </div>
-                    <span className="px-3 py-1 bg-gray-200 rounded-full text-sm text-gray-700">{service.serviceType}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
+        </div>
+      </div>
+    ))}
+  </div>
+)}
         {/* Modal for adding a service */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">

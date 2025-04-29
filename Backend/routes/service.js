@@ -77,7 +77,7 @@ router.get('/get-my-services',expressAsyncHandler(async(req,res) => {
         if(services.length > 0){
             return res.status(200).send(services);
         }else{
-            return res.status(200).send({ message: 'Empty.'})
+            return res.status(200).send([]);
         }
 
     }catch(error){
