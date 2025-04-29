@@ -85,4 +85,43 @@ router.get('/get-my-services',expressAsyncHandler(async(req,res) => {
     }
 }));
 
+router.get('/get-services',expressAsyncHandler(async(req,res) => {
+  const { serviceType = "ALL" } = req.query
+  try{
+    const query = {};
+    if(serviceType == 'ALL'){
+      delete query.serviceType
+    }else{
+      query.serviceType = serviceType
+    }
+    
+    const services = await ServiceModel.find(query);
+
+    if(services.length > 0){
+      return res.status(200).send(services)
+    }else{
+      return res.status(200).send([])
+    }
+
+  }catch(error){
+    return res.status(500).send({ message: error.message})
+  }
+}));
+
+router.get('/get-service/:id',expressAsyncHandler(async(req,res) => {
+  const { id } = req.params
+  try{
+
+    const service = await ServiceModel.findById(id);
+  
+    if(service){
+      return res.status(200).send(service)
+    }else{
+      return res.status(404).send({ message: 'Not Found.'})
+    }
+  }catch(error){
+    return res.status(500).send({ message: error.message})
+  }
+}));
+
 export default router;

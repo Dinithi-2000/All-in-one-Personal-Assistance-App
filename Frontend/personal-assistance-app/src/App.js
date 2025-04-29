@@ -15,6 +15,7 @@ import ElderCareService from "Component/ServiceProvider/ElderCareServiceSelectio
 import PetCareService from "Component/ServiceProvider/PetCareServiceSelection";
 import EducationService from "Component/ServiceProvider/EducationServiceSelection";
 import CreateAccount from "Component/ServiceProvider/CreateSProviderAccount";
+import ServiceProviders from "pages/ServiceProviders";
 
 
 function AuthRedirector() {
@@ -142,6 +143,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CreateAccount />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hire-services"
+          element={
+            <ProtectedRoute>
+              <ServiceProviders />
             </ProtectedRoute>
           }
         />

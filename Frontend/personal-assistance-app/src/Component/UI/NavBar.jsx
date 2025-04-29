@@ -97,7 +97,7 @@ const NavBar = ({ handleLogout, user  }) => {
                )}
                { !isProvider && (
               <Link
-                to="/serviceselection"
+                to="/hire-services"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
               >
                 <span>Hire Service Provider</span>
