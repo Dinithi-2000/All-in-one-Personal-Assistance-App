@@ -96,7 +96,6 @@ const Overview = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <RevenueByServiceChart />
           <CategoryDistributionChart />
-          <ProfitLossOverviewChart />
         </div>
       </main>
     </div>

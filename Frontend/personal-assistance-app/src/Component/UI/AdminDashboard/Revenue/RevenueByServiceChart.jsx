@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   PieChart,
@@ -8,15 +8,19 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import axios from "axios";
 
-const RevenuByService = [
-  { name: "BabySitting", value: 400 },
-  { name: "DayCare", value: 300 },
-  { name: "HomeNurse", value: 200 },
-  { name: "Tutor", value: 100 },
-];
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE"];
 const RevenueByServiceChart = () => {
+  const [revenuByService, setRevenuByService] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8070/adminDashBoard/Financial/getPaymentTotal")
+      .then((res) => {
+        setRevenuByService(res.data.data);
+      });
+  }, []);
   return (
     <motion.div
       className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
@@ -25,14 +29,14 @@ const RevenueByServiceChart = () => {
       transition={{ delay: 0.3 }}
     >
       <h2 className="text-xl font-semibold text-gray-100 mb-4">
-        Revenue by Services
+        Service Providers by Category
       </h2>
 
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <PieChart>
             <Pie
-              data={RevenuByService}
+              data={revenuByService}
               cx="50%"
               cy="50%"
               outerRadius={80}
@@ -42,7 +46,7 @@ const RevenueByServiceChart = () => {
                 `${name} ${(percent * 100).toFixed(0)}%`
               }
             >
-              {RevenuByService.map((entry, index) => (
+              {revenuByService.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}

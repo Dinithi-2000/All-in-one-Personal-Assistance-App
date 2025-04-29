@@ -23,7 +23,7 @@ export default function SalaryApprovalList() {
       <table className="w-screen table  table-hover table-striped-row backdrop-opacity-50">
         <thead className="sticky top-0">
           <tr className="border-b border-gray-200">
-            <th className="text-left ml-8 px-2 py-2">Provider Name</th>
+            <th className="text-left ml-8 px-2 py-2">Salary Details</th>
             <th className="text-left  py-2">Salary</th>
             <th className="text-left px-4 py-2">EPF</th>
             <th className="text-left px-4 py-2">ETF</th>
@@ -33,8 +33,11 @@ export default function SalaryApprovalList() {
           {info.map((salary) => (
             <tr key={salary.id} className="border-b border-gray-100">
               <td className="text-left px-2 py-2 min-w-[250px]-2">
-                {salary.serviceProvider?.FirstName}
-                {salary.serviceProvider?.LastName}
+                <p>
+                  Provider :<span>{salary.serviceProvider?.FirstName}</span>
+                  <span>{salary.serviceProvider?.LastName}</span>
+                </p>
+                <p>Month: {salary.month + 1}</p>
               </td>
               <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
                 {salary.totSalary}

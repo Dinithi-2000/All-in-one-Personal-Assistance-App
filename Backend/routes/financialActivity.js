@@ -1,6 +1,6 @@
 import express from 'express'
 import { addExpenses, retrieveExpenses, deleteExpenses, addProfitLoss, retrieveTotatlExpense, updateExpense } from '../models/Adminisator/financialActivity.js';
-import { totalBooking, totalServices, totaProviders, totatlUsers } from '../models/Adminisator/overview.js';
+import { categoryDetails, completedBookingsPerMonth, serviceProviderCountPerCategory, totalBooking, totalServices, totaProviders, totatlUsers } from '../models/Adminisator/overview.js';
 import { addIncome, retreiveTotalRevenue, retrieveRevenue, updateRevenue, deleteRevenue } from '../models/Adminisator/Income.js';
 
 import { getDeduction, getSalaryDetails, TopEmployee, updteRate } from '../models/Adminisator/Salary.js';
@@ -64,5 +64,11 @@ router.get("/getList", getDeduction)
 router.post("/updateSalary", updteRate)
 
 router.get("/topEarners", TopEmployee)
+
+router.get("/categoryDetails", categoryDetails)
+
+router.get("/getPaymentTotal", serviceProviderCountPerCategory)
+
+router.get("/getTotalBooking", completedBookingsPerMonth)
 
 export { router as financialActivityRoute }

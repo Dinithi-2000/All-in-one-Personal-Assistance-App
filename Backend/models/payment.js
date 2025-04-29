@@ -274,9 +274,26 @@ const retrieveSelectedProvider = asyncHandler(async (req, res) => {
 //set provider salary
 const makeProviderSalary = asyncHandler(async (req, res) => {
     try {
+
+        const nowd = new Date();
+        const currentMonth = nowd.getMonth(); // 0 = January
+        const currentYear = nowd.getFullYear();
+
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+
         //retirev payments.
         const completePayments = await prisma.payment.findMany({
-            where: { Status: "COMPLETED" },
+            where: {
+                Status: "COMPLETED",
+                PaymentDate: {
+                    gte: startOfMonth,
+                    lt: endOfMonth,
+                }
+            },
             include: {
                 booking: {
                     include: {
@@ -354,13 +371,21 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
 
             //update provider salary 
             await prisma.providerSalary.upsert({
-                where: { provider: providerId },
+                where: {
+                    provider_month_year: {
+                        provider: providerId,
+                        month: currentMonth,
+                        year: currentYear
+                    }
+                },
                 update: {
                     EPF: { increment: epf },
                     ETF: { increment: etf },
                     totSalary: { increment: netSalary },
                 }, create: {
                     provider: providerId,
+                    month: currentMonth,
+                    year: currentYear,
                     EPF: epf,
                     ETF: etf,
                     totSalary: netSalary,
