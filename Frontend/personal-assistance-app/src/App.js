@@ -16,6 +16,7 @@ import PetCareService from "Component/ServiceProvider/PetCareServiceSelection";
 import EducationService from "Component/ServiceProvider/EducationServiceSelection";
 import CreateAccount from "Component/ServiceProvider/CreateSProviderAccount";
 import ServiceProviders from "pages/ServiceProviders";
+import MyBookings from "pages/Bookings";
 
 
 function AuthRedirector() {
@@ -151,6 +152,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ServiceProviders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-bookings"
+          element={
+            <ProtectedRoute>
+              <MyBookings />
             </ProtectedRoute>
           }
         />
