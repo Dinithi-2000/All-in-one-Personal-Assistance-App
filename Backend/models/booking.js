@@ -1,4 +1,3 @@
-// Backend/config/models/booking.js
 import asyncHandler from "express-async-handler";
 import ServiceProvider from './ServiceProvider.js';
 import mongoose from "mongoose";
@@ -11,7 +10,11 @@ const bookingSchema = new mongoose.Schema({
     email: { type: String, required: true },
     phone: { type: String, required: true },
   },
-  providerID: { type: String, required: true },
+  providerID: { 
+    type: mongoose.Schema.Types.ObjectId, // Changed to ObjectId reference
+    ref: 'ServiceProvider', // Reference to the ServiceProvider model
+    required: true 
+  },
   agreementDuration: { type: String, required: true },
   bookingService: { type: String, required: true },
   monthlyPayment: { type: Number, required: true },
@@ -24,6 +27,7 @@ const bookingSchema = new mongoose.Schema({
   bookingTime: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   payments: [{ type: String }],
+  rejectionReason: { type: String },
 });
 
 const Booking = mongoose.model("bookings", bookingSchema);
@@ -47,7 +51,11 @@ const filterServiceProviders = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "Service type is required" });
     }
 
-    console.log("Querying database with filters...");
+    // Add availability filter to only include providers with availability: 'yes'
+    filters.availability = 'yes';
+    console.log("Availability filter applied: 'yes'");
+
+    console.log("Querying database with filters:", filters);
     const serviceProviders = await ServiceProvider.find(filters);
     console.log("Found service providers:", serviceProviders.length);
 
@@ -164,8 +172,6 @@ const retrieveBookings = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 // Retrieve all bookings (for admin)
 const getAllBookings = asyncHandler(async (req, res) => {
   try {
@@ -173,7 +179,7 @@ const getAllBookings = asyncHandler(async (req, res) => {
     console.log("Querying all bookings...");
 
     const bookings = await Booking.find()
-      .populate("providerID")
+      .populate("providerID") // This will now correctly populate the provider details
       .sort({ createdAt: -1 });
     console.log("Found bookings:", bookings.length);
 
@@ -213,6 +219,13 @@ const updateBooking = asyncHandler(async (req, res) => {
     if (req.body.bookingDate) updateData.bookingDate = req.body.bookingDate;
     if (req.body.bookingTime) updateData.bookingTime = req.body.bookingTime;
     if (req.body.status) updateData.status = req.body.status;
+    if (req.body.rejectionReason) updateData.rejectionReason = req.body.rejectionReason;
+
+    // Validate rejection reason when status is REJECTED
+    if (updateData.status === "REJECTED" && !updateData.rejectionReason) {
+      console.log("Rejection reason missing for REJECTED status");
+      return res.status(400).json({ message: "Rejection reason is required when rejecting a booking" });
+    }
 
     console.log("Updating booking with data:", updateData);
     const updatedBooking = await Booking.findByIdAndUpdate(
@@ -274,7 +287,7 @@ export {
   filterServiceProviders,
   createBooking,
   retrieveBookings,
-  getAllBookings, // Export the new function
+  getAllBookings,
   updateBooking,
   deleteBooking,
 };
