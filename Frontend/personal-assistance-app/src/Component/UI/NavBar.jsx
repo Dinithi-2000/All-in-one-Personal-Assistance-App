@@ -156,12 +156,12 @@ const NavBar = ({ handleLogout, user, forceUpdate }) => {
             ) : (
               <Link to="/profile" className="flex items-center space-x-2">
                 <img
-                  src={user.profile_pic || "/Images/person2.png"}
+                  src={currentUser.profile_pic || "/Images/person2.png"}
                   className="w-10 h-10 rounded-full"
                   alt={currentUser.firstName}
                 />
                 <span className="text-[#003366] font-semibold">
-                  {currentUser.name}
+                  {currentUser.firstName}
                 </span>
               </Link>
             )}
