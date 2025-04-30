@@ -3,21 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import api from "Lib/api";
 
-const NavBar = ({ handleLogout, user }) => {
+const NavBar = ({ handleLogout, user, forceUpdate }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(user);
-  const [isProvider, setIsProvider] = useState(false);
 
-  // Use effect to always keep the component state synced with localStorage
-  useEffect(() => {
+  // Always get the latest value from localStorage directly
+  const getUserData = () => {
     const stored = localStorage.getItem("userData");
-    if (stored) {
-      const storedUser = JSON.parse(stored);
-      setCurrentUser(storedUser);
-      setIsProvider(storedUser.isServiceProvider === true);
-    }
-  }, []);
+    return stored ? JSON.parse(stored) : {};
+  };
+
+  // Get provider status directly from localStorage
+  const isProvider = getUserData().isServiceProvider === true;
 
   const onLogout = () => {
     Swal.fire({
@@ -55,27 +52,20 @@ const NavBar = ({ handleLogout, user }) => {
         }
       );
       if (res.data.message === "success") {
-        // Get the latest user data from localStorage
-        const stored = localStorage.getItem("userData");
-        const storedUser = stored ? JSON.parse(stored) : {};
+        // Get the latest user data
+        const currentUserData = getUserData();
         
         // Update the user data
         const updatedUserData = {
-          ...storedUser,
+          ...currentUserData,
           isServiceProvider: true, 
         };
         
         // Save to localStorage
         localStorage.setItem("userData", JSON.stringify(updatedUserData));
         
-        // Update component state to trigger re-render
-        setCurrentUser(updatedUserData);
-        setIsProvider(true);
-  
-        Swal.fire("Success", "You are now a service provider!", "success").
-        then(() => {
-          navigate("/dashboard");
-        });
+        // Force a complete page reload to update all components
+        window.location.href = "/dashboard";
       } else {
         Swal.fire("Notice", res.data.message, "info");
       }
@@ -89,6 +79,9 @@ const NavBar = ({ handleLogout, user }) => {
       }
     }
   };
+
+  // Always use the most up-to-date user data from localStorage
+  const currentUser = getUserData();
 
   return (
     <nav className="bg-white shadow-lg w-full">
@@ -163,7 +156,7 @@ const NavBar = ({ handleLogout, user }) => {
             ) : (
               <Link to="/profile" className="flex items-center space-x-2">
                 <img
-                  src={currentUser.profileImage || "/Images/person2.png"}
+                  src={user.profile_pic || "/Images/person2.png"}
                   className="w-10 h-10 rounded-full"
                   alt={currentUser.firstName}
                 />
