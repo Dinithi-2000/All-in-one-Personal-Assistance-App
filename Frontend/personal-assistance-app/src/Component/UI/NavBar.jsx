@@ -1,17 +1,23 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import api from "Lib/api";
 
-const NavBar = ({ handleLogout, user  }) => {
+const NavBar = ({ handleLogout, user }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(user);
+  const [isProvider, setIsProvider] = useState(false);
 
-  // parse your stored userData once
-  const stored = localStorage.getItem("userData");
-  const storedUser = stored ? JSON.parse(stored) : {};
-  const isProvider = storedUser.isServiceProvider === true;
+  // Use effect to always keep the component state synced with localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("userData");
+    if (stored) {
+      const storedUser = JSON.parse(stored);
+      setCurrentUser(storedUser);
+      setIsProvider(storedUser.isServiceProvider === true);
+    }
+  }, []);
 
   const onLogout = () => {
     Swal.fire({
@@ -49,12 +55,22 @@ const NavBar = ({ handleLogout, user  }) => {
         }
       );
       if (res.data.message === "success") {
+        // Get the latest user data from localStorage
+        const stored = localStorage.getItem("userData");
+        const storedUser = stored ? JSON.parse(stored) : {};
         
+        // Update the user data
         const updatedUserData = {
           ...storedUser,
           isServiceProvider: true, 
         };
+        
+        // Save to localStorage
         localStorage.setItem("userData", JSON.stringify(updatedUserData));
+        
+        // Update component state to trigger re-render
+        setCurrentUser(updatedUserData);
+        setIsProvider(true);
   
         Swal.fire("Success", "You are now a service provider!", "success").
         then(() => {
@@ -63,8 +79,6 @@ const NavBar = ({ handleLogout, user  }) => {
       } else {
         Swal.fire("Notice", res.data.message, "info");
       }
-      
-  
     } catch (err) {
       console.error("failed to register service provider", err);
       if (err.response?.status === 401) {
@@ -96,24 +110,16 @@ const NavBar = ({ handleLogout, user  }) => {
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
    
-        {/* { !isProvider && (
-              <Link
-                to="/serviceselection"
-                className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
-              >
-                <span>Service Providers</span>
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-              </Link>
-               )} */}
-               { !isProvider && (
+               {!isProvider && (
               <Link
                 to="/hire-services"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
               >
                 <span>Hire Service Provider</span>
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-              </Link> )}
-              { !isProvider && (
+              </Link>)}
+              
+              {!isProvider && (
               <Link
                 to="/my-bookings"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
@@ -121,59 +127,60 @@ const NavBar = ({ handleLogout, user  }) => {
                 <span>My Bookings</span>
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>)}
-              { !isProvider && (
+              
+              {!isProvider && (
               <Link
                 to="/payment"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline"
               >
                 <span>Payment</span>
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-              </Link> )}
-              { isProvider && (
+              </Link>)}
+              
+              {isProvider && (
               <Link
                 to="/services"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline"
               >
                 <span>Services</span>
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-              </Link> )}
+              </Link>)}
             </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-        { !isProvider && (
-          <button
-            onClick={handleBecomeProvider}
-            className="block py-2 px-4 bg-teal-500 text-white font-semibold hover:bg-teal-600 transition duration-300"
-          >
-            Become A Service Provider
-          </button>
-        )}
+            {!isProvider && (
+              <button
+                onClick={handleBecomeProvider}
+                className="block py-2 px-4 bg-teal-500 text-white font-semibold hover:bg-teal-600 transition duration-300"
+              >
+                Become A Service Provider
+              </button>
+            )}
 
-        {!user ? (
-          <div className="animate-pulse h-10 w-24 bg-gray-200 rounded"></div>
-        ) : (
-          <Link to="/profile" className="flex items-center space-x-2">
-            <img
-              src={user.profileImage || "/Images/person2.png"}
-              className="w-10 h-10 rounded-full"
-              alt={user.firstName}
-            />
-            <span className="text-[#003366] font-semibold">
-              {user.name}
-            </span>
-          </Link>
-        )}
+            {!currentUser ? (
+              <div className="animate-pulse h-10 w-24 bg-gray-200 rounded"></div>
+            ) : (
+              <Link to="/profile" className="flex items-center space-x-2">
+                <img
+                  src={currentUser.profileImage || "/Images/person2.png"}
+                  className="w-10 h-10 rounded-full"
+                  alt={currentUser.firstName}
+                />
+                <span className="text-[#003366] font-semibold">
+                  {currentUser.name}
+                </span>
+              </Link>
+            )}
 
-        <button
-          onClick={onLogout}
-          className="py-2 px-4 text-[#003366] font-semibold border border-teal-500 rounded-md hover:bg-teal-500 hover:text-white transition duration-300 whitespace-nowrap"
-        >
-          Log Out
-        </button>
-      </div>
+            <button
+              onClick={onLogout}
+              className="py-2 px-4 text-[#003366] font-semibold border border-teal-500 rounded-md hover:bg-teal-500 hover:text-white transition duration-300 whitespace-nowrap"
+            >
+              Log Out
+            </button>
+          </div>
         </div>
- 
       </div>
     </nav>
   );
