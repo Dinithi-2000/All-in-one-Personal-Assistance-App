@@ -36,7 +36,7 @@ const NavBar = ({ handleLogout }) => {
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link
-                to="/serviceselection"
+                to="/spdashboard"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
               >
                 <span>Service Providers</span>
@@ -68,7 +68,7 @@ const NavBar = ({ handleLogout }) => {
 
           <div className="hidden md:flex items-center space-x-4">
             <Link
-              to="/register-provider"
+              to="/serviceselections"
               className="py-2 px-4 bg-teal-500 text-white font-semibold rounded-md hover:bg-teal-600 transition duration-300 no-underline whitespace-nowrap"
             >
               Become A Service Provider

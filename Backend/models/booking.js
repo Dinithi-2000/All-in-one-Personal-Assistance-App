@@ -1,6 +1,6 @@
 // Backend/config/models/booking.js
 import asyncHandler from "express-async-handler";
-import ServiceProvider from "./ServiceProvider.js";
+import ServiceProvider from './ServiceProvider.js';
 import mongoose from "mongoose";
 
 // Define a simple Booking schema for Mongoose
