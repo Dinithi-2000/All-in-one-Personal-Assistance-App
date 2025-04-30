@@ -5,6 +5,7 @@ import expressAsyncHandler from 'express-async-handler';
 // models
 import ServiceModel from '../models/ServiceModel.js';
 import UserModel from '../models/UserModel.js';
+import ServiceProvider from '../models/ServiceProvider.js';
 
 const router = express.Router();
 
@@ -116,6 +117,22 @@ router.get('/get-service/:id',expressAsyncHandler(async(req,res) => {
   
     if(service){
       return res.status(200).send(service)
+    }else{
+      return res.status(404).send({ message: 'Not Found.'})
+    }
+  }catch(error){
+    return res.status(500).send({ message: error.message})
+  }
+}));
+
+router.delete('/delete-service/:id',expressAsyncHandler(async(req,res) => {
+  const { id } = req.params
+  try{
+
+    const service = await ServiceModel.findOneAndDelete({ _id: id });
+  
+    if(service){
+      return res.status(200).send({ message: 'Deleted.'})
     }else{
       return res.status(404).send({ message: 'Not Found.'})
     }
