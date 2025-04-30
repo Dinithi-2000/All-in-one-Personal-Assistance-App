@@ -25,7 +25,8 @@ import ProviderPage from "../Component/Pages/Admindashboard/ProviderPage";
 import RefundPage from "../Component/Pages/Admindashboard/RefundPage";
 import Settings from "../Component/Pages/Admindashboard/Settings";
 import Users from "../Component/Pages/Admindashboard/Users";
-
+import PaymentSuccess from "../Component/UI/PaymenSuccess";
+import PaymentCancel from "../Component/UI/PaymentCancel";
 
 import CreateAccount from '../Component/Pages/ServiceProvider/CreateSProviderAccount';
 import ServiceSelection1 from '../Component/Pages/ServiceProvider/ServiceSelection';
@@ -54,7 +55,6 @@ export default function AppRoutes({
   handleLogin,
 }) {
   return (
-    
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Layout />}>
@@ -72,9 +72,12 @@ export default function AppRoutes({
             <Route path="PaymentOption" element={<PaymentMethod />} />
             <Route path="PaymentHistory" element={<PaymentHistory />} />
             <Route path="RefundHistory" element={<RefundHistory />} />
+            <Route path="paymentSuccess" element={<PaymentSuccess />} />
+            <Route path="paymentCancel" element={<PaymentCancel />} />
           </Route>
           <Route path="/serviceselection" element={<ServiceSelection />} />
           <Route path="/my-bookings" element={<MyBookings />} />
+
 
           <Route path='/createaccount' element={<CreateAccount/>}/>
     <Route path='/serviceselections' element={<ServiceSelection1/>}/>
@@ -91,13 +94,13 @@ export default function AppRoutes({
     <Route path='/viewspprofile' element={<ServiceProviderProfile/>}/>
     <Route path='/editspprofile' element={<EditServiceProviderProfile/>}/>
     <Route path='/spdashboard' element={<ServiceProviderHome/>}/>
+
         </Route>
       </Route>
 
-
       {/* Admin Route */}
-     
-<Route
+
+      <Route
         path="/admin"
         element={
           <AdminRoute isAuthenticated={isAuthenticated} isAdmin={isAdmin} />
@@ -113,7 +116,8 @@ export default function AppRoutes({
           <Route path="salary" element={<SalaryCalculation />} />
           <Route path="refund" element={<RefundPage />} />
           <Route path="setting" element={<Settings />} />
-          <Route path="bookings" element={<AdminBookings />} /> {/* New route */}
+          <Route path="bookings" element={<AdminBookings />} />{" "}
+          {/* New route */}
         </Route>
       </Route>
 

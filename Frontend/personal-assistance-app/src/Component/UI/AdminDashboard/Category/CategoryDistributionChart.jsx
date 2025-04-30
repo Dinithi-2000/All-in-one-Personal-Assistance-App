@@ -1,4 +1,6 @@
+import axios from "axios";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -8,17 +10,18 @@ import {
   Legend,
 } from "recharts";
 
-const categoryData = [
-  { name: "Child Care", value: 6 },
-  { name: "Elder Care", value: 5 },
-  { name: "Pet Care", value: 4 },
-  { name: "Education", value: 2 },
-  { name: "Kitchen", value: 3 },
-];
-
 const COLORS = ["#6366F1", "#8B5CF6", "#EC4899", "#10B981", "#F59E0B"];
 
 const CategoryDistributionChart = () => {
+  const [categoryData, setCategoryData] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8070/adminDashBoard/Financial/categoryDetails")
+      .then((res) => {
+        setCategoryData(res.data.category);
+      });
+  }, []);
   return (
     <motion.div
       className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"

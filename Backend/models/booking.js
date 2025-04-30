@@ -164,6 +164,8 @@ const retrieveBookings = asyncHandler(async (req, res) => {
   }
 });
 
+
+
 // Retrieve all bookings (for admin)
 const getAllBookings = asyncHandler(async (req, res) => {
   try {

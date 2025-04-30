@@ -102,10 +102,10 @@ model Complain{
 
 model Service{
     ServiceID String   @id @default(auto()) @map("_id") @db.ObjectId
-    ServiceName String
+    ServiceName String?
     Category String @db.ObjectId
-    CommisionRate Int
-    Description String
+    CommisionRate Int?
+    Description String?
     category Category @relation(fields: [Category],references: [CategoryID])
     serviceProvider ServiceProvider[]
 }
@@ -127,7 +127,7 @@ model ServiceProvider{
     NIC String?@unique
     Address String?
     email String?@unique
-    password String @unique
+    password String ?@unique
     Availability Boolean @default(true)
     ServiceType String @db.ObjectId
     bookings Booking[]
@@ -166,6 +166,8 @@ model Booking{
     customer Customer   @relation(fields: [CustomerID],references:[id])
     serviceProvider  ServiceProvider   @relation(fields: [Provider],references:[ProviderID])
     payment Payment[]   
+   
+   
 }
 
 model PaymentMethod{
@@ -207,11 +209,15 @@ model FeedbackRating{
 model ProviderSalary{
     id String @id @default(auto()) @map("_id") @db.ObjectId
     provider String @db.ObjectId @unique
+    month Int? 
+    year Int? 
     EPF Float?
     ETF Float?
     totSalary Float?
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
     serviceProvider ServiceProvider @relation(fields: [provider],references: [ProviderID])
-
+    @@unique([provider, month, year], name: "provider_month_year")
 
 }
 model InFlow{
@@ -283,6 +289,8 @@ model profitLoss{
     type String?
     rate Float?
  }
+
+
 
 
 

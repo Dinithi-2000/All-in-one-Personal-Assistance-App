@@ -40,6 +40,7 @@ export default function PaymentForm({
       setSaveCard(true);
     }
   }, [saveDetails]);
+
   //card number format
   const cardNumberFormat = (cardNumber) => {
     const cardNumberStr = cardNumber || "";
@@ -111,6 +112,7 @@ export default function PaymentForm({
             cardHolderName: cardCredentials.cardHolderName,
           },
         );
+
         setAlert({ type: "success", message: "Payment successful!" });
 
         //redirect to dashboard
@@ -118,9 +120,12 @@ export default function PaymentForm({
           navigate("/payment");
         }, 2000);
       }
+      const data = response.data;
 
-      //redirect to payhere checkout page
-      window.location.href = response.data.checkout_url;
+      if (data.session && data.session.url) {
+        console.log("url accessed");
+        window.location.href = data.session.url;
+      }
     } catch (error) {
       setAlert({
         type: "error",
@@ -133,6 +138,7 @@ export default function PaymentForm({
     console.log("Form submitted successfully:", cardCredentials);
     // Add your form submission logic here (e.g., API call)
   };
+
   return (
     <div className=" w-full px-4 pl-2 justify-items-center whitespace-nowrap">
       {alert.message && (
@@ -202,7 +208,7 @@ export default function PaymentForm({
                     type="text"
                     name="expiryDate"
                     value={cardCredentials.expiryDate || ""}
-                   onChange={(e) => {
+                    onChange={(e) => {
                       let value = e.target.value;
                       // Auto-insert slash after 2 digits
                       if (

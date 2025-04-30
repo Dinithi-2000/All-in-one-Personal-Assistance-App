@@ -11,6 +11,8 @@ import { PaymentGatewayRoute } from "./routes/PaymentGatewayRoute.js"
 import { bookingRouter } from "./routes/bookingRoutes.js";
 import ServiceProviderRouter from './routes/serviceProviderRoute.js';
 
+import { schedulePaymentComplete } from "./services/paymentschedule.js"
+
 
 
 
@@ -55,6 +57,8 @@ app.listen(PORT, () => {
     console.log(`server start and running ${PORT}`);
 })
 
+
+
 app.use("/home/payment", paymentRoute)
 app.use("/home/Refund", RefundRouter)
 app.use("/api", PaymentGatewayRoute)
@@ -63,3 +67,4 @@ app.use("/adminDashBoard/Financial", financialActivityRoute)
 app.use("/home/booking", bookingRouter);
 app.use("/home/serviceProvider", ServiceProviderRouter)
 
+schedulePaymentComplete();

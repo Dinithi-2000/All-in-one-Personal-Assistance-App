@@ -48,10 +48,10 @@ const AdminBookings = () => {
       const filtered = bookings.filter(booking => {
         return (
           (booking.customerDetails?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          booking.providerDetails?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          booking.bookingService?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          booking.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          booking.bookingDate?.toLowerCase().includes(searchTerm.toLowerCase()))
+            booking.providerDetails?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            booking.bookingService?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            booking.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            booking.bookingDate?.toLowerCase().includes(searchTerm.toLowerCase()))
         );
       });
       setFilteredBookings(filtered);
@@ -98,63 +98,63 @@ const AdminBookings = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    
-       // Add company information
-       doc.setFontSize(16);
-       doc.setTextColor(40);
-       doc.text(companyInfo.name, 105, 15, { align: 'center' });
-       
-       doc.setFontSize(10);
-       doc.text(companyInfo.address, 105, 22, { align: 'center' });
-       doc.text(`Phone: ${companyInfo.phone} | Email: ${companyInfo.email}`, 105, 28, { align: 'center' });
-       
-       // Add title and date
-       doc.setFontSize(14);
-       doc.text("Bookings Report", 105, 38, { align: 'center' });
-       
-       const date = new Date().toLocaleString();
-       doc.setFontSize(10);
-       doc.text(`Generated on: ${date}`, 105, 44, { align: 'center' });
-       
-       // Prepare data for the table
-       const headers = [
-         ['Customer', 'Provider', 'Service', 'Duration', 'Payment (Rs.)', 'Date', 'Time', 'Status']
-       ];
-       
-       const tableData = filteredBookings.map(booking => [
-         booking.customerDetails?.name || "N/A",
-         booking.providerDetails?.name || "N/A",
-         booking.bookingService || "N/A",
-         booking.agreementDuration || "N/A",
-         booking.monthlyPayment || "N/A",
-         booking.bookingDate || "N/A",
-         booking.bookingTime || "N/A",
-         booking.status || "N/A"
-       ]);
-       
-       // Add table using autoTable
-       autoTable(doc, {
-         head: headers,
-         body: tableData,
-         startY: 50,
-         theme: 'grid',
-         headStyles: {
-           fillColor: [41, 128, 185],
-           textColor: 255,
-           fontStyle: 'bold'
-         },
-         alternateRowStyles: {
-           fillColor: [245, 245, 245]
-         },
-         margin: { top: 50 }
-       });
-       
-       // Save the PDF
-       doc.save(`bookings_report_${new Date().toISOString().slice(0, 10)}.pdf`);
-     };
+
+    // Add company information
+    doc.setFontSize(16);
+    doc.setTextColor(40);
+    doc.text(companyInfo.name, 105, 15, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.text(companyInfo.address, 105, 22, { align: 'center' });
+    doc.text(`Phone: ${companyInfo.phone} | Email: ${companyInfo.email}`, 105, 28, { align: 'center' });
+
+    // Add title and date
+    doc.setFontSize(14);
+    doc.text("Bookings Report", 105, 38, { align: 'center' });
+
+    const date = new Date().toLocaleString();
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${date}`, 105, 44, { align: 'center' });
+
+    // Prepare data for the table
+    const headers = [
+      ['Customer', 'Provider', 'Service', 'Duration', 'Payment (Rs.)', 'Date', 'Time', 'Status']
+    ];
+
+    const tableData = filteredBookings.map(booking => [
+      booking.customerDetails?.name || "N/A",
+      booking.providerDetails?.name || "N/A",
+      booking.bookingService || "N/A",
+      booking.agreementDuration || "N/A",
+      booking.monthlyPayment || "N/A",
+      booking.bookingDate || "N/A",
+      booking.bookingTime || "N/A",
+      booking.status || "N/A"
+    ]);
+
+    // Add table using autoTable
+    autoTable(doc, {
+      head: headers,
+      body: tableData,
+      startY: 50,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      },
+      margin: { top: 50 }
+    });
+
+    // Save the PDF
+    doc.save(`bookings_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
 
   return (
-    <div className="p-6">
+    <div className="p-6 z-10">
       <h1 className="text-2xl font-bold mb-6">All Bookings</h1>
 
       {/* Search and PDF buttons */}
@@ -184,8 +184,8 @@ const AdminBookings = () => {
       )}
 
       {filteredBookings.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border rounded-lg shadow-sm">
+        <div className="overflow-x-auto z-10">
+          <table className="min-w-full bg-white border rounded-lg shadow-sm z-10">
             <thead>
               <tr className="bg-gray-100 border-b">
                 <th className="p-4 text-left">Customer</th>

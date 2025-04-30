@@ -33,8 +33,12 @@ export default function PaymentMethod() {
   ];
 
   // Handle payment type selection
-  const handleSelectedPayment = (method) => {
+  const handleSelectedPayment = (method, cardDetails = null) => {
     setSelectedType(method);
+
+    if (cardDetails) {
+      setSaveCard(cardDetails);
+    }
   };
 
   // Reset selection to show payment options again
@@ -73,7 +77,9 @@ export default function PaymentMethod() {
                 saveCard.map((card) => (
                   <button
                     key={card.id}
-                    onClick={() => handleSelectedPayment(card.paymentMethod)}
+                    onClick={() =>
+                      handleSelectedPayment(card.paymentMethod, card)
+                    }
                     className="px-18 py-1 w-full text-[#000080] rounded-lg text-center bg-gray-200 mb-4"
                   >
                     <p>**** **** **** {card.cardNumber.slice(-4)}</p>

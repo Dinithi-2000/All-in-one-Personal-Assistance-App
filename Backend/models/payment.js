@@ -1,8 +1,10 @@
 import asyncHandler from "express-async-handler"
 import { prisma } from "../config/prismaConfig.js"
 import { ObjectId } from "mongodb";
+import Stripe from "stripe";
+import { salaryMail } from "../services/salaryMail.js";
 
-const PAYHERE_CHECKOUT_URL = 'https://sandbox.payhere.lk/pay/checkout';
+
 //create paymente
 const createPayment = asyncHandler(async (req, res) => {
     console.log("Create Payment");
@@ -36,6 +38,30 @@ const createPayment = asyncHandler(async (req, res) => {
             throw new Error("Invalid Booking ID");
         }
 
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            success_url: `${process.env.CLIENT_SITE_URL}payment/paymentSuccess`,
+            cancel_url: `${process.env.CLIENT_SITE_URL}payment/paymentCancel`,
+            customer_email: 'sdinithi7@gmail.com',
+            client_reference_id: BookingId,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        unit_amount: Amount * 100,
+                        product_data: {
+                            name: 'Booking Payment'
+                        },
+
+                    },
+                    quantity: 1,
+                },
+            ],
+
+        })
+
 
         //create payment
         const payment = await prisma.payment.create({
@@ -57,32 +83,7 @@ const createPayment = asyncHandler(async (req, res) => {
 
         });
         const monthlyPayment = parseFloat(bookingExists.MonthlyPayment);
-
-
-        // Initialize PayHere payment
-        const paymentData = {
-             merchant_id: process.env.PAYHERE_MERCHANT_ID,
-            merchant_secret: process.env.PAYHERE_SECRET_KEY,
-            return_url: 'http://your-frontend-url.com/payment-success', // Redirect after payment
-            cancel_url: 'http://your-frontend-url.com/payment-cancel', // Redirect if payment is canceled
-            notify_url: 'http://localhost:8070/api/payment-notify', // Webhook for payment notifications
-            order_id: order_id,
-            items: Item,
-            amount: Amount,
-            currency: Currency,
-
-
-        };
-
-        // Redirect user to PayHere checkout page
-        res.send({
-            message: "Your Pending Payment create Successfully",
-            payment: payment,
-            checkout_url: `${PAYHERE_CHECKOUT_URL}?${new URLSearchParams(paymentData).toString()}`,
-        });
-
-
-
+        res.status(200).json({ message: 'Successfully Paid', session })
 
     } catch (error) {
         console.error('Error initializing payment:', error);
@@ -273,37 +274,66 @@ const retrieveSelectedProvider = asyncHandler(async (req, res) => {
 //set provider salary
 const makeProviderSalary = asyncHandler(async (req, res) => {
     try {
+
+        const nowd = new Date();
+        const currentMonth = nowd.getMonth(); // 0 = January
+        const currentYear = nowd.getFullYear();
+
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+
         //retirev payments.
-        const completePayment = await prisma.payment.findMany({
+        const completePayments = await prisma.payment.findMany({
             where: {
                 Status: "COMPLETED",
+                PaymentDate: {
+                    gte: startOfMonth,
+                    lt: endOfMonth,
+                }
             },
             include: {
                 booking: {
                     include: {
-                        serviceProvider: true,
-                    },
-                },
-            },
-        })
+                        serviceProvider: {
+                            include: {
+                                service: {  // Include service to get commission rate
+                                    select: { CommisionRate: true }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
 
         //retirev EPF ETF rate
         const rate = await prisma.deductionRate.findMany();
+        console.log(rate)
         const epfAmpount = rate.find(r => r.type === "EPF")?.rate || 0;
         const etfAmount = rate.find(r => r.type === "ETF")?.rate || 0;
+        console.log(epfAmpount);
+
+
 
         //group paymnet by provider
         const providerSalaries = {};
 
-        completePayment.forEach(payment => {
-            const providerId = payment.booking.serviceProvider.providerId;
+        completePayments.forEach(payment => {
+            const providerId = payment.booking.serviceProvider.ProviderID;
             const amount = payment.Amount;
+            const commissionRate = payment.booking?.serviceProvider?.service?.CommisionRate;
+            const finalCommissionRate = commissionRate !== undefined ? (commissionRate / 100) : 0.1; // Dividing by 100 if stored as percentage
+
+
 
             if (!providerSalaries[providerId]) {
                 providerSalaries[providerId] = {
                     totalEarning: 0,
-                    commission: 0,
+                    commissionRate: finalCommissionRate,
                     epfDeduct: 0,
                     etfDeduct: 0,
                     netSalary: 0,
@@ -312,12 +342,14 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
             providerSalaries[providerId].totalEarning += amount;
 
 
+
         });
 
         //calculate net salary
         for (const providerId in providerSalaries) {
             const totalEarning = providerSalaries[providerId].totalEarning;
-            const commisionRate = 0.1;
+            const commisionRate = providerSalaries[providerId].commissionRate;
+            console.log(commisionRate);
             const commission = totalEarning * commisionRate;
             const epf = ((totalEarning - commission) * epfAmpount);
             const etf = ((totalEarning - commission) * etfAmount);
@@ -339,13 +371,21 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
 
             //update provider salary 
             await prisma.providerSalary.upsert({
-                where: { provider: providerId },
+                where: {
+                    provider_month_year: {
+                        provider: providerId,
+                        month: currentMonth,
+                        year: currentYear
+                    }
+                },
                 update: {
                     EPF: { increment: epf },
                     ETF: { increment: etf },
                     totSalary: { increment: netSalary },
                 }, create: {
                     provider: providerId,
+                    month: currentMonth,
+                    year: currentYear,
                     EPF: epf,
                     ETF: etf,
                     totSalary: netSalary,
@@ -357,9 +397,10 @@ const makeProviderSalary = asyncHandler(async (req, res) => {
                     ProviderID: providerId
                 },
             });
-            const pdfBytes = await generatePaysheetPDF(provider, providerSalaries[providerId]);
-            //send pdf to provider's mail
-            await sendEmailWithPaysheet(provider, pdfBytes);
+            /* const pdfBytes = await generatePaySheetPDF(provider, providerSalaries[providerId]);
+             //send pdf to provider's mail*/
+            await salaryMail(provider.email, providerSalaries[providerId])
+
         }
         res.json({
             message: "Provider salaries calculated and updated successfully",
