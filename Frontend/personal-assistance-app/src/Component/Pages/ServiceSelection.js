@@ -117,8 +117,8 @@ const ServiceSelection = () => {
 
     if (!formData.monthlyPayment) {
       errors.monthlyPayment = "Monthly payment is required";
-    } else if (formData.monthlyPayment < 1000) {
-      errors.monthlyPayment = "Monthly payment must be at least 1000";
+    } else if (formData.monthlyPayment < 15000) {
+      errors.monthlyPayment = "Monthly payment must be at least 15000";
     }
 
     if (!formData.bookingDate) {
@@ -657,22 +657,20 @@ const ServiceSelection = () => {
                     <FaMoneyBillWave className="mr-2 text-teal-500 h-4 w-4" />
                     Monthly Payment (Rs.)
                   </label>
-                  <div className="relative">
+                  <div className="relative flex items-center border rounded-xl bg-gray-50 overflow-hidden focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent transition duration-200">
+                    <span className="pl-3 pr-1 text-gray-500">Rs.</span>
                     <input
                       type="number"
                       name="monthlyPayment"
                       value={formData.monthlyPayment}
                       onChange={handleFormChange}
-                      className={`w-full border ${
-                        validationErrors.monthlyPayment ? "border-red-500" : "border-gray-300"
-                      } rounded-xl p-3 pl-12 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200 bg-gray-50`}
-                      min="1000"
+                      className={`w-full border-none p-3 focus:outline-none focus:ring-0 bg-gray-50 ${
+                        validationErrors.monthlyPayment ? "text-red-500" : "text-gray-700"
+                      }`}
+                      min="15000"
                       step="100"
                       aria-label="Enter monthly payment"
                     />
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                      Rs.
-                    </div>
                   </div>
                   {validationErrors.monthlyPayment && (
                     <p className="text-red-500 text-xs mt-1">{validationErrors.monthlyPayment}</p>
