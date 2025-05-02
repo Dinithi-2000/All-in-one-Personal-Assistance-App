@@ -229,7 +229,7 @@ const ServiceSelection = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-gray-50 font-sans w-full">
       {/* Notification Bar */}
       <AnimatePresence>
         {bookingSuccess && (
@@ -257,8 +257,8 @@ const ServiceSelection = () => {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-teal-500 to-teal-700 text-white py-12 md:py-16">
-        <div className="container mx-auto px-4 md:px-6">
+      <div className="bg-gradient-to-br from-teal-500 to-teal-700 text-white py-12 md:py-16 w-full">
+        <div className="w-full px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -267,12 +267,12 @@ const ServiceSelection = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
               Find Your Perfect Service Provider
             </h1>
-            <p className="text-teal-100 text-lg md:text-xl mb-8 max-w-2xl">
+            <p className="text-teal-100 text-lg md:text-xl mb-8">
               Discover professional and reliable assistance tailored to your needs.
             </p>
 
             {/* Search Bar */}
-            <div className="relative max-w-lg">
+            <div className="relative w-full">
               <input
                 type="text"
                 placeholder="Search by name, location, languages, or services..."
@@ -289,7 +289,7 @@ const ServiceSelection = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 py-10">
+      <div className="w-full px-4 md:px-6 py-10">
         {/* Category Tabs */}
         <motion.div
           initial={{ opacity: 0 }}
