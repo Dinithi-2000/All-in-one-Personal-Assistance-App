@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import expressAsyncHandler from 'express-async-handler';
+import speakeasy from 'speakeasy';
 import ServiceProvider from './ServiceProvider.js';
 
 // Create a new service provider
@@ -48,10 +51,12 @@ export const createServiceProvider = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    const hashPassword = await bcrypt.hash(password, 8);
+
     const newServiceProvider = new ServiceProvider({
       name,
       email,
-      password,
+      password: hashPassword,
       serviceType,
       location,
       payRate,

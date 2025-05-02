@@ -10,8 +10,8 @@ import { financialActivityRoute } from "./routes/financialActivity.js"
 import { PaymentGatewayRoute } from "./routes/PaymentGatewayRoute.js"
 import { bookingRouter } from "./routes/bookingRoutes.js";
 import ServiceProviderRouter from './routes/serviceProviderRoute.js';
-
 import { schedulePaymentComplete } from "./services/paymentschedule.js"
+import authRoutes from './routes/authRoutes.js';
 
 
 
@@ -58,7 +58,7 @@ app.listen(PORT, () => {
 })
 
 
-
+app.use('/api/auth',authRoutes);
 app.use("/home/payment", paymentRoute)
 app.use("/home/Refund", RefundRouter)
 app.use("/api", PaymentGatewayRoute)
