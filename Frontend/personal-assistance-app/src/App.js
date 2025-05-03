@@ -7,6 +7,8 @@ import Signup from "./Component/Pages/Signup";
 import Dashboard from "./Component/Pages/Dashboard";
 import CreateAccount from "./Component/Pages/ServiceProvider/CreateSProviderAccount";
 import ServiceSelection from "./Component/Pages/ServiceSelection";
+import Profile from "./Component/Pages/Profile";
+import ServiceProviderDashboard from "./Component/Pages/ServiceProvider/ServiceProviderDashboard";
 
 import ServiceSelection1 from "./Component/Pages/ServiceProvider/ServiceSelection";
 import HouseCleaningService from "./Component/Pages/ServiceProvider/HouseCleaningService";
@@ -69,6 +71,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/spdashboard"
+          element={
+            <ProtectedRoute>
+              <ServiceProviderDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />

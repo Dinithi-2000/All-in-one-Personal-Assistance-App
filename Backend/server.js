@@ -12,8 +12,8 @@ import { bookingRouter } from "./routes/bookingRoutes.js";
 import ServiceProviderRouter from './routes/serviceProviderRoute.js';
 import { schedulePaymentComplete } from "./services/paymentschedule.js"
 import authRoutes from './routes/authRoutes.js';
-
-
+import userRoutes from './routes/userRoutes.js'
+import validateToken from "./middlwares/validateTokenHandler.js"
 
 
 //create express application instance
@@ -59,6 +59,7 @@ app.listen(PORT, () => {
 
 
 app.use('/api/auth',authRoutes);
+app.use('/api/user',validateToken,userRoutes)
 app.use("/home/payment", paymentRoute)
 app.use("/home/Refund", RefundRouter)
 app.use("/api", PaymentGatewayRoute)

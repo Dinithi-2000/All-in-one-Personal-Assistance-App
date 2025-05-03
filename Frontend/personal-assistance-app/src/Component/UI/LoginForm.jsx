@@ -26,7 +26,7 @@ function LoginForm() {
       if (res.data.token) {
         localStorage.setItem("authToken", res.data.token);
         localStorage.setItem("userRole", loginAs);
-        navigate(loginAs === "user" ? "/dashboard" : "/dashboard");
+        navigate(loginAs === "user" ? "/dashboard" : "/spdashboard");
       } else {
         setErrorMsg(res.data.message || "Login failed");
       }

@@ -5,6 +5,7 @@ import expressAsyncHandler from 'express-async-handler';
 import speakeasy from 'speakeasy';
 import { generateToken } from '../utils.js';
 import ServiceProvider from '../models/ServiceProvider.js';
+import UserModel from '../models/UserModel.js';
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.post(
             status : user.status,
           });
         } else {
-          res.status(400).send({ message: 'Invalid username or password' });
+          res.status(400).send({ message: 'Invalid password' });
         }
       } else {
         res.status(400).send({ message: 'No Matching Account Found.' });
