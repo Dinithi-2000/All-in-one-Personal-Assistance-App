@@ -22,6 +22,7 @@ const ServiceProviderSchema = new mongoose.Schema({
   birthCertificate: { type: String, required: true },
   availability: { type: String, enum: ['yes', 'no'], required: true },
   gender: { type: String, required: true },
+  isServiceProvider: { type: Boolean, default: true }
 });
 
 const ServiceProvider = mongoose.model('ServiceProvider', ServiceProviderSchema);
