@@ -20,13 +20,6 @@ import {
   Filter
 } from "lucide-react";
 
-const staticUser = {
-  id: "static-user-123",
-  name: "John Doe",
-  email: "john.doe@example.com",
-  phone: "+94 123 456 789",
-};
-
 const MyBookings = () => {
   const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
