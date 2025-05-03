@@ -38,6 +38,7 @@ const categories = [
   { id: "HouseCleaning", label: "House Cleaning", icon: FaBroom },
 ];
 
+
 // Static user details
 const staticUser = {
   id: "static-user-123",
@@ -62,6 +63,19 @@ const ServiceSelection = () => {
     bookingDate: "",
     bookingTime: "",
   });
+  const [user, setUser] = useState(null);
+
+
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error("Failed to parse userData from localStorage", error);
+      }
+    }
+  }, []);
 
   // Clear notifications after 5 seconds
   useEffect(() => {
@@ -153,11 +167,11 @@ const ServiceSelection = () => {
 
     try {
       const bookingData = {
-        customerID: staticUser.id,
+        customerID: user._id,
         customerDetails: {
-          name: staticUser.name,
-          email: staticUser.email,
-          phone: staticUser.phone,
+          name: user.firstName,
+          email: user.email,
+          phone: user.mobile,
         },
         providerID: selectedProvider._id,
         agreementDuration: formData.agreementDuration,
@@ -728,13 +742,13 @@ const ServiceSelection = () => {
                   </h3>
                   <div className="space-y-2 text-gray-600 text-sm">
                     <p>
-                      <span className="font-medium">Name:</span> {staticUser.name}
+                      <span className="font-medium">Name:</span> {user.name}
                     </p>
                     <p>
-                      <span className="font-medium">Email:</span> {staticUser.email}
+                      <span className="font-medium">Email:</span> {user.email}
                     </p>
                     <p>
-                      <span className="font-medium">Phone:</span> {staticUser.phone}
+                      <span className="font-medium">Phone:</span> {user.phone}
                     </p>
                   </div>
                 </div>

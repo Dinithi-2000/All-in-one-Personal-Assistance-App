@@ -16,7 +16,7 @@ function LoginForm() {
     setErrorMsg("");
 
     try {
-      const endpoint = loginAs === "user" ? "/auth/token" : "/auth/token-service-provider";
+      const endpoint = loginAs === "user" ? "/api/auth/token" : "/api/auth/token-service-provider";
       
       const res = await api.post(endpoint, {
         email,

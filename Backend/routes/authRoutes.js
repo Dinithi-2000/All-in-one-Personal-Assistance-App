@@ -72,9 +72,7 @@ router.post(
         const db_user = await UserModel.findOne({email});
   
         if (db_user) {
-         
           return res.status(400).send({ message: 'User already Registered!' });
-
         }
   
         const hashPassword = await bcrypt.hash(password, 8);

@@ -33,53 +33,6 @@ const NavBar = ({ handleLogout, user, forceUpdate }) => {
     });
   };
 
-  const handleBecomeProvider = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      Swal.fire("Not logged in", "Please sign in first.", "warning");
-      navigate("/signin");
-      return;
-    }
-  
-    try { 
-      const res = await api.patch(
-        "/user/register-service-provider",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (res.data.message === "success") {
-        // Get the latest user data
-        const currentUserData = getUserData();
-        
-        // Update the user data
-        const updatedUserData = {
-          ...currentUserData,
-          isServiceProvider: true, 
-        };
-        
-        // Save to localStorage
-        localStorage.setItem("userData", JSON.stringify(updatedUserData));
-        
-        // Force a complete page reload to update all components
-        window.location.href = "/dashboard";
-      } else {
-        Swal.fire("Notice", res.data.message, "info");
-      }
-    } catch (err) {
-      console.error("failed to register service provider", err);
-      if (err.response?.status === 401) {
-        Swal.fire("Session expired", "Please log in again.", "warning");
-        handleLogout();
-      } else {
-        Swal.fire("Error", "Could not register as provider.", "error");
-      }
-    }
-  };
-
   // Always use the most up-to-date user data from localStorage
   const currentUser = getUserData();
 
@@ -105,7 +58,7 @@ const NavBar = ({ handleLogout, user, forceUpdate }) => {
    
                {!isProvider && (
               <Link
-                to="/hire-services"
+                to="/serviceselection"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
               >
                 <span>Hire Service Provider</span>

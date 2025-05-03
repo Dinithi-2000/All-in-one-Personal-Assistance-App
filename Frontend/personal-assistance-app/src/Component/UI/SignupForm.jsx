@@ -21,7 +21,7 @@ function SignupForm() {
     }
 
     try {
-      const res = await api.post("/auth/register", {
+      const res = await api.post("/api/auth/register", {
         firstName,
         lastName,
         mobile,
@@ -30,7 +30,7 @@ function SignupForm() {
       });
 
       if (res.data.message == 'success') {
-        const res = await api.post("/auth/token", {
+        const res = await api.post("/api/auth/token", {
             email,
             password,
         });

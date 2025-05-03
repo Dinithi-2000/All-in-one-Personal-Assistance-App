@@ -16,6 +16,8 @@ const Profile = () => {
     profile_pic: "",
     cover_pic: "",
     about: "",
+    nic: "",
+    address: "",
     mobile: "",
     birthDay: "",
   });
@@ -31,10 +33,9 @@ const Profile = () => {
   // Unified fetch function
   const fetchUserData = useCallback(async () => {
     try {
-      const res = await api.get("/user/", {
+      const res = await api.get("/api/user/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(res.data);
       
       const u = res.data;
       setUser(u);
@@ -47,6 +48,8 @@ const Profile = () => {
         cover_pic: u.cover_pic || "",
         about: u.about || "",
         mobile: u.mobile || "",
+        nic: u.nic || "",
+        address: u.address || "",
         birthDay: u.birthDay ? u.birthDay.split("T")[0] : "",
       });
 
@@ -105,7 +108,7 @@ const Profile = () => {
       };
 
       await api.patch(
-        "/user/update-profile-pic-and-cover",
+        "/api/user/update-profile-pic-and-cover",
         photoData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -141,7 +144,7 @@ const Profile = () => {
     try {
       // Update profile details first
       await api.patch(
-        "/user/update-profile",
+        "/api/user/update-profile",
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -170,6 +173,36 @@ const Profile = () => {
       });
     }
   };
+
+  const handleDelete = async() => {
+     Swal.fire({
+          title: 'Are you sure?',
+          text: "This account will be permently deleted.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#0d9488', 
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, Delete!',
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+  
+              const res = await api.delete(`/api/user/delete-user-account/${user._id}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+              console.log(res);
+              if(res.status == 200){
+                Swal.fire('Deleted!', 'Your account has been deleted.', 'success');
+                handleLogout();
+              }
+            } catch (error) {
+              console.error("Account deletion failed:", error);
+              Swal.fire('Error!', 'There was a problem deleting your account.', 'error');
+            }
+          }
+        });
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -303,6 +336,23 @@ const Profile = () => {
               onChange={handleChange} 
               editMode={editMode} 
             />
+             <Field 
+              label="NIC" 
+              name="nic" 
+              value={user.nic} 
+              formValue={formData.nic}
+              onChange={handleChange} 
+              editMode={editMode} 
+            />
+             <Field 
+              label="Address" 
+              name="address" 
+              value={user.address} 
+              formValue={formData.address}
+              onChange={handleChange} 
+              editMode={editMode} 
+            />            
+
 
             {/* Birthday */}
             <div>
@@ -391,6 +441,12 @@ const Profile = () => {
                 Edit Profile
               </button>
             )}
+            <button
+                onClick={() => handleDelete()}
+                className="bg-red-500 hover:bg-blue-600 text-white font-semibold py-2 px-8 rounded-full transition"
+              >
+               Delete Account
+              </button>
           </div>
         </div>
       </div>

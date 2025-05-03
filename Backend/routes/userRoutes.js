@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import express from 'express';
+import express, { response } from 'express';
 import jwt from 'jsonwebtoken';
 import expressAsyncHandler from 'express-async-handler';
 import speakeasy from 'speakeasy';
@@ -16,7 +16,7 @@ router.get(
       try {
         const user = await UserModel.findOne(
           { _id: req.user.id },
-          'firstName lastName mobile email profile_pic cover_pic birthDay gender isServiceProvider about  externalSignUp createdAt updatedAt',
+          'firstName lastName mobile email address nic profile_pic cover_pic birthDay gender isServiceProvider about  externalSignUp createdAt updatedAt',
         );
         if (!user) {
           return res.status(400).send({ message: 'User Not Found.' });
@@ -31,7 +31,7 @@ router.get(
 
 router.patch(
     '/update-profile',expressAsyncHandler(async (req, res) => {
-      const { firstName, lastName, mobile, birthDay, gender,about } = req.body;
+      const { firstName, lastName, mobile, birthDay, gender,about,nic, address } = req.body;
   
       try {
       
@@ -45,6 +45,8 @@ router.patch(
               birthDay,
               gender,
               about,
+              nic,
+              address
             },
           },
         );
@@ -77,6 +79,26 @@ router.patch(
       }
     }),
 );
+
+router.delete('/delete-user-account/:id',async(req,res) => {
+  const { id } = req.params;
+  try{
+    const user = await UserModel.findById(req.user.id);
+    if(!user){
+      return res.status(404).send({ message: 'User Not Found!'});
+    }
+    const result = await UserModel.deleteOne({ _id: id });
+
+    if(result.deletedCount > 0){
+      return res.status(200).send({ message: 'User Account Permanently Deleted.'});
+    }else{
+      return res.status(400).send({ message: 'Delete Failed.'});
+    }
+
+  }catch(error){
+    return res.status(500).send({ message: error.message });
+  }
+})
   
 
 export default router;

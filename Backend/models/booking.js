@@ -4,16 +4,16 @@ import mongoose from "mongoose";
 
 // Define a simple Booking schema for Mongoose
 const bookingSchema = new mongoose.Schema({
-  customerID: { type: String, required: true },
-  customerDetails: {
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
-  },
+  customerID: { type: mongoose.Schema.Types.ObjectId, required: true },
   providerID: { 
     type: mongoose.Schema.Types.ObjectId, // Changed to ObjectId reference
     ref: 'ServiceProvider', // Reference to the ServiceProvider model
     required: true 
+  },
+  customerDetails: {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
   },
   agreementDuration: { type: String, required: true },
   bookingService: { type: String, required: true },
@@ -118,7 +118,7 @@ const createBooking = asyncHandler(async (req, res) => {
 
     console.log("Creating new booking...");
     const booking = await Booking.create({
-      customerID,
+      customerID: new mongoose.Types.ObjectId(customerID),
       customerDetails,
       providerID,
       agreementDuration,

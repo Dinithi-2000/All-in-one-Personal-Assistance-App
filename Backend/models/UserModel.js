@@ -10,6 +10,8 @@ const usersSchema = new mongoose.Schema(
     profile_pic: { type: String, default: null },
     cover_pic: { type: String, default: null },
     gender: { type: String, default: null },
+    nic: { type: String, default: null },
+    address: { type: String, default: null },
     birthDay: { type: Date, default: null },
     bio: { type: String, default: null },
     about: { type: String, default: null },

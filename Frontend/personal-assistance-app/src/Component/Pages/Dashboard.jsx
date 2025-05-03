@@ -97,7 +97,7 @@ const Dashboard = () => {
       
       setIsLoading(true);
       try {
-        const response = await api.get("/user/", {
+        const response = await api.get("/api/user/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -162,7 +162,7 @@ const Dashboard = () => {
   
   // Handle viewing all bookings
   const handleViewBookings = () => {
-    navigate("/bookings");
+    navigate("/my-bookings");
   };
   
   // Handle adding availability

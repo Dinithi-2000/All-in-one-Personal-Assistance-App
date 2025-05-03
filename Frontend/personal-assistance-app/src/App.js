@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate,Outlet  } from "react-router-dom";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import CreateAccount from "./Component/Pages/ServiceProvider/CreateSProviderAcco
 import ServiceSelection from "./Component/Pages/ServiceSelection";
 import Profile from "./Component/Pages/Profile";
 import ServiceProviderDashboard from "./Component/Pages/ServiceProvider/ServiceProviderDashboard";
+import MyBookings from "./Component/Pages/MyBookings";
 
 import ServiceSelection1 from "./Component/Pages/ServiceProvider/ServiceSelection";
 import HouseCleaningService from "./Component/Pages/ServiceProvider/HouseCleaningService";
@@ -17,6 +18,7 @@ import ElderCareService from "./Component/Pages/ServiceProvider/ElderCareService
 import PetCareService from "./Component/Pages/ServiceProvider/PetCareServiceSelection";
 import ChildCareService from "./Component/Pages/ServiceProvider/ChildCareServiceSelection";
 import EducationService from "./Component/Pages/ServiceProvider/EducationServiceSelection";
+
 
 function AuthRedirector() {
   const [loading, setLoading] = useState(true);
@@ -50,46 +52,38 @@ function AuthRedirector() {
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/signin" replace />;
 }
 
+const ProtectedLayout = () => (
+  <ProtectedRoute>
+    <Outlet />
+  </ProtectedRoute>
+);
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* <Route path="/service-selections" element={<ServiceSelection />} /> */}
         <Route path="/" element={<AuthRedirector />} />
         <Route path="/signin" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/createaccount"element={<CreateAccount />}/>
-        <Route path="/serviceselections"element={<ServiceSelection1 />}/>
-        <Route path='/housecselection' element={<HouseCleaningService/>}/>
-        <Route path='/kitchensselection' element={<KitchenServiceSelection/>}/>
-        <Route path='/eldercselection' element={<ElderCareService/>}/>
-        <Route path='/petcaresselection' element={<PetCareService/>}/>
-        <Route path='/childcaresselection' element={<ChildCareService/>}/>
-        <Route path='/educationsselection' element={<EducationService/>}/>
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/spdashboard"
-          element={
-            <ProtectedRoute>
-              <ServiceProviderDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/createaccount" element={<CreateAccount />} />
+        <Route path="/serviceselections" element={<ServiceSelection1 />} />
+        <Route path='/housecselection' element={<HouseCleaningService />} />
+        <Route path='/kitchensselection' element={<KitchenServiceSelection />} />
+        <Route path='/eldercselection' element={<ElderCareService />} />
+        <Route path='/petcaresselection' element={<PetCareService />} />
+        <Route path='/childcaresselection' element={<ChildCareService />} />
+        <Route path='/educationsselection' element={<EducationService />} />
+
+        {/* Protected routes grouped under ProtectedLayout */}
+        <Route element={<ProtectedLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/spdashboard" element={<ServiceProviderDashboard />} />
+          <Route path="/serviceselection" element={<ServiceSelection />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
+        {/* Fallback */}
         <Route path="*" element={<Login />} />
       </Routes>
     </Router>

@@ -28,6 +28,7 @@ const staticUser = {
 };
 
 const MyBookings = () => {
+  const [user, setUser] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -48,14 +49,33 @@ const MyBookings = () => {
     bookingDate: "",
     bookingTime: "",
   });
+ 
+
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      console.log("userData01:"+userData);
+      
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error("Failed to parse userData from localStorage", error);
+      }
+    }
+  }, []);
+
 
   // Fetch bookings on component mount
   useEffect(() => {
     const fetchBookings = async () => {
+      if (!user || !user._id) return; // wait until user is available
+  
       setLoading(true);
       setError(null);
+  
       try {
-        const response = await retrieveBookings(staticUser.id);
+        const response = await retrieveBookings(user._id);
+        console.log(response);
         setBookings(response.data.bookings || []);
       } catch (err) {
         setError("Failed to fetch bookings");
@@ -64,8 +84,9 @@ const MyBookings = () => {
         setLoading(false);
       }
     };
+  
     fetchBookings();
-  }, []);
+  }, [user]);
 
   // Clear notifications after 5 seconds
   useEffect(() => {
