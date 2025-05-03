@@ -7,15 +7,118 @@ import axios from "axios";
 import AddRevenue from "../../UI/AdminDashboard/RevenueHandle/AddRevenue";
 import RevenueChar from "../../UI/AdminDashboard/RevenueHandle/RevenueChar";
 import RevenueList from "../../UI/AdminDashboard/RevenueHandle/RevenueList";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function Transactions() {
   const [showForm, setShowForm] = useState(false);
   const [showFormA, setShowFormA] = useState(false);
+  const [info, setInfo] = useState([]);
+  const [revenue, setRevenue] = useState([]);
+
   const onclose = () => {
     setShowForm(false);
     setShowFormA(false);
   };
 
+  const getRevenue = async () => {
+    axios
+      .get("http://localhost:8070/adminDashBoard/Financial/retrieveRevenue")
+      .then((res) => {
+        setRevenue(res.data.revenue);
+      });
+  };
+
+  const getExpenses = async () => {
+    axios
+      .get("http://localhost:8070/adminDashBoard/Financial/getExpences")
+      .then((res) => {
+        setInfo(res.data.expenses);
+      });
+  };
+
+  const handleRevenu = async () => {
+    if (revenue.length === 0) {
+      await getRevenue();
+    }
+    const doc = new jsPDF();
+
+    doc.setFontSize(20);
+    doc.text("SereniLux ", 105, 20, { align: "center" });
+
+    doc.setFontSize(18);
+    doc.text("Revenue Report", 105, 28, { align: "center" });
+
+    doc.setFontSize(11);
+    doc.text(`Generates on:${new Date().toLocaleDateString()}`, 105, 40);
+
+    const details = revenue.map((rev, index) => [
+      index + 1,
+      rev.Date,
+      rev.Description,
+      rev.Amount,
+    ]);
+    autoTable(doc, {
+      startY: 45,
+      head: [["#", "Revenue date", "Revenue", "Amount"]],
+      body: details,
+      theme: "grid",
+      headStyles: { fillColor: [0, 0, 128] },
+      styles: { fontSize: 9 },
+      columnStyles: {
+        0: { cellWidth: 5 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 35 },
+        3: { cellWidth: 35 },
+      },
+      margin: { horizontal: 20 },
+    });
+    doc.save(`Revenue-reports-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
+  const handleExpenseReport = async () => {
+    try {
+      if (info.length === 0) {
+        await getExpenses();
+      }
+
+      const doc = new jsPDF();
+
+      doc.setFontSize(20);
+      doc.text("SereniLux ", 105, 20, { align: "center" });
+
+      doc.setFontSize(18);
+      doc.text("Expenses Report", 105, 28, { align: "center" });
+
+      doc.setFontSize(11);
+      doc.text(`Generates on:${new Date().toLocaleDateString()}`, 105, 40);
+
+      const details = info.map((expense, index) => [
+        index + 1,
+        expense.Date,
+        expense.Expense,
+        expense.Amount,
+      ]);
+      autoTable(doc, {
+        startY: 45,
+        head: [["#", "Expense date", "Expense", "Amount"]],
+        body: details,
+        theme: "grid",
+        headStyles: { fillColor: [0, 0, 128] },
+        styles: { fontSize: 9 },
+        columnStyles: {
+          0: { cellWidth: 5 },
+          1: { cellWidth: 35 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 35 },
+        },
+        margin: { horizontal: 20 },
+      });
+      doc.save(`Expense-reports-${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="flex-1 relative z-10  ml-[4%] ">
       <Header title="Transacion" />
@@ -38,6 +141,12 @@ export default function Transactions() {
                 >
                   Add New
                 </button>
+                <button
+                  className="ml-[380px] mb-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-900 transition-colors"
+                  onClick={handleExpenseReport}
+                >
+                  Expenses Report
+                </button>
                 <ExpensesList />
               </div>
             </div>
@@ -58,6 +167,12 @@ export default function Transactions() {
                   }}
                 >
                   Add New
+                </button>
+                <button
+                  className="ml-[380px] mb-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-900 transition-colors"
+                  onClick={handleRevenu}
+                >
+                  Revenue Report
                 </button>
                 <RevenueList />
               </div>
