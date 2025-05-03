@@ -267,7 +267,7 @@ const MyBookings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans w-full">
       {/* Notification Toasts */}
       <AnimatePresence>
         {success && (
@@ -301,25 +301,25 @@ const MyBookings = () => {
       </AnimatePresence>
 
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-violet-600 to-indigo-700 text-white">
-        <div className="container mx-auto px-4 md:px-6">
+      <div className="bg-gradient-to-r from-violet-600 to-indigo-700 text-white w-full">
+        <div className="w-full px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="py-14 md:py-20 max-w-4xl"
+            className="py-14 md:py-20"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
               My Bookings
             </h1>
-            <p className="text-indigo-100 text-lg md:text-xl max-w-2xl">
+            <p className="text-indigo-100 text-lg md:text-xl">
               Manage your scheduled services and appointments in one place.
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className="w-full px-4 md:px-6 py-8">
         {/* Search and Filter Controls */}
         <div className="mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
