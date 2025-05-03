@@ -3,6 +3,8 @@ import mongoose from "mongoose"
 import bodyParser from "body-parser"
 import cors from "cors"
 import dotenv from "dotenv"
+import { Server } from "socket.io"
+import http from 'http'
 import { paymentRoute } from "./routes/paymentRouts.js"
 import { RefundRouter } from "./routes/RefundRoutes.js"
 import { savedPaymentRouter } from "./routes/savedPaymentRoute.js"
@@ -12,6 +14,7 @@ import { bookingRouter } from "./routes/bookingRoutes.js";
 import ServiceProviderRouter from './routes/serviceProviderRoute.js';
 
 import { schedulePaymentComplete } from "./services/paymentschedule.js"
+import { Socket } from "dgram"
 
 
 
@@ -24,12 +27,21 @@ dotenv.config();
 //set local host port
 const PORT = process.env.PORT || 8070;
 
+//socket io
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"]
+    }
+})
+
 app.use(express.json({ limit: '50mb' }));  // Increase JSON payload limit
 app.use(express.urlencoded({ limit: '50mb', extended: true }));  // Increase URL-encoded payload limit
 
 //apply middleware to the applicaton and convert JSON request to HTTP request
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'], 
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -56,6 +68,12 @@ connection.once("open", () => {
 app.listen(PORT, () => {
     console.log(`server start and running ${PORT}`);
 })
+
+//listen socket connection
+io.on('connection', (socket) => {
+    console.log("Conected ID", socket.id)
+})
+export { io, server };
 
 
 

@@ -40,6 +40,14 @@ const requestRefund = asyncHandler(async (req, res) => {
                 reason: reason
             }
         });
+
+        io.emit('new_Refund_Request'), {
+            customerID: userId,
+            paymentId: paymentId,
+            amount: parseFloat(refundPayment.Amount),
+            reason: reason,
+            timeStamp: new Date().toISOString()
+        }
         res.status(201).json({
             message: "Refund Request submitted successfully",
             createRequest
@@ -127,6 +135,42 @@ const requestApproved = asyncHandler(async (req, res) => {
     }
 })
 
+const cancelRefund = asyncHandler(async (req, res) => {
+    const { refundId } = req.body;
+
+    const findrefund = await prisma.refundRequests.findUnique({
+        where: {
+            refundId: refundId
+        }
+    })
+
+    if (findrefund.status !== "PENDING") {
+        return res._construct.status(400).json({ message: "Invalid or Alredy Refunded" });
+    }
+
+    const updatePayment = await prisma.payment.update({
+        where: {
+            paymentID: findrefund.paymentId
+        },
+        data: {
+            Status: "CANCELLED"
+        }
+    })
+
+    await prisma.refundRequests.update({
+        where: {
+            refundId: refundId
+        },
+        data: {
+            status: "CANCELLED"
+        }
+    })
+
+    res.json({ message: "Request Canceled", updatePayment });
+
+
+})
+
 //delete refunded history
 const RefundHistoryDelete = asyncHandler(async (req, res) => {
     const { refundIDs } = req.body;
@@ -145,4 +189,4 @@ const RefundHistoryDelete = asyncHandler(async (req, res) => {
     }
 
 });
-export { requestRefund, retrieveAllRefund, requestApproved, RefundHistoryDelete }
+export { requestRefund, retrieveAllRefund, requestApproved, RefundHistoryDelete, cancelRefund }
