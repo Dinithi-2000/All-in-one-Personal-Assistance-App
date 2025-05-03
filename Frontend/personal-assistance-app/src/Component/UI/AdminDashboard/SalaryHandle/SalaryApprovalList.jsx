@@ -43,50 +43,55 @@ export default function SalaryApprovalList() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-auto w-[1000px]" style={{ maxHeight: "500px" }}>
-        <table className="w-screen table  table-hover table-striped-row backdrop-opacity-50">
-          <thead className="sticky top-0">
-            <tr className="border-b border-gray-200">
-              <th className="text-left ml-8 px-2 py-2">Salary Details</th>
-              <th className="text-left  py-2">Salary</th>
-              <th className="text-left px-4 py-2">EPF</th>
-              <th className="text-left px-4 py-2">ETF</th>
-            </tr>
-          </thead>
-          <tbody className="table-group-divider">
-            {info.map((salary) => (
-              <tr key={salary.id} className="border-b border-gray-100">
-                <td className="text-left px-2 py-2 min-w-[250px]-2">
-                  <p>
-                    Provider :<span>{salary.serviceProvider?.FirstName}</span>
-                    <span>{salary.serviceProvider?.LastName}</span>
-                  </p>
-                  <p>Month: {salary.month + 1}</p>
-                </td>
-                <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
-                  {currencyFormat(salary.totSalary)}
-                </td>
-                <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
-                  {currencyFormat(salary.EPF)}
-                </td>
-                <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
-                  {currencyFormat(salary.ETF)}
-                </td>
+    <div>
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div
+          className="overflow-auto w-[1000px]"
+          style={{ maxHeight: "500px" }}
+        >
+          <table className="w-screen table  table-hover table-striped-row backdrop-opacity-50">
+            <thead className="sticky top-0">
+              <tr className="border-b border-gray-200">
+                <th className="text-left ml-8 px-2 py-2">Salary Details</th>
+                <th className="text-left  py-2">Salary</th>
+                <th className="text-left px-4 py-2">EPF</th>
+                <th className="text-left px-4 py-2">ETF</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {totalPages > 1 && (
-        <div className="px-6 py-4 border-indigo-900 bg-indigo-300">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+            </thead>
+            <tbody className="table-group-divider">
+              {info.map((salary) => (
+                <tr key={salary.id} className="border-b border-gray-100">
+                  <td className="text-left px-2 py-2 min-w-[250px]-2">
+                    <p>
+                      Provider :<span>{salary.serviceProvider?.FirstName}</span>
+                      <span>{salary.serviceProvider?.LastName}</span>
+                    </p>
+                    <p>Month: {salary.month + 1}</p>
+                  </td>
+                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
+                    {currencyFormat(salary.totSalary)}
+                  </td>
+                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
+                    {currencyFormat(salary.EPF)}
+                  </td>
+                  <td className="text-left px-4 py-2 min-w-[250px] whitespace-nowrap">
+                    {currencyFormat(salary.ETF)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-indigo-900 bg-indigo-300">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
