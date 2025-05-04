@@ -19,6 +19,8 @@ import PetCareService from "./Component/Pages/ServiceProvider/PetCareServiceSele
 import ChildCareService from "./Component/Pages/ServiceProvider/ChildCareServiceSelection";
 import EducationService from "./Component/Pages/ServiceProvider/EducationServiceSelection";
 
+import ClaudeChatbot from "./Component/Pages/ClaudeChatbot";
+
 
 function AuthRedirector() {
   const [loading, setLoading] = useState(true);
@@ -73,6 +75,7 @@ function App() {
         <Route path='/petcaresselection' element={<PetCareService />} />
         <Route path='/childcaresselection' element={<ChildCareService />} />
         <Route path='/educationsselection' element={<EducationService />} />
+        <Route path='/chat-bot' element={<ClaudeChatbot />} />
 
         {/* Protected routes grouped under ProtectedLayout */}
         <Route element={<ProtectedLayout />}>

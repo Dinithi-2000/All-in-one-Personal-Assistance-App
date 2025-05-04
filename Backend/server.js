@@ -12,7 +12,11 @@ import { bookingRouter } from "./routes/bookingRoutes.js";
 import ServiceProviderRouter from './routes/serviceProviderRoute.js';
 import { schedulePaymentComplete } from "./services/paymentschedule.js"
 import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoutes.js'
+import userRoutes from './routes/userRoutes.js';
+import chatBotRoutes from './routes/chatBotRoutes.js';
+import spRoutes from './routes/spRoutes.js'
+
+//import middlewares
 import validateToken from "./middlwares/validateTokenHandler.js"
 
 
@@ -60,6 +64,7 @@ app.listen(PORT, () => {
 
 app.use('/api/auth',authRoutes);
 app.use('/api/user',validateToken,userRoutes)
+app.use('/api/service-provider',validateToken,spRoutes)
 app.use("/home/payment", paymentRoute)
 app.use("/home/Refund", RefundRouter)
 app.use("/api", PaymentGatewayRoute)
@@ -67,5 +72,6 @@ app.use("/home/payment/savedPayment", savedPaymentRouter)
 app.use("/adminDashBoard/Financial", financialActivityRoute)
 app.use("/home/booking", bookingRouter);
 app.use("/home/serviceProvider", ServiceProviderRouter)
+app.use('/api/chat/',chatBotRoutes);
 
 schedulePaymentComplete();
