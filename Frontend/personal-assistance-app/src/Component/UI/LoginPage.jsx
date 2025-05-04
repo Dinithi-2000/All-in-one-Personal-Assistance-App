@@ -1,19 +1,20 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const LoginPage = ({ handleLogin }) => {
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
 
+  const location = useLocation();
+
+  const from =
+    location.state?.from?.pathname ||
+    (username === "SerenniAdmin" ? "/admin" : "/");
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin(username);
     // Redirect based on role
-    if (username === "SerenniAdmin") {
-      navigate("/admin");
-    } else {
-      navigate("/payment");
-    }
+    navigate(from, { replace: true });
   };
 
   return (

@@ -17,7 +17,7 @@ const NavBar = ({ handleLogout }) => {
   };
 
   return (
-    <nav className="bg-white shadow-lg w-full">
+    <nav className="bg-white  w-full">
       <div className="w-screen mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center space-x-8">

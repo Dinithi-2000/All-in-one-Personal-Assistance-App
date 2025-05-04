@@ -28,23 +28,21 @@ import Users from "../Component/Pages/Admindashboard/Users";
 import PaymentSuccess from "../Component/UI/PaymenSuccess";
 import PaymentCancel from "../Component/UI/PaymentCancel";
 
-import CreateAccount from '../Component/Pages/ServiceProvider/CreateSProviderAccount';
-import ServiceSelection1 from '../Component/Pages/ServiceProvider/ServiceSelection';
-import ServiceProviderDashboard from '../Component/Pages/ServiceProvider/ServiceProviderDashboard';
+import CreateAccount from "../Component/Pages/ServiceProvider/CreateSProviderAccount";
+import ServiceSelection1 from "../Component/Pages/ServiceProvider/ServiceSelection";
+import ServiceProviderDashboard from "../Component/Pages/ServiceProvider/ServiceProviderDashboard";
 
+import DeleteAccount from "../Component/Pages/ServiceProvider/DeleteSProviderAccount";
+import HouseCleaningService from "../Component/Pages/ServiceProvider/HouseCleaningService";
+import KitchenServiceSelection from "../Component/Pages/ServiceProvider/KitchenServiceSelection";
+import ElderCareService from "../Component/Pages/ServiceProvider/ElderCareServiceSelection";
+import PetCareService from "../Component/Pages/ServiceProvider/PetCareServiceSelection";
+import ChildCareService from "../Component/Pages/ServiceProvider/ChildCareServiceSelection";
+import EducationService from "../Component/Pages/ServiceProvider/EducationServiceSelection";
 
-import DeleteAccount from '../Component/Pages/ServiceProvider/DeleteSProviderAccount';
-import HouseCleaningService from '../Component/Pages/ServiceProvider/HouseCleaningService';
-import KitchenServiceSelection from '../Component/Pages/ServiceProvider/KitchenServiceSelection';
-import ElderCareService from '../Component/Pages/ServiceProvider/ElderCareServiceSelection';
-import PetCareService from '../Component/Pages/ServiceProvider/PetCareServiceSelection';
-import ChildCareService from '../Component/Pages/ServiceProvider/ChildCareServiceSelection';
-import EducationService from '../Component/Pages/ServiceProvider/EducationServiceSelection';
-
-import ServiceProviderProfile from '../Component/Pages/ServiceProvider/ServiceProviderProfile';
-import EditServiceProviderProfile from '../Component/Pages/ServiceProvider/ServiceProviderProfileEdit';
-import ServiceProviderHome from '../Component/Pages/ServiceProvider/HomePageApp';
-
+import ServiceProviderProfile from "../Component/Pages/ServiceProvider/ServiceProviderProfile";
+import EditServiceProviderProfile from "../Component/Pages/ServiceProvider/ServiceProviderProfileEdit";
+import ServiceProviderHome from "../Component/Pages/ServiceProvider/HomePageApp";
 
 // You'll need to create this
 
@@ -67,6 +65,8 @@ export default function AppRoutes({
 
         {/* Protected User Route */}
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
+          <Route path="/serviceselection" element={<ServiceSelection />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/payment" element={<PaymentDashboard />}>
             <Route path="MakePayment" element={<BackgroundGradient />} />
             <Route path="PaymentOption" element={<PaymentMethod />} />
@@ -75,26 +75,28 @@ export default function AppRoutes({
             <Route path="paymentSuccess" element={<PaymentSuccess />} />
             <Route path="paymentCancel" element={<PaymentCancel />} />
           </Route>
-          <Route path="/serviceselection" element={<ServiceSelection />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
 
+          <Route path="/createaccount" element={<CreateAccount />} />
+          <Route path="/serviceselections" element={<ServiceSelection1 />} />
+          <Route path="/spdashboard" element={<ServiceProviderDashboard />} />
 
-          <Route path='/createaccount' element={<CreateAccount/>}/>
-    <Route path='/serviceselections' element={<ServiceSelection1/>}/>
-    <Route path='/spdashboard' element={<ServiceProviderDashboard />} />
-    
-    <Route path='/deleteaccount' element={<DeleteAccount/>}/>
-    <Route path='/housecselection' element={<HouseCleaningService/>}/>
-    <Route path='/kitchensselection' element={<KitchenServiceSelection/>}/>
-    <Route path='/eldercselection' element={<ElderCareService/>}/>
-    <Route path='/petcaresselection' element={<PetCareService/>}/>
-    <Route path='/childcaresselection' element={<ChildCareService/>}/>
-    <Route path='/educationsselection' element={<EducationService/>}/>
+          <Route path="/deleteaccount" element={<DeleteAccount />} />
+          <Route path="/housecselection" element={<HouseCleaningService />} />
+          <Route
+            path="/kitchensselection"
+            element={<KitchenServiceSelection />}
+          />
+          <Route path="/eldercselection" element={<ElderCareService />} />
+          <Route path="/petcaresselection" element={<PetCareService />} />
+          <Route path="/childcaresselection" element={<ChildCareService />} />
+          <Route path="/educationsselection" element={<EducationService />} />
 
-    <Route path='/viewspprofile' element={<ServiceProviderProfile/>}/>
-    <Route path='/editspprofile' element={<EditServiceProviderProfile/>}/>
-    <Route path='/spdashboard' element={<ServiceProviderHome/>}/>
-
+          <Route path="/viewspprofile" element={<ServiceProviderProfile />} />
+          <Route
+            path="/editspprofile"
+            element={<EditServiceProviderProfile />}
+          />
+          <Route path="/spdashboard" element={<ServiceProviderHome />} />
         </Route>
       </Route>
 
