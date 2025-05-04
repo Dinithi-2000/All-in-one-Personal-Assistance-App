@@ -131,7 +131,11 @@ router.post('/review/post-review',
 
 router.get('/review/my-reviews',expressAsyncHandler(async(req,res) => {
   try{
-    const reviews = await ReviewModel.find({ providerID: req.user.id })
+    const reviews = await ReviewModel.find({ providerID: req.user.id }).populate({
+      path: 'customerID',
+      model: UserModel,
+      select: 'firstName lastName profile_pic email'
+    })
     if(reviews.length > 0){
       return res.status(200).send(reviews);
     }else{

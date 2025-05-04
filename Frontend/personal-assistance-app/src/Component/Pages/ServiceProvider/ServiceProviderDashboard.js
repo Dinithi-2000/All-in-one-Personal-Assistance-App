@@ -43,6 +43,8 @@ import {
   TrendingUp,
   Activity,
   Briefcase,
+  Camera,
+  Plus,
 } from "lucide-react";
 
 const ServiceProviderDashboard = () => {
@@ -59,6 +61,52 @@ const ServiceProviderDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [reportTimeframe, setReportTimeframe] = useState("month");
   const [selectedClientId, setSelectedClientId] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authToken"); 
+
+        const response = await api.get("/api/user/review/my-reviews", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response);
+        
+        setReviews(response.data);
+
+        // Calculate average rating
+        if (response.data.length > 0) {
+          const totalRating = response.data.reduce(
+            (sum, review) => sum + review.starRate,
+            0,
+          );
+          setAverageRating((totalRating / response.data.length).toFixed(1));
+        }
+
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load reviews");
+        setLoading(false);
+        console.error("Error fetching reviews:", err);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   // Fetch service provider data on component mount
   useEffect(() => {
@@ -237,7 +285,7 @@ const ServiceProviderDashboard = () => {
         0,
       ),
       completedBookings: recentBookings.length,
-      averageRating: 4.8,
+      averageRating: averageRating,
       newClients: 3,
       averageOrderValue: Math.round(
         recentBookings.reduce((sum, booking) => sum + booking.amount, 0) /
@@ -563,7 +611,7 @@ const ServiceProviderDashboard = () => {
               )}
             </div>
 
-            <div className="relative">
+            {/* <div className="relative">
               <button
                 className="flex items-center space-x-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
                 onClick={() => navigate("/profile")}
@@ -571,7 +619,7 @@ const ServiceProviderDashboard = () => {
                 <span>Profile</span>
                 <ChevronDown size={16} />
               </button>
-            </div>
+            </div> */}
           </div>
         </header>
 
@@ -627,7 +675,7 @@ const ServiceProviderDashboard = () => {
                         Average Rating
                       </p>
                       <p className="mt-1 text-2xl font-bold text-gray-800">
-                        {mockData.performanceMetrics?.averageRating || "0.0"}
+                        {averageRating}
                       </p>
                       <p className="mt-1 flex items-center text-sm">
                         <Star
@@ -1461,60 +1509,77 @@ const ServiceProviderDashboard = () => {
                       className="fill-yellow-400 text-yellow-400"
                     />
                     <span className="font-medium text-gray-800">
-                      {mockData.performanceMetrics?.averageRating || "0.0"}
+                      {averageRating}
                     </span>
                     <span className="text-sm text-gray-500">/ 5</span>
                   </div>
                   <span className="text-sm text-gray-500">
-                    from {mockData.reviews?.length || 0} reviews
+                    from {reviews.length} reviews
                   </span>
                 </div>
               </div>
 
               <div className="rounded-lg bg-white p-6 shadow">
-                <div className="space-y-6">
-                  {mockData.reviews?.map((review) => (
-                    <div
-                      key={review.id}
-                      className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="rounded-full bg-blue-100 p-3 text-blue-600">
-                            <User size={20} />
+                {reviews.length === 0 ? (
+                  <div className="py-8 text-center text-gray-500">
+                    No reviews yet
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {reviews.map((review) => (
+                      <div
+                        key={review._id}
+                        className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-10 w-10 overflow-hidden rounded-full">
+                              {review.customerID.profile_pic ? (
+                                <img
+                                  src={review.customerID.profile_pic}
+                                  alt={`${review.customerID.firstName} ${review.customerID.lastName}`}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                                  <User size={20} />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-800">
+                                {review.customerID.firstName}{" "}
+                                {review.customerID.lastName}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatDate(review.createdAt)}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-gray-800">
-                              {review.clientName}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {review.date}
-                            </p>
+                          <div className="flex items-center space-x-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                size={16}
+                                className={
+                                  i < review.starRate
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }
+                              />
+                            ))}
                           </div>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={16}
-                              className={
-                                i < review.rating
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-gray-300"
-                              }
-                            />
-                          ))}
+                        <p className="mt-3 text-gray-600">{review.review}</p>
+                        <div className="mt-3 flex justify-end">
+                          <button className="text-xs text-blue-600 hover:text-blue-800">
+                            Reply
+                          </button>
                         </div>
                       </div>
-                      <p className="mt-3 text-gray-600">{review.comment}</p>
-                      <div className="mt-3 flex justify-end">
-                        <button className="text-xs text-blue-600 hover:text-blue-800">
-                          Reply
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1532,6 +1597,340 @@ const ServiceProviderDashboard = () => {
               <button className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
                 Notify Me When Available
               </button>
+            </div>
+          )}
+
+          {activeTab === "profile" && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Profile Settings
+              </h2>
+
+              <div className="rounded-lg bg-white p-6 shadow">
+                <div className="mb-6 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-6 sm:flex-row sm:items-center">
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-blue-100">
+                        {serviceProvider?.profilePhoto ? (
+                          <img
+                            src={serviceProvider.profilePhoto}
+                            alt="Profile"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-full w-full p-4 text-blue-500" />
+                        )}
+                      </div>
+                      <button className="absolute -bottom-2 -right-2 rounded-full bg-blue-600 p-2 text-white hover:bg-blue-700">
+                        <Camera size={14} />
+                      </button>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800">
+                        {serviceProvider?.name || "Your Name"}
+                      </h3>
+                      <p className="text-gray-500">
+                        {serviceProvider?.serviceType || "Service Provider"}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    Save Changes
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <h4 className="mb-4 text-lg font-medium text-gray-800">
+                      Personal Information
+                    </h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          defaultValue={serviceProvider?.name || ""}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          defaultValue={serviceProvider?.email || ""}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          defaultValue={serviceProvider?.phoneNumber || ""}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Address
+                        </label>
+                        <textarea
+                          defaultValue={serviceProvider?.address || ""}
+                          rows={3}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="mb-4 text-lg font-medium text-gray-800">
+                      Service Information
+                    </h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Service Type
+                        </label>
+                        <select
+                          defaultValue={serviceProvider?.serviceType || ""}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        >
+                          <option value="">Select a service type</option>
+                          <option value="Home Care">Home Care</option>
+                          <option value="Nursing">Nursing</option>
+                          <option value="Physiotherapy">Physiotherapy</option>
+                          <option value="Elder Care">Elder Care</option>
+                          <option value="Child Care">Child Care</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Years of Experience
+                        </label>
+                        <input
+                          type="number"
+                          defaultValue={
+                            serviceProvider?.yearsOfExperience || ""
+                          }
+                          min="0"
+                          max="50"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Hourly Rate (Rs.)
+                        </label>
+                        <input
+                          type="number"
+                          defaultValue={serviceProvider?.hourlyRate || ""}
+                          min="0"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                          Availability
+                        </label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[
+                            "Mon",
+                            "Tue",
+                            "Wed",
+                            "Thu",
+                            "Fri",
+                            "Sat",
+                            "Sun",
+                          ].map((day) => (
+                            <div
+                              key={day}
+                              className="flex items-center space-x-2"
+                            >
+                              <input
+                                type="checkbox"
+                                id={`day-${day}`}
+                                defaultChecked={serviceProvider?.availability?.includes(
+                                  day,
+                                )}
+                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <label
+                                htmlFor={`day-${day}`}
+                                className="text-sm text-gray-700"
+                              >
+                                {day}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <h4 className="mb-4 text-lg font-medium text-gray-800">
+                    Professional Details
+                  </h4>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
+                        About Me
+                      </label>
+                      <textarea
+                        defaultValue={serviceProvider?.bio || ""}
+                        rows={4}
+                        placeholder="Write a short bio describing your experience, specialties, and approach..."
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
+                        Qualifications
+                      </label>
+                      <div className="space-y-2">
+                        {serviceProvider?.qualifications?.map(
+                          (qualification, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-2"
+                            >
+                              <input
+                                type="text"
+                                defaultValue={qualification}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                              />
+                              <button className="rounded-full bg-red-100 p-2 text-red-600 hover:bg-red-200">
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ),
+                        )}
+                        <button className="mt-2 flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800">
+                          <Plus size={16} />
+                          <span>Add Qualification</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
+                        Certifications
+                      </label>
+                      <div className="space-y-2">
+                        {serviceProvider?.certifications?.map(
+                          (certification, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-2"
+                            >
+                              <input
+                                type="text"
+                                defaultValue={certification}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                              />
+                              <button className="rounded-full bg-red-100 p-2 text-red-600 hover:bg-red-200">
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ),
+                        )}
+                        <button className="mt-2 flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800">
+                          <Plus size={16} />
+                          <span>Add Certification</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <h4 className="mb-4 text-lg font-medium text-gray-800">
+                    Account Settings
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
+                        Change Password
+                      </label>
+                      <div className="space-y-2">
+                        <input
+                          type="password"
+                          placeholder="Current Password"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                        <input
+                          type="password"
+                          placeholder="New Password"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                        <input
+                          type="password"
+                          placeholder="Confirm New Password"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">
+                          Email Notifications
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Receive emails about new bookings, reviews, and
+                          messages
+                        </p>
+                      </div>
+                      <label className="relative inline-flex cursor-pointer items-center">
+                        <input
+                          type="checkbox"
+                          defaultChecked={serviceProvider?.emailNotifications}
+                          className="peer sr-only"
+                        />
+                        <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">
+                          SMS Notifications
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Receive text messages for booking confirmations and
+                          reminders
+                        </p>
+                      </div>
+                      <label className="relative inline-flex cursor-pointer items-center">
+                        <input
+                          type="checkbox"
+                          defaultChecked={serviceProvider?.smsNotifications}
+                          className="peer sr-only"
+                        />
+                        <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancel
+                  </button>
+                  <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    Save Changes
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
