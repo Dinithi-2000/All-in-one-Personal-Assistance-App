@@ -7,6 +7,7 @@ import { generateToken } from '../utils.js';
 import ServiceProvider from '../models/ServiceProvider.js';
 import UserModel from '../models/UserModel.js';
 import ReviewModel from '../models/ReviewModel.js';
+import BookingModel from '../models/BookingModel.js';
 
 const router = express.Router();
 
@@ -140,7 +141,28 @@ router.get('/review/my-reviews',expressAsyncHandler(async(req,res) => {
   }catch(error){
     return res.status(500).send({ message: error.message });
   }
-}))
+}));
+
+//MARK: Counts
+router.get('/counts',expressAsyncHandler(async(req,res) => {
+  try{
+    console.log("working");
+    
+    const myBookings = await BookingModel.countDocuments({ customerID: req.user.id });
+    const completedBookings = await BookingModel.countDocuments({ customerID: req.user.id,status: 'CONFIRMED' });
+    const pendingBookings = await BookingModel.countDocuments({ customerID: req.user.id, status: 'PENDING' });
+
+    return res.status(200).send({
+      myBookings,
+      completedBookings,
+      pendingBookings
+    })
+
+  }catch(error){
+    return res.status(500).send({ message: error.message });
+  }
+}));
+
   
 
 export default router;

@@ -102,6 +102,12 @@ const Dashboard = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        const counst = await api.get("/api/user/counts", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         
         console.log(response.data);
         setUserData(response.data);
@@ -109,12 +115,12 @@ const Dashboard = () => {
         
         // Set example stats (in a real app, these would come from the API)
         setStats({
-          bookings: response.data.bookings || 0,
-          services: response.data.services || 0,
-          pendingTasks: 2,
+          bookings: counst.data.myBookings || 0,
+          services: counst.data.completedBookings || 0,
+          pendingTasks: counst.data.pendingBookings || 0,
           rating: 4.8,
           earnings: response.data.earnings || 0,
-          completedServices: response.data.completedServices || 0,
+          completedServices: counst.data.completedBookings || 0,
         });
         
         // Set example activities (in a real app, these would come from the API)

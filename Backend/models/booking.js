@@ -1,36 +1,38 @@
 import asyncHandler from "express-async-handler";
 import ServiceProvider from './ServiceProvider.js';
 import mongoose from "mongoose";
+import BookingModel from "./BookingModel.js";
 
-// Define a simple Booking schema for Mongoose
-const bookingSchema = new mongoose.Schema({
-  customerID: { type: mongoose.Schema.Types.ObjectId, required: true },
-  providerID: { 
-    type: mongoose.Schema.Types.ObjectId, // Changed to ObjectId reference
-    ref: 'ServiceProvider', // Reference to the ServiceProvider model
-    required: true 
-  },
-  customerDetails: {
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
-  },
-  agreementDuration: { type: String, required: true },
-  bookingService: { type: String, required: true },
-  monthlyPayment: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: ["PENDING", "CONFIRMED", "REJECTED", "CANCELLED"],
-    default: "PENDING",
-  },
-  bookingDate: { type: String, required: true },
-  bookingTime: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-  payments: [{ type: String }],
-  rejectionReason: { type: String },
-});
+// // Define a simple Booking schema for Mongoose
+// const bookingSchema = new mongoose.Schema({
+//   customerID: { type: mongoose.Schema.Types.ObjectId, required: true },
+//   providerID: { 
+//     type: mongoose.Schema.Types.ObjectId, // Changed to ObjectId reference
+//     ref: 'ServiceProvider', // Reference to the ServiceProvider model
+//     required: true 
+//   },
+//   customerDetails: {
+//     name: { type: String, required: true },
+//     email: { type: String, required: true },
+//     phone: { type: String, required: true },
+//   },
+//   agreementDuration: { type: String, required: true },
+//   bookingService: { type: String, required: true },
+//   monthlyPayment: { type: Number, required: true },
+//   status: {
+//     type: String,
+//     enum: ["PENDING", "CONFIRMED", "REJECTED", "CANCELLED"],
+//     default: "PENDING",
+//   },
+//   bookingDate: { type: String, required: true },
+//   bookingTime: { type: String, required: true },
+//   createdAt: { type: Date, default: Date.now },
+//   payments: [{ type: String }],
+//   rejectionReason: { type: String },
+// });
 
-const Booking = mongoose.model("bookings", bookingSchema);
+// const Booking = mongoose.model("bookings", bookingSchema);
+
 
 // Filter service providers based on serviceType
 const filterServiceProviders = asyncHandler(async (req, res) => {
@@ -117,7 +119,7 @@ const createBooking = asyncHandler(async (req, res) => {
     }
 
     console.log("Creating new booking...");
-    const booking = await Booking.create({
+    const booking = await BookingModel.create({
       customerID: new mongoose.Types.ObjectId(customerID),
       customerDetails,
       providerID,
@@ -153,7 +155,7 @@ const retrieveBookings = asyncHandler(async (req, res) => {
     console.log("Customer ID:", customerID);
 
     console.log("Querying bookings...");
-    const bookings = await Booking.find({ customerID })
+    const bookings = await BookingModel.find({ customerID })
       .populate("providerID")
       .sort({ createdAt: -1 });
     console.log("Found bookings:", bookings.length);
@@ -178,7 +180,7 @@ const getAllBookings = asyncHandler(async (req, res) => {
     console.log("=== GET ALL BOOKINGS STARTED ===");
     console.log("Querying all bookings...");
 
-    const bookings = await Booking.find()
+    const bookings = await BookingModel.find()
       .populate("providerID") // This will now correctly populate the provider details
       .sort({ createdAt: -1 });
     console.log("Found bookings:", bookings.length);
@@ -228,7 +230,7 @@ const updateBooking = asyncHandler(async (req, res) => {
     }
 
     console.log("Updating booking with data:", updateData);
-    const updatedBooking = await Booking.findByIdAndUpdate(
+    const updatedBooking = await BookingModel.findByIdAndUpdate(
       bookingID,
       updateData,
       { new: true, runValidators: true } // runValidators ensures schema validation
@@ -262,7 +264,7 @@ const deleteBooking = asyncHandler(async (req, res) => {
     console.log("Booking ID to delete:", bookingID);
 
     console.log("Deleting booking...");
-    const deletedBooking = await Booking.findByIdAndDelete(bookingID);
+    const deletedBooking = await BookingModel.findByIdAndDelete(bookingID);
 
     if (!deletedBooking) {
       console.log("Booking not found with ID:", bookingID);

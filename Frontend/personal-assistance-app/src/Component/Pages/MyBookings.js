@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { retrieveBookings, updateBooking, deleteBooking } from "../../Lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  CalendarDays, 
-  Clock, 
-  Banknote, 
-  FileSignature, 
-  X, 
-  User, 
-  Package, 
-  Ban, 
+import {
+  CalendarDays,
+  Clock,
+  Banknote,
+  FileSignature,
+  X,
+  User,
+  Package,
+  Ban,
   MessageSquare,
   Edit,
   Calendar,
@@ -17,8 +17,12 @@ import {
   AlertTriangle,
   Check,
   Search,
-  Filter
+  Filter,
+  Star,
+  StarHalf,
+  PenTool,
 } from "lucide-react";
+import axios from "axios"; // Make sure axios is imported
 
 const MyBookings = () => {
   const [user, setUser] = useState(null);
@@ -28,8 +32,10 @@ const MyBookings = () => {
   const [success, setSuccess] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [bookingToCancel, setBookingToCancel] = useState(null);
+  const [bookingToReview, setBookingToReview] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelError, setCancelError] = useState(null);
   const [editReason, setEditReason] = useState("");
@@ -42,13 +48,20 @@ const MyBookings = () => {
     bookingDate: "",
     bookingTime: "",
   });
- 
+  // Review state
+  const [reviewText, setReviewText] = useState("");
+  const [starRating, setStarRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [reviewError, setReviewError] = useState(null);
+  const [reviewsSubmitted, setReviewsSubmitted] = useState([]);
+
+  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (userData) {
-      console.log("userData01:"+userData);
-      
+      console.log("userData01:" + userData);
+
       try {
         setUser(JSON.parse(userData));
       } catch (error) {
@@ -57,19 +70,46 @@ const MyBookings = () => {
     }
   }, []);
 
-
   // Fetch bookings on component mount
   useEffect(() => {
     const fetchBookings = async () => {
       if (!user || !user._id) return; // wait until user is available
-  
+
       setLoading(true);
       setError(null);
-  
+
       try {
         const response = await retrieveBookings(user._id);
         console.log(response);
         setBookings(response.data.bookings || []);
+
+        // Check which providers already have reviews
+        if (response.data.bookings && response.data.bookings.length > 0) {
+          // Get unique provider IDs
+          const providerIds = [
+            ...new Set(
+              response.data.bookings.map((booking) => booking.providerID?._id),
+            ),
+          ];
+
+          // For this example, we'll simulate checking which providers have reviews
+          // In a real implementation, you would fetch this from your API
+          const checkReviews = async () => {
+            try {
+              // Replace with actual API call to check reviews
+              // This is a placeholder - in a real app you would fetch from your backend
+              // const reviewsResponse = await axios.get('/api/reviews/user-reviews');
+              // setReviewsSubmitted(reviewsResponse.data.reviewedProviders);
+
+              // For demo purposes, we'll assume no reviews have been submitted yet
+              setReviewsSubmitted([]);
+            } catch (err) {
+              console.error("Failed to fetch review status", err);
+            }
+          };
+
+          checkReviews();
+        }
       } catch (err) {
         setError("Failed to fetch bookings");
         console.error(err);
@@ -77,7 +117,7 @@ const MyBookings = () => {
         setLoading(false);
       }
     };
-  
+
     fetchBookings();
   }, [user]);
 
@@ -132,6 +172,22 @@ const MyBookings = () => {
     setCancelError(null);
   };
 
+  const handleReviewOpen = (booking) => {
+    setBookingToReview(booking);
+    setReviewText("");
+    setStarRating(0);
+    setReviewError(null);
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewClose = () => {
+    setReviewModalOpen(false);
+    setBookingToReview(null);
+    setReviewText("");
+    setStarRating(0);
+    setReviewError(null);
+  };
+
   const handleCancelReasonChange = (e) => {
     setCancelReason(e.target.value);
     if (cancelError) {
@@ -143,6 +199,13 @@ const MyBookings = () => {
     setEditReason(e.target.value);
     if (editReasonError) {
       setEditReasonError(null);
+    }
+  };
+
+  const handleReviewTextChange = (e) => {
+    setReviewText(e.target.value);
+    if (reviewError) {
+      setReviewError(null);
     }
   };
 
@@ -159,7 +222,9 @@ const MyBookings = () => {
 
     // If the booking is CONFIRMED, require an edit reason
     if (selectedBooking.status === "CONFIRMED" && !editReason.trim()) {
-      setEditReasonError("Please provide a reason for editing this confirmed booking.");
+      setEditReasonError(
+        "Please provide a reason for editing this confirmed booking.",
+      );
       return;
     }
 
@@ -184,8 +249,10 @@ const MyBookings = () => {
       const response = await updateBooking(selectedBooking._id, updatedData);
       setBookings((prev) =>
         prev.map((booking) =>
-          booking._id === selectedBooking._id ? response.data.updatedBooking : booking
-        )
+          booking._id === selectedBooking._id
+            ? response.data.updatedBooking
+            : booking,
+        ),
       );
       setSuccess("Booking updated successfully!");
       handleEditClose();
@@ -212,7 +279,9 @@ const MyBookings = () => {
         cancellationReason: cancelReason,
       });
 
-      setBookings((prev) => prev.filter((booking) => booking._id !== bookingToCancel));
+      setBookings((prev) =>
+        prev.filter((booking) => booking._id !== bookingToCancel),
+      );
       setSuccess("Booking cancelled successfully!");
       handleCancelClose();
     } catch (err) {
@@ -221,24 +290,76 @@ const MyBookings = () => {
     }
   };
 
-  // Filter and search bookings
-  const filteredBookings = bookings
-    .filter(booking => {
-      // Status filter
-      if (filterStatus !== "all" && booking.status !== filterStatus) return false;
-      
-      // Search query filter (case insensitive)
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          booking.bookingService?.toLowerCase().includes(query) ||
-          booking.providerID?.name?.toLowerCase().includes(query) ||
-          booking.agreementDuration?.toLowerCase().includes(query)
-        );
+  const handleSubmitReview = async () => {
+    if (!bookingToReview || !bookingToReview.providerID?._id) return;
+
+    if (starRating === 0) {
+      setReviewError("Please select a star rating.");
+      return;
+    }
+
+    if (!reviewText.trim()) {
+      setReviewError("Please provide a review.");
+      return;
+    }
+    console.log("token:"+token);
+    
+
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Make API call to submit review
+      await axios.post(
+        `http://localhost:8070/api/user/review/post-review?providerID=${bookingToReview.providerID._id}`,
+        {
+          review: reviewText,
+          starRate: starRating,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update the reviews submitted list
+      setReviewsSubmitted((prev) => [...prev, bookingToReview.providerID._id]);
+
+      setSuccess("Review submitted successfully!");
+      handleReviewClose();
+    } catch (err) {
+      if (err.response?.data?.message === "Already Sumbit a Review") {
+        setError("You have already submitted a review for this provider.");
+      } else {
+        setError("Failed to submit review");
       }
-      
-      return true;
-    });
+      console.error(err);
+    }
+  };
+
+  // Filter and search bookings
+  const filteredBookings = bookings.filter((booking) => {
+    // Status filter
+    if (filterStatus !== "all" && booking.status !== filterStatus) return false;
+
+    // Search query filter (case insensitive)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        booking.bookingService?.toLowerCase().includes(query) ||
+        booking.providerID?.name?.toLowerCase().includes(query) ||
+        booking.agreementDuration?.toLowerCase().includes(query)
+      );
+    }
+
+    return true;
+  });
+
+  // Check if user can review a service
+  const canReviewService = (booking) => {
+    return (
+      booking.status === "CONFIRMED" &&
+      booking.providerID?._id &&
+      !reviewsSubmitted.includes(booking.providerID._id)
+    );
+  };
 
   // Status Badge Component
   const StatusBadge = ({ status }) => {
@@ -258,9 +379,48 @@ const MyBookings = () => {
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyle()}`}>
+      <span
+        className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyle()}`}
+      >
         {status}
       </span>
+    );
+  };
+
+  // Star Rating Component
+  const StarRating = ({
+    rating,
+    hoverRating,
+    onRatingChange,
+    onHoverChange,
+    interactive = true,
+  }) => {
+    const stars = [1, 2, 3, 4, 5];
+
+    return (
+      <div className="flex">
+        {stars.map((star) => (
+          <button
+            key={star}
+            type={interactive ? "button" : "span"}
+            disabled={!interactive}
+            onClick={interactive ? () => onRatingChange(star) : undefined}
+            onMouseEnter={interactive ? () => onHoverChange(star) : undefined}
+            onMouseLeave={interactive ? () => onHoverChange(0) : undefined}
+            className={`${interactive ? "cursor-pointer focus:outline-none" : ""} mr-1 transition-colors duration-200`}
+            aria-label={`${star} star${star > 1 ? "s" : ""}`}
+          >
+            <Star
+              size={24}
+              className={`${
+                (hoverRating || rating) >= star
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-gray-300"
+              } transition-colors duration-200`}
+            />
+          </button>
+        ))}
+      </div>
     );
   };
 
@@ -293,7 +453,10 @@ const MyBookings = () => {
           >
             <Check size={18} />
             <span>{success}</span>
-            <button onClick={() => setSuccess(null)} className="ml-4 hover:opacity-80">
+            <button
+              onClick={() => setSuccess(null)}
+              className="ml-4 hover:opacity-80"
+            >
               <X size={16} />
             </button>
           </motion.div>
@@ -307,7 +470,10 @@ const MyBookings = () => {
           >
             <AlertTriangle size={18} />
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="ml-4 hover:opacity-80">
+            <button
+              onClick={() => setError(null)}
+              className="ml-4 hover:opacity-80"
+            >
               <X size={16} />
             </button>
           </motion.div>
@@ -385,11 +551,13 @@ const MyBookings = () => {
               <Calendar className="h-16 w-16 mx-auto text-gray-400 mb-4" />
               {searchQuery || filterStatus !== "all" ? (
                 <>
-                  <p className="font-medium text-lg">No matching bookings found.</p>
+                  <p className="font-medium text-lg">
+                    No matching bookings found.
+                  </p>
                   <p className="mt-2 text-gray-600">
                     Try adjusting your search or filter criteria.
                   </p>
-                  <button 
+                  <button
                     onClick={() => {
                       setSearchQuery("");
                       setFilterStatus("all");
@@ -427,22 +595,34 @@ const MyBookings = () => {
                       </h3>
                       <StatusBadge status={booking.status} />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mt-4">
                       <div className="flex items-center text-gray-700">
                         <Package size={16} className="mr-2 text-violet-500" />
-                        <span className="text-sm font-medium">{booking.bookingService}</span>
+                        <span className="text-sm font-medium">
+                          {booking.bookingService}
+                        </span>
                       </div>
                       <div className="flex items-center text-gray-700">
-                        <FileSignature size={16} className="mr-2 text-violet-500" />
-                        <span className="text-sm">{booking.agreementDuration}</span>
+                        <FileSignature
+                          size={16}
+                          className="mr-2 text-violet-500"
+                        />
+                        <span className="text-sm">
+                          {booking.agreementDuration}
+                        </span>
                       </div>
                       <div className="flex items-center text-gray-700">
                         <Banknote size={16} className="mr-2 text-violet-500" />
-                        <span className="text-sm">Rs. {booking.monthlyPayment}</span>
+                        <span className="text-sm">
+                          Rs. {booking.monthlyPayment}
+                        </span>
                       </div>
                       <div className="flex items-center text-gray-700">
-                        <CalendarDays size={16} className="mr-2 text-violet-500" />
+                        <CalendarDays
+                          size={16}
+                          className="mr-2 text-violet-500"
+                        />
                         <span className="text-sm">{booking.bookingDate}</span>
                       </div>
                       <div className="flex items-center text-gray-700">
@@ -451,9 +631,22 @@ const MyBookings = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Right side: Actions */}
                   <div className="flex md:flex-col justify-end gap-3 mt-4 md:mt-0">
+                    {/* Show Review button only for CONFIRMED bookings that haven't been reviewed yet */}
+                    {canReviewService(booking) && (
+                      <button
+                        onClick={() => handleReviewOpen(booking)}
+                        className="px-4 py-2.5 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-all flex items-center justify-center gap-2 shadow-sm"
+                        aria-label={`Review service from ${booking.providerID?.name || "provider"}`}
+                      >
+                        <Star size={16} />
+                        <span>Review</span>
+                      </button>
+                    )}
+
+                    {/* Show edit and cancel buttons for all bookings */}
                     <button
                       onClick={() => handleEditOpen(booking)}
                       className="px-4 py-2.5 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-700 transition-all flex items-center justify-center gap-2 shadow-sm"
@@ -472,6 +665,17 @@ const MyBookings = () => {
                     </button>
                   </div>
                 </div>
+
+                {/* Indicate if review has been submitted */}
+                {booking.providerID?._id &&
+                  reviewsSubmitted.includes(booking.providerID._id) && (
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                      <div className="flex items-center text-emerald-600 text-sm">
+                        <Check size={16} className="mr-2" />
+                        <span>You've reviewed this service</span>
+                      </div>
+                    </div>
+                  )}
               </div>
             </motion.div>
           ))}
@@ -501,12 +705,16 @@ const MyBookings = () => {
             >
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-violet-600 to-indigo-700 text-white p-6">
-                <h2 id="edit-modal-title" className="text-xl font-bold flex items-center">
+                <h2
+                  id="edit-modal-title"
+                  className="text-xl font-bold flex items-center"
+                >
                   <User className="mr-3 h-5 w-5" />
                   Edit Booking Details
                 </h2>
                 <p className="text-violet-100 mt-1 text-sm">
-                  {selectedBooking?.providerID?.name || "Provider"} - {selectedBooking?.bookingService}
+                  {selectedBooking?.providerID?.name || "Provider"} -{" "}
+                  {selectedBooking?.bookingService}
                 </p>
                 <button
                   onClick={handleEditClose}
@@ -603,7 +811,9 @@ const MyBookings = () => {
                       value={editReason}
                       onChange={handleEditReasonChange}
                       className={`w-full border ${
-                        editReasonError ? "border-red-500 ring-1 ring-red-500" : "border-gray-300"
+                        editReasonError
+                          ? "border-red-500 ring-1 ring-red-500"
+                          : "border-gray-300"
                       } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32`}
                       placeholder="Please explain why you're editing this confirmed booking..."
                       aria-label="Enter reason for editing"
@@ -664,7 +874,10 @@ const MyBookings = () => {
             >
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6">
-                <h2 id="cancel-modal-title" className="text-xl font-bold flex items-center">
+                <h2
+                  id="cancel-modal-title"
+                  className="text-xl font-bold flex items-center"
+                >
                   <AlertTriangle className="mr-3 h-5 w-5" />
                   Cancel Booking
                 </h2>
@@ -691,7 +904,9 @@ const MyBookings = () => {
                     value={cancelReason}
                     onChange={handleCancelReasonChange}
                     className={`w-full border ${
-                      cancelError ? "border-red-500 ring-1 ring-red-500" : "border-gray-300"
+                      cancelError
+                        ? "border-red-500 ring-1 ring-red-500"
+                        : "border-gray-300"
                     } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32`}
                     placeholder="Please explain why you're cancelling this booking..."
                     aria-label="Enter reason for cancellation"
@@ -719,6 +934,124 @@ const MyBookings = () => {
                     aria-label="Confirm cancellation"
                   >
                     <span>Confirm Cancellation</span>
+                    <ChevronRight size={16} className="ml-1" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Review Modal */}
+      <AnimatePresence>
+        {reviewModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="review-modal-title"
+            onClick={handleReviewClose}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white p-6">
+                <h2
+                  id="review-modal-title"
+                  className="text-xl font-bold flex items-center"
+                >
+                  <Star className="mr-3 h-5 w-5" />
+                  Rate & Review
+                </h2>
+                <p className="text-amber-100 mt-1 text-sm">
+                  Share your experience with{" "}
+                  {bookingToReview?.providerID?.name || "this provider"}
+                </p>
+                <button
+                  onClick={handleReviewClose}
+                  className="absolute top-4 right-4 text-white hover:text-amber-100 transition-colors duration-200"
+                  aria-label="Close review modal"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="p-6 max-h-[70vh] overflow-y-auto">
+                {/* Star Rating */}
+                <div className="mb-5">
+                  <label className="block text-gray-700 font-medium mb-2 flex items-center text-sm">
+                    <Star className="mr-2 text-yellow-500 h-4 w-4" />
+                    Your Rating
+                  </label>
+                  <div className="mt-2">
+                    <StarRating
+                      rating={starRating}
+                      hoverRating={hoveredRating}
+                      onRatingChange={setStarRating}
+                      onHoverChange={setHoveredRating}
+                    />
+                  </div>
+                  {starRating > 0 && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {starRating === 1 && "Poor"}
+                      {starRating === 2 && "Fair"}
+                      {starRating === 3 && "Good"}
+                      {starRating === 4 && "Very Good"}
+                      {starRating === 5 && "Excellent"}
+                    </p>
+                  )}
+                </div>
+
+                {/* Review Text */}
+                <div className="mb-5">
+                  <label className="block text-gray-700 font-medium mb-2 flex items-center text-sm">
+                    <PenTool className="mr-2 text-yellow-500 h-4 w-4" />
+                    Your Review
+                  </label>
+                  <textarea
+                    value={reviewText}
+                    onChange={handleReviewTextChange}
+                    className={`w-full border ${
+                      reviewError
+                        ? "border-red-500 ring-1 ring-red-500"
+                        : "border-gray-300"
+                    } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32`}
+                    placeholder="Share your experience with this service provider..."
+                    aria-label="Enter your review"
+                  />
+                  {reviewError && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center">
+                      <AlertTriangle size={12} className="mr-1" />
+                      {reviewError}
+                    </p>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={handleReviewClose}
+                    className="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all"
+                    aria-label="Cancel review"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitReview}
+                    className="px-4 py-2.5 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-all flex items-center shadow-sm"
+                    aria-label="Submit review"
+                  >
+                    <span>Submit Review</span>
                     <ChevronRight size={16} className="ml-1" />
                   </button>
                 </div>
