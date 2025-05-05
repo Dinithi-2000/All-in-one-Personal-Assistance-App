@@ -16,6 +16,7 @@ import Dashboard from "./Component/Pages/Dashboard";
 import CreateAccount from "./Component/Pages/ServiceProvider/CreateSProviderAccount";
 import ServiceSelection from "./Component/Pages/ServiceSelection";
 import Profile from "./Component/Pages/Profile";
+import BookmarkPage from "./Component/Pages/Bookmarks";
 import ServiceProviderDashboard from "./Component/Pages/ServiceProvider/ServiceProviderDashboard";
 import MyBookings from "./Component/Pages/MyBookings";
 
@@ -115,6 +116,7 @@ function App() {
           <Route path="/serviceselection" element={<ServiceSelection />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/bookmarks" element={<BookmarkPage />} />
         </Route>
 
         {/* admin */}

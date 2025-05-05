@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ServiceSelection = () => {
   const navigate = useNavigate();
-  const [selectedServiceType, setSelectedServiceType] = useState('ElderCare');
+  const [selectedServiceType, setSelectedServiceType] = useState('ChildCare');
   const [selectedLocation, setSelectedLocation] = useState('Colombo');
 
   const handleGetStarted = () => {
@@ -135,7 +135,7 @@ const ServiceSelection = () => {
               value={selectedServiceType}
               onChange={(e) => setSelectedServiceType(e.target.value)}
               variant="outlined"
-              //defaultValue="Elder Care"
+              defaultValue="ChildCare"
               sx={{
                 '& .MuiOutlinedInput-notchedOutline': {
                   borderColor: '#40E0D0',
