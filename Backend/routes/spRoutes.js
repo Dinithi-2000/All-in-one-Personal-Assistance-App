@@ -69,7 +69,6 @@ router.put(
             gender
           }}
         );
-        console.log(response);
         
         if (response.modifiedCount > 0) {
           return res.status(200).send({ message: 'Updated.' });

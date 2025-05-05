@@ -4,7 +4,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import axios from "axios";
 
-export default function RefundHistory() {
+const RefundHistory =() => {
   const [refunds, setRefunds] = useState([]);
   //state manage for date filter
   const [startDate, setStartDate] = useState("");
@@ -151,4 +151,6 @@ export default function RefundHistory() {
       </div>
     </div>
   );
-}
+};
+
+export default RefundHistory;

@@ -27,7 +27,6 @@ import ElderCareService from "./Component/Pages/ServiceProvider/ElderCareService
 import PetCareService from "./Component/Pages/ServiceProvider/PetCareServiceSelection";
 import ChildCareService from "./Component/Pages/ServiceProvider/ChildCareServiceSelection";
 import EducationService from "./Component/Pages/ServiceProvider/EducationServiceSelection";
-
 import ClaudeChatbot from "./Component/Pages/ClaudeChatbot";
 
 //import admin routes
@@ -99,6 +98,9 @@ function App() {
         <Route path="/createaccount" element={<CreateAccount />} />
         <Route path="/serviceselections" element={<ServiceSelection1 />} />
         <Route path="/housecselection" element={<HouseCleaningService />} />
+
+        {/* <Route path="/payment" element={<PaymentDashboard />} /> */}
+        
         <Route
           path="/kitchensselection"
           element={<KitchenServiceSelection />}

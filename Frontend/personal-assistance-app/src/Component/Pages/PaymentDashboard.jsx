@@ -4,7 +4,7 @@ import SideNavBar from "../UI/SideNavBar";
 import PaymentStack from "../UI/PaymentStack";
 import { Outlet, useLocation } from "react-router-dom";
 
-export default function PaymentDashboard() {
+const PaymentDashboard =() =>  {
   const location = useLocation();
 
   //check current route
@@ -27,3 +27,5 @@ export default function PaymentDashboard() {
     </div>
   );
 }
+
+export default PaymentDashboard;
