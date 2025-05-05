@@ -29,14 +29,14 @@ function SignupForm() {
         password,
       });
 
-      if (res.data.message == 'success') {
+      if (res.data.message === "success") {
         const res = await api.post("/api/auth/token", {
-            email,
-            password,
+          email,
+          password,
         });
         if (res.data.token) {
-            localStorage.setItem("authToken", res.data.token);
-        } 
+          localStorage.setItem("authToken", res.data.token);
+        }
         navigate("/dashboard");
       } else {
         setErrorMsg(res.data.message || "Signup failed");
@@ -55,7 +55,9 @@ function SignupForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Create Your Account 🚀</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          Create Your Account 🚀
+        </h2>
         <form onSubmit={handleSignup} className="space-y-5">
           <div>
             <label className="block text-sm font-medium mb-1">First Name</label>
@@ -80,7 +82,9 @@ function SignupForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Mobile Number</label>
+            <label className="block text-sm font-medium mb-1">
+              Mobile Number
+            </label>
             <input
               type="tel"
               className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -113,7 +117,9 @@ function SignupForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Confirm Password</label>
+            <label className="block text-sm font-medium mb-1">
+              Confirm Password
+            </label>
             <input
               type="password"
               className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -123,9 +129,7 @@ function SignupForm() {
               required
             />
           </div>
-          {errorMsg && (
-            <div className="text-sm text-red-500">{errorMsg}</div>
-          )}
+          {errorMsg && <div className="text-sm text-red-500">{errorMsg}</div>}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
@@ -134,7 +138,10 @@ function SignupForm() {
           </button>
         </form>
         <p className="text-sm text-center text-gray-500 mt-4">
-          Already have an account? <a href="/signin" className="text-blue-600">Log in</a>
+          Already have an account?{" "}
+          <a href="/signin" className="text-blue-600">
+            Log in
+          </a>
         </p>
       </div>
     </div>
