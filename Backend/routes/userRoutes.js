@@ -207,7 +207,7 @@ router.get('/review/my-reviews',expressAsyncHandler(async(req,res) => {
     if(reviews.length > 0){
       return res.status(200).send(reviews);
     }else{
-      return res.status(200).send({ message: 'No reviews.'})
+      return res.status(200).send([])
     }
 
   }catch(error){

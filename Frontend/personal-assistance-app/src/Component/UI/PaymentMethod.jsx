@@ -4,7 +4,7 @@ import PaymentStack from "./PaymentStack";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 
-export default function PaymentMethod() {
+const PaymentMethod =() => {
   const [selectedType, setSelectedType] = useState(null);
   const [saveCard, setSaveCard] = useState([]);
   const location = useLocation();
@@ -106,4 +106,6 @@ export default function PaymentMethod() {
       </div>
     </div>
   );
-}
+};
+
+export default PaymentMethod;

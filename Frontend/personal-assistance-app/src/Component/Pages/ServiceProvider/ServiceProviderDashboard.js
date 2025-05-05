@@ -120,7 +120,7 @@ const ServiceProviderDashboard = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response);
+        console.log(response.data);
 
         setReviews(response.data);
 
@@ -455,29 +455,29 @@ const ServiceProviderDashboard = () => {
     });
   };
 
-  // Filter bookings based on search term
-  const filteredBookings = useMemo(() => {
-    return bookings.filter((booking) => {
-      // Use the actual structure from the API response
-      const clientName = booking.customerDetails?.name || "";
-      const bookingDate = booking.bookingDate || "";
-      const bookingStatus = booking.status || "";
-      const serviceType = booking.bookingService || "";
+  // // Filter bookings based on search term
+  // const filteredBookings = useMemo(() => {
+  //   return bookings?.filter((booking) => {
+  //     // Use the actual structure from the API response
+  //     const clientName = booking.customerDetails?.name || "";
+  //     const bookingDate = booking.bookingDate || "";
+  //     const bookingStatus = booking.status || "";
+  //     const serviceType = booking.bookingService || "";
 
-      return (
-        clientName
-          .toString()
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        bookingDate.toString().includes(searchTerm) ||
-        bookingStatus
-          .toString()
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        serviceType.toString().toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
-  }, [searchTerm, bookings]);
+  //     return (
+  //       clientName
+  //         .toString()
+  //         .toLowerCase()
+  //         .includes(searchTerm.toLowerCase()) ||
+  //       bookingDate.toString().includes(searchTerm) ||
+  //       bookingStatus
+  //         .toString()
+  //         .toLowerCase()
+  //         .includes(searchTerm.toLowerCase()) ||
+  //       serviceType.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  //     );
+  //   });
+  // }, [searchTerm, bookings]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -1565,14 +1565,14 @@ const ServiceProviderDashboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-lg bg-white p-6 shadow">
-                {reviews.length === 0 ? (
+              <div className="rounded-lg bg-white p-6 shadow"> 
+                {reviews.length == 0 ? (
                   <div className="py-8 text-center text-gray-500">
                     No reviews yet
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {reviews.map((review) => (
+                    {reviews?.map((review) => (
                       <div
                         key={review._id}
                         className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0"

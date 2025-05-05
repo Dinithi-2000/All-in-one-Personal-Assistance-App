@@ -1,5 +1,7 @@
 import React from "react";
 
-export default function PaymentCancel() {
+const PaymentCancel =() => {
   return <div>payment_Cancel</div>;
 }
+
+export default PaymentCancel;
