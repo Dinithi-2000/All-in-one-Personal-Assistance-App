@@ -143,7 +143,7 @@ router.get('/bookmark/my-bookmarks',
       if(bookmarks.length > 0){
         return res.status(200).send(bookmarks);
       }else{
-        return res.status(200).send({ message: 'No Bookmarks found.'});
+        return res.status(200).send([]);
       }
 
     } catch (error) {

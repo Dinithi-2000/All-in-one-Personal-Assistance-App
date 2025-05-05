@@ -85,17 +85,23 @@ const BookmarkPage = () => {
     navigate("/");
   };
 
+  // parse userData for NavBar
+  const navUser = JSON.parse(localStorage.getItem("userData") || "null");
 
-  if (isLoading) {
+  if (!isLoading && serviceProviders.length === 0) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-500" />
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-gray-600">
+        <NavBar handleLogout={handleLogout} user={navUser} />
+        <div className="mt-20 text-center">
+          <FaSearch className="text-4xl text-teal-500 mb-4" />
+          <h2 className="text-2xl font-semibold">No Bookmarked Providers</h2>
+          <p className="mt-2 text-sm text-gray-500">
+            You haven't bookmarked any service providers yet.
+          </p>
+        </div>
       </div>
     );
   }
-
-  // parse userData for NavBar
-  const navUser = JSON.parse(localStorage.getItem("userData") || "null");
 
  
 
