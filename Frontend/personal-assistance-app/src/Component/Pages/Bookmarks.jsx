@@ -64,18 +64,32 @@ const BookmarkPage = () => {
   const handleBookmark = async (provider) => {
     const token = localStorage.getItem("authToken");
     try {
-      await api.delete(
-        `/api/user/bookmark/remove-bookmark?providerID=${provider._id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      setServiceProviders((prev) => prev.filter((p) => p._id !== provider._id));
-      Swal.fire(
-        "Removed",
-        `${provider.name} was removed from your bookmarks.`,
-        "success",
-      );
+
+         Swal.fire({
+              title: 'Are you sure?',
+              text: "Do you want remove this bookmark?",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#0d9488', 
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes, remove!',
+            }).then(async(result) => {
+              if (result.isConfirmed) {
+                await api.delete(
+                    `/api/user/bookmark/remove-bookmark?providerID=${provider._id}`,
+                    {
+                      headers: { Authorization: `Bearer ${token}` },
+                    },
+                  );
+                  setServiceProviders((prev) => prev.filter((p) => p._id !== provider._id));
+                  Swal.fire(
+                    "Removed",
+                    `${provider.name} was removed from your bookmarks.`,
+                    "success",
+                  );
+              }
+            });
+
     } catch (error) {
       console.error("Failed to remove bookmark", error);
       Swal.fire("Error", "Could not remove bookmark.", "error");
