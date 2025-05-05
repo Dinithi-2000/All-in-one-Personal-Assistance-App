@@ -34,7 +34,8 @@ import {
   InputLabel,
   Badge,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+
 } from '@mui/material';
 import {
   Delete,
@@ -45,6 +46,8 @@ import {
   FilterList,
   Person,
   LocationOn,
+  AccessTime,
+  ContactPhone,
   Email,
   Phone,
   Info,
@@ -1138,7 +1141,7 @@ const Users = () => {
                         display: 'flex',
                         alignItems: 'center'
                       }}>
-                        <ContactInfo sx={{ mr: 1 }} /> Contact Information
+                        <ContactPhone sx={{ mr: 1 }} /> Contact Information
                       </Typography>
                       
                       <Box sx={{ 
