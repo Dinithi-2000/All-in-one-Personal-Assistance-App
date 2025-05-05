@@ -8,6 +8,7 @@ import ServiceProvider from '../models/ServiceProvider.js';
 import UserModel from '../models/UserModel.js';
 import ReviewModel from '../models/ReviewModel.js';
 import BookingModel from '../models/BookingModel.js';
+import BookmarkModel from '../models/BookmarkModel.js';
 
 const router = express.Router();
 
@@ -129,6 +130,73 @@ router.post('/review/post-review',
   }),
 );
 
+router.get('/bookmark/my-bookmarks',
+  expressAsyncHandler(async (req, res) => {
+    try {
+    
+      const bookmarks = await BookmarkModel.find({ customerID: req.user.id},'-customerID -updatedAt').populate({
+        path: 'providerID',
+        model: ServiceProvider,
+        select: '-policeClearance -selectedPetTypes -selectedSyllabi -selectedSubjects -selectedGrades -selectedAgeGroups -payRate'
+      });
+     
+      if(bookmarks.length > 0){
+        return res.status(200).send(bookmarks);
+      }else{
+        return res.status(200).send([]);
+      }
+
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
+router.post('/bookmark/add-bookmark',
+  expressAsyncHandler(async (req, res) => {
+    const { providerID } = req.query;
+    try {
+    
+      const isThere = await BookmarkModel.findOne({ customerID: req.user.id,providerID, });
+      if (isThere) {
+        return res.status(400).send({ message: 'Already add Bookmark.' });
+      }
+
+      await BookmarkModel.create({
+        customerID: req.user.id,
+        providerID
+      })
+
+      return res.status(200).send({ message: 'Bookmark Added.' });
+      
+
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
+router.delete('/bookmark/remove-bookmark',
+  expressAsyncHandler(async (req, res) => {
+    const { providerID } = req.query;
+    try {
+    
+      const ress = await BookmarkModel.findOne({ customerID: req.user.id,providerID });
+      if(!ress){
+        return res.status(404).send({ message: 'Not Found.'})
+      }
+    
+      await BookmarkModel.deleteOne({ customerID: req.user.id,providerID })
+
+      return res.status(200).send({ message: 'SUCCESS' });
+      
+
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
 router.get('/review/my-reviews',expressAsyncHandler(async(req,res) => {
   try{
     const reviews = await ReviewModel.find({ providerID: req.user.id }).populate({
@@ -150,7 +218,6 @@ router.get('/review/my-reviews',expressAsyncHandler(async(req,res) => {
 //MARK: Counts
 router.get('/counts',expressAsyncHandler(async(req,res) => {
   try{
-    console.log("working");
     
     const myBookings = await BookingModel.countDocuments({ customerID: req.user.id });
     const completedBookings = await BookingModel.countDocuments({ customerID: req.user.id,status: 'CONFIRMED' });

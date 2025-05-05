@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import useServiceProviders from "../Hooks/CustomHook/useServiceProviders";
 import { createBooking } from "../../Lib/api";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../../Lib/api";
+import Swal from "sweetalert2";
 
 // Icons
 import {
@@ -38,15 +40,6 @@ const categories = [
   { id: "HouseCleaning", label: "House Cleaning", icon: FaBroom },
 ];
 
-
-// Static user details
-const staticUser = {
-  id: "static-user-123",
-  name: "John Doe",
-  email: "john.doe@example.com",
-  phone: "+94 123 456 789",
-};
-
 const ServiceSelection = () => {
   const { category, setCategory, serviceProviders, loading, error } =
     useServiceProviders();
@@ -64,7 +57,6 @@ const ServiceSelection = () => {
     bookingTime: "",
   });
   const [user, setUser] = useState(null);
-
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
@@ -103,6 +95,36 @@ const ServiceSelection = () => {
       bookingTime: "10:00",
     }));
     setIsModalOpen(true);
+  };
+
+  const handleBookmark = async (provider) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      console.log("provider:" + provider._id);
+      const response = await api.post(
+        `/api/user/bookmark/add-bookmark?providerID=${provider._id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      Swal.fire({
+        text: response?.data?.message || "Bookmark action completed.",
+        icon: "success",
+        confirmButtonColor: "#d33",
+      });
+    } catch (error) {
+      console.error("Bookmark Error:", error);
+
+      Swal.fire({
+        text:
+          error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
+    }
   };
 
   const handleCloseModal = () => {
@@ -183,7 +205,6 @@ const ServiceSelection = () => {
 
       const response = await createBooking(bookingData);
       setBookingSuccess("Booking created successfully!");
-      console.log(response.data);
       handleCloseModal();
     } catch (err) {
       setBookingError("Failed to create booking");
@@ -199,16 +220,17 @@ const ServiceSelection = () => {
           provider.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
           provider.about.toLowerCase().includes(searchQuery.toLowerCase()) ||
           provider.selectedLanguages.some((lang) =>
-            lang.toLowerCase().includes(searchQuery.toLowerCase())
+            lang.toLowerCase().includes(searchQuery.toLowerCase()),
           ) ||
           provider.selectedServices.some((service) =>
-            service.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+            service.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
       )
     : serviceProviders;
 
   // Get current category object
-  const currentCategory = categories.find((cat) => cat.id === category) || categories[0];
+  const currentCategory =
+    categories.find((cat) => cat.id === category) || categories[0];
   const CategoryIcon = currentCategory.icon;
 
   // Skeleton Loader Component
@@ -282,7 +304,8 @@ const ServiceSelection = () => {
               Find Your Perfect Service Provider
             </h1>
             <p className="text-teal-100 text-lg md:text-xl mb-8 max-w-2xl">
-              Discover professional and reliable assistance tailored to your needs.
+              Discover professional and reliable assistance tailored to your
+              needs.
             </p>
 
             {/* Search Bar */}
@@ -384,9 +407,16 @@ const ServiceSelection = () => {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 12H4"
+                />
               </svg>
-              <p className="font-medium text-lg">No service providers found for this category.</p>
+              <p className="font-medium text-lg">
+                No service providers found for this category.
+              </p>
               <p className="mt-2 text-gray-500">
                 Try selecting a different category or adjusting your search.
               </p>
@@ -417,22 +447,31 @@ const ServiceSelection = () => {
                 <div className="p-6 flex-1">
                   <div className="flex flex-col md:flex-row md:justify-between md:items-start">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800">{provider.name}</h3>
+                      <h3 className="text-xl font-bold text-gray-800">
+                        {provider.name}
+                      </h3>
                       <div className="space-y-1 mt-2">
                         <p className="text-gray-600 flex items-center text-sm">
-                          <FaMapMarkerAlt className="mr-2 text-teal-500 h-4 w-4" /> {provider.location}
+                          <FaMapMarkerAlt className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                          {provider.location}
                         </p>
                         <p className="text-gray-600 flex items-center text-sm">
-                          <FaVenusMars className="mr-2 text-teal-500 h-4 w-4" /> {provider.gender}
+                          <FaVenusMars className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                          {provider.gender}
                         </p>
                         <p className="text-gray-600 flex items-center text-sm">
-                          <FaInfoCircle className="mr-2 text-teal-500 h-4 w-4" /> Availability:{" "}
+                          <FaInfoCircle className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                          Availability:{" "}
                           <span
                             className={`ml-1 ${
-                              provider.availability === "yes" ? "text-green-600" : "text-red-600"
+                              provider.availability === "yes"
+                                ? "text-green-600"
+                                : "text-red-600"
                             } font-medium`}
                           >
-                            {provider.availability === "yes" ? "Available" : "Not Available"}
+                            {provider.availability === "yes"
+                              ? "Available"
+                              : "Not Available"}
                           </span>
                         </p>
                       </div>
@@ -440,19 +479,24 @@ const ServiceSelection = () => {
                     <div className="mt-4 md:mt-0 text-right">
                       <div className="text-lg font-bold text-teal-600">
                         Rs. {provider.payRate[0]} - {provider.payRate[1]}{" "}
-                        <span className="text-sm font-normal text-gray-500">/ hour</span>
+                        <span className="text-sm font-normal text-gray-500">
+                          / hour
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-gray-600 mt-4 text-sm leading-relaxed">{provider.about}</p>
+                  <p className="text-gray-600 mt-4 text-sm leading-relaxed">
+                    {provider.about}
+                  </p>
 
                   {/* Additional Details */}
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Languages */}
                     <div>
                       <p className="text-gray-700 font-medium flex items-center text-sm">
-                        <FaLanguage className="mr-2 text-teal-500 h-4 w-4" /> Languages
+                        <FaLanguage className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                        Languages
                       </p>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {provider.selectedLanguages.map((lang, index) => (
@@ -469,7 +513,8 @@ const ServiceSelection = () => {
                     {/* Services Offered */}
                     <div>
                       <p className="text-gray-700 font-medium flex items-center text-sm">
-                        <FaServicestack className="mr-2 text-teal-500 h-4 w-4" /> Services Offered
+                        <FaServicestack className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                        Services Offered
                       </p>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {provider.selectedServices.map((service, index) => (
@@ -484,64 +529,73 @@ const ServiceSelection = () => {
                     </div>
 
                     {/* Category-Specific Details */}
-                    {provider.serviceType === "PetCare" && provider.selectedPetTypes?.length > 0 && (
-                      <div>
-                        <p className="text-gray-700 font-medium flex items-center text-sm">
-                          <FaDog className="mr-2 text-teal-500 h-4 w-4" /> Pet Types
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {provider.selectedPetTypes.map((petType, index) => (
-                            <span
-                              key={index}
-                              className="px-3 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full shadow-sm"
-                            >
-                              {petType}
-                            </span>
-                          ))}
+                    {provider.serviceType === "PetCare" &&
+                      provider.selectedPetTypes?.length > 0 && (
+                        <div>
+                          <p className="text-gray-700 font-medium flex items-center text-sm">
+                            <FaDog className="mr-2 text-teal-500 h-4 w-4" /> Pet
+                            Types
+                          </p>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {provider.selectedPetTypes.map((petType, index) => (
+                              <span
+                                key={index}
+                                className="px-3 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full shadow-sm"
+                              >
+                                {petType}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {provider.serviceType === "Education" && (
                       <>
                         {provider.selectedSyllabi?.length > 0 && (
                           <div>
                             <p className="text-gray-700 font-medium flex items-center text-sm">
-                              <FaBook className="mr-2 text-teal-500 h-4 w-4" /> Syllabi
+                              <FaBook className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                              Syllabi
                             </p>
                             <div className="flex flex-wrap gap-2 mt-1">
-                              {provider.selectedSyllabi.map((syllabus, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full shadow-sm"
-                                >
-                                  {syllabus}
-                                </span>
-                              ))}
+                              {provider.selectedSyllabi.map(
+                                (syllabus, index) => (
+                                  <span
+                                    key={index}
+                                    className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full shadow-sm"
+                                  >
+                                    {syllabus}
+                                  </span>
+                                ),
+                              )}
                             </div>
                           </div>
                         )}
                         {provider.selectedSubjects?.length > 0 && (
                           <div>
                             <p className="text-gray-700 font-medium flex items-center text-sm">
-                              <FaChalkboardTeacher className="mr-2 text-teal-500 h-4 w-4" /> Subjects
+                              <FaChalkboardTeacher className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                              Subjects
                             </p>
                             <div className="flex flex-wrap gap-2 mt-1">
-                              {provider.selectedSubjects.map((subject, index) => (
-                                <span
-                                  key={index}
-                                  className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full shadow-sm"
-                                >
-                                  {subject}
-                                </span>
-                              ))}
+                              {provider.selectedSubjects.map(
+                                (subject, index) => (
+                                  <span
+                                    key={index}
+                                    className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full shadow-sm"
+                                  >
+                                    {subject}
+                                  </span>
+                                ),
+                              )}
                             </div>
                           </div>
                         )}
                         {provider.selectedGrades?.length > 0 && (
                           <div>
                             <p className="text-gray-700 font-medium flex items-center text-sm">
-                              <FaBook className="mr-2 text-teal-500 h-4 w-4" /> Grades
+                              <FaBook className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                              Grades
                             </p>
                             <div className="flex flex-wrap gap-2 mt-1">
                               {provider.selectedGrades.map((grade, index) => (
@@ -558,28 +612,49 @@ const ServiceSelection = () => {
                       </>
                     )}
 
-                    {(provider.serviceType === "ChildCare" || provider.serviceType === "ElderCare") &&
+                    {(provider.serviceType === "ChildCare" ||
+                      provider.serviceType === "ElderCare") &&
                       provider.selectedAgeGroups?.length > 0 && (
                         <div>
                           <p className="text-gray-700 font-medium flex items-center text-sm">
-                            <FaUsers className="mr-2 text-teal-500 h-4 w-4" /> Age Groups
+                            <FaUsers className="mr-2 text-teal-500 h-4 w-4" />{" "}
+                            Age Groups
                           </p>
                           <div className="flex flex-wrap gap-2 mt-1">
-                            {provider.selectedAgeGroups.map((ageGroup, index) => (
-                              <span
-                                key={index}
-                                className="px-3 py-1 bg-pink-50 text-pink-700 text-xs font-medium rounded-full shadow-sm"
-                              >
-                                {ageGroup}
-                              </span>
-                            ))}
+                            {provider.selectedAgeGroups.map(
+                              (ageGroup, index) => (
+                                <span
+                                  key={index}
+                                  className="px-3 py-1 bg-pink-50 text-pink-700 text-xs font-medium rounded-full shadow-sm"
+                                >
+                                  {ageGroup}
+                                </span>
+                              ),
+                            )}
                           </div>
                         </div>
                       )}
                   </div>
+                  {/* Action Buttons */}
+                  <div className="mt-6 flex justify-end space-x-4">
+                    {/* Bookmark Button */}
+                    <button
+                      onClick={() => handleBookmark(provider)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      aria-label={`Bookmark ${provider.name}`}
+                    >
+                      <span>Bookmark</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 ml-2"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.184 3.64h3.832c.969 0 1.371 1.24.588 1.81l-3.1 2.254 1.184 3.64c.3.921-.755 1.688-1.54 1.118L10 13.347l-3.1 2.254c-.784.57-1.838-.197-1.539-1.118l1.183-3.64-3.1-2.254c-.783-.57-.38-1.81.588-1.81h3.832l1.184-3.64z" />
+                      </svg>
+                    </button>
 
-                  {/* Book Now Button */}
-                  <div className="mt-6 flex justify-end">
+                    {/* Book Now Button */}
                     <button
                       onClick={() => handleOpenModal(provider)}
                       className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
@@ -628,7 +703,10 @@ const ServiceSelection = () => {
             >
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6">
-                <h2 id="modal-title" className="text-xl font-bold flex items-center">
+                <h2
+                  id="modal-title"
+                  className="text-xl font-bold flex items-center"
+                >
                   <FaCalendarAlt className="mr-3 h-6 w-6" />
                   Book {selectedProvider?.name}
                 </h2>
@@ -679,7 +757,9 @@ const ServiceSelection = () => {
                       value={formData.monthlyPayment}
                       onChange={handleFormChange}
                       className={`w-full border-none p-3 focus:outline-none focus:ring-0 bg-gray-50 ${
-                        validationErrors.monthlyPayment ? "text-red-500" : "text-gray-700"
+                        validationErrors.monthlyPayment
+                          ? "text-red-500"
+                          : "text-gray-700"
                       }`}
                       min="15000"
                       step="100"
@@ -687,7 +767,9 @@ const ServiceSelection = () => {
                     />
                   </div>
                   {validationErrors.monthlyPayment && (
-                    <p className="text-red-500 text-xs mt-1">{validationErrors.monthlyPayment}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {validationErrors.monthlyPayment}
+                    </p>
                   )}
                 </div>
 
@@ -703,13 +785,17 @@ const ServiceSelection = () => {
                     value={formData.bookingDate}
                     onChange={handleFormChange}
                     className={`w-full border ${
-                      validationErrors.bookingDate ? "border-red-500" : "border-gray-300"
+                      validationErrors.bookingDate
+                        ? "border-red-500"
+                        : "border-gray-300"
                     } rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200 bg-gray-50`}
                     min={new Date().toISOString().split("T")[0]}
                     aria-label="Select booking date"
                   />
                   {validationErrors.bookingDate && (
-                    <p className="text-red-500 text-xs mt-1">{validationErrors.bookingDate}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {validationErrors.bookingDate}
+                    </p>
                   )}
                 </div>
 
@@ -725,12 +811,16 @@ const ServiceSelection = () => {
                     value={formData.bookingTime}
                     onChange={handleFormChange}
                     className={`w-full border ${
-                      validationErrors.bookingTime ? "border-red-500" : "border-gray-300"
+                      validationErrors.bookingTime
+                        ? "border-red-500"
+                        : "border-gray-300"
                     } rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200 bg-gray-50`}
                     aria-label="Select booking time"
                   />
                   {validationErrors.bookingTime && (
-                    <p className="text-red-500 text-xs mt-1">{validationErrors.bookingTime}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {validationErrors.bookingTime}
+                    </p>
                   )}
                 </div>
 
