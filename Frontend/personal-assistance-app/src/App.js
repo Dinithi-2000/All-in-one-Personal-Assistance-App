@@ -40,6 +40,7 @@ import SalaryCalculation from "./Component/Pages/Admindashboard/SalaryCalculatio
 import RefundPage from "./Component/Pages/Admindashboard/RefundPage";
 import Settings from "./Component/Pages/Admindashboard/Settings";
 import AdminBookings from "./Component/Pages/Admindashboard/AdminBookings";
+import Services from "./Component/Pages/Admindashboard/ServicePage";
 
 function AuthRedirector() {
   const [loading, setLoading] = useState(true);
@@ -123,7 +124,7 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Overview />} />
             <Route path="user" element={<Users />} />
-            {/* <Route path="servicePage" element={<ServicePage />} /> */}
+            <Route path="servicePage" element={<Services />} />
             <Route path="transaction" element={<Transactions />} />
             <Route path="provider" element={<ProviderPage />} />
             <Route path="profitLoss" element={<ProfitLoss />} />

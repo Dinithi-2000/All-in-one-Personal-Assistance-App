@@ -426,7 +426,6 @@ const Users = () => {
                     <TableCell sx={{ color: 'white' }}>Location</TableCell>
                     <TableCell sx={{ color: 'white' }}>NIC</TableCell>
                     <TableCell sx={{ color: 'white' }}>Languages</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Status</TableCell>
                     <TableCell sx={{ color: 'white' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -464,18 +463,12 @@ const Users = () => {
                             ))}
                           </Box>
                         </TableCell>
-                        <TableCell>
-                          <Chip 
-                            label={provider.availability === 'yes' ? 'Available' : 'Not Available'} 
-                            color={provider.availability === 'yes' ? 'success' : 'error'} 
-                            size="small" 
-                          />
-                        </TableCell>
+                
                         <TableCell>
                           <Tooltip title="Edit">
                             <IconButton 
                               onClick={() => handleEditClick(provider)} 
-                              sx={{ color: 'white' }}
+                              sx={{ color: 'blue' }}
                             >
                               <Edit />
                             </IconButton>
@@ -483,7 +476,7 @@ const Users = () => {
                           <Tooltip title="Delete">
                             <IconButton 
                               onClick={() => handleDeleteClick(provider)} 
-                              sx={{ color: 'white' }}
+                              sx={{ color: 'red' }}
                             >
                               <Delete />
                             </IconButton>
