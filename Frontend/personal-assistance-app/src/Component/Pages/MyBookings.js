@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { retrieveBookings, updateBooking, deleteBooking } from "../../Lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  CalendarDays, 
-  Clock, 
-  Banknote, 
-  FileSignature, 
-  X, 
-  User, 
-  Package, 
-  Ban, 
+import {
+  CalendarDays,
+  Clock,
+  Banknote,
+  FileSignature,
+  X,
+  User,
+  Package,
+  Ban,
   MessageSquare,
   Edit,
   Calendar,
@@ -212,7 +212,7 @@ const MyBookings = () => {
     .filter(booking => {
       // Status filter
       if (filterStatus !== "all" && booking.status !== filterStatus) return false;
-      
+
       // Search query filter (case insensitive)
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -222,7 +222,7 @@ const MyBookings = () => {
           booking.agreementDuration?.toLowerCase().includes(query)
         );
       }
-      
+
       return true;
     });
 
@@ -267,7 +267,7 @@ const MyBookings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans w-full">
+    <div className="min-h-screen bg-slate-50 font-sans w-screen">
       {/* Notification Toasts */}
       <AnimatePresence>
         {success && (
@@ -375,7 +375,7 @@ const MyBookings = () => {
                   <p className="mt-2 text-gray-600">
                     Try adjusting your search or filter criteria.
                   </p>
-                  <button 
+                  <button
                     onClick={() => {
                       setSearchQuery("");
                       setFilterStatus("all");
@@ -413,7 +413,7 @@ const MyBookings = () => {
                       </h3>
                       <StatusBadge status={booking.status} />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mt-4">
                       <div className="flex items-center text-gray-700">
                         <Package size={16} className="mr-2 text-violet-500" />
@@ -437,7 +437,7 @@ const MyBookings = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Right side: Actions */}
                   <div className="flex md:flex-col justify-end gap-3 mt-4 md:mt-0">
                     <button
@@ -588,9 +588,8 @@ const MyBookings = () => {
                     <textarea
                       value={editReason}
                       onChange={handleEditReasonChange}
-                      className={`w-full border ${
-                        editReasonError ? "border-red-500 ring-1 ring-red-500" : "border-gray-300"
-                      } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32`}
+                      className={`w-full border ${editReasonError ? "border-red-500 ring-1 ring-red-500" : "border-gray-300"
+                        } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32`}
                       placeholder="Please explain why you're editing this confirmed booking..."
                       aria-label="Enter reason for editing"
                     />
@@ -676,9 +675,8 @@ const MyBookings = () => {
                   <textarea
                     value={cancelReason}
                     onChange={handleCancelReasonChange}
-                    className={`w-full border ${
-                      cancelError ? "border-red-500 ring-1 ring-red-500" : "border-gray-300"
-                    } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32`}
+                    className={`w-full border ${cancelError ? "border-red-500 ring-1 ring-red-500" : "border-gray-300"
+                      } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32`}
                     placeholder="Please explain why you're cancelling this booking..."
                     aria-label="Enter reason for cancellation"
                   />
