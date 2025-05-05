@@ -14,6 +14,14 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  Chip,
+  Avatar,
   Box,
   Grid,
   IconButton,
@@ -21,298 +29,39 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
-  Pagination,
-  Avatar,
-  Chip,
-  Card,
-  CardContent,
-  InputAdornment,
-  Divider,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Badge,
-  useTheme,
-  useMediaQuery,
-
+  Pagination
 } from '@mui/material';
 import {
+  Edit,
   Delete,
+  Save,
   Cancel,
   Search,
-  Refresh,
-  Download,
   FilterList,
-  Person,
-  LocationOn,
-  AccessTime,
-  ContactPhone,
-  Email,
-  Phone,
-  Info,
-  StarOutline,
-  PermIdentity,
-  Language,
-  VerifiedUser,
-  Block,
-  Visibility
+  Refresh,
+  Download
 } from '@mui/icons-material';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import autoTable from 'jspdf-autotable'; // Import jspdf-autotable correctly
 
 const API_BASE_URL = 'http://localhost:8070';
 
-// Styled components (Material UI styled API alternative)
-const StyledGridContainer = (props) => (
-  <Grid 
-    container 
-    spacing={3} 
-    {...props} 
-    sx={{ 
-      mb: 4,
-      ...props.sx
-    }} 
-  />
-);
-
-const StyledCard = (props) => (
-  <Card 
-    {...props} 
-    sx={{ 
-      borderRadius: 2,
-      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-      overflow: 'hidden',
-      background: 'rgba(255, 255, 255, 0.05)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-      '&:hover': {
-        transform: 'translateY(-5px)',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-      },
-      height: '100%',
-      ...props.sx
-    }} 
-  />
-);
-
-const StyledCardContent = (props) => (
-  <CardContent 
-    {...props} 
-    sx={{ 
-      p: 3,
-      ...props.sx
-    }} 
-  />
-);
-
-const StyledTableContainer = (props) => (
-  <TableContainer 
-    component={Paper} 
-    {...props} 
-    sx={{ 
-      borderRadius: 2,
-      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-      overflow: 'hidden',
-      background: 'rgba(255, 255, 255, 0.05)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      mb: 3,
-      ...props.sx
-    }} 
-  />
-);
-
-const StyledTextField = (props) => (
-  <TextField
-    variant="outlined"
-    fullWidth
-    {...props}
-    InputProps={{
-      ...props.InputProps,
-      sx: {
-        borderRadius: 2,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        color: 'white',
-        '& .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'rgba(255, 255, 255, 0.2)'
-        },
-        '&:hover .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'rgba(255, 255, 255, 0.3)'
-        },
-        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'rgba(255, 255, 255, 0.5)'
-        },
-        ...props.InputProps?.sx
-      }
-    }}
-    sx={{
-      '& .MuiInputLabel-root': {
-        color: 'rgba(255, 255, 255, 0.7)'
-      },
-      '& .MuiInputLabel-root.Mui-focused': {
-        color: 'white'
-      },
-      ...props.sx
-    }}
-  />
-);
-
-const StyledIconButton = (props) => (
-  <IconButton
-    {...props}
-    sx={{
-      color: 'white',
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-      borderRadius: '50%',
-      p: 1,
-      '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      },
-      ...props.sx
-    }}
-  />
-);
-
-const ServiceProviderCard = ({ provider, onDelete, onViewDetails }) => {
-  return (
-    <StyledCard>
-      <Box sx={{ 
-        height: 80, 
-        background: 'linear-gradient(45deg, #1a237e 30%, #4a148c 90%)',
-        position: 'relative'
-      }}>
-        <Avatar 
-          src={provider.profile_pic} 
-          alt={provider.name}
-          sx={{ 
-            width: 80, 
-            height: 80, 
-            border: '3px solid white',
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            bottom: -40
-          }}
-        />
-      </Box>
-      <StyledCardContent sx={{ pt: 6, pb: 2, textAlign: 'center' }}>
-        <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', mb: 0.5 }}>
-          {provider.name}
-        </Typography>
-        
-        <Chip 
-          label={provider.serviceType || 'No Service Type'} 
-          size="small"
-          sx={{ 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-            color: 'white',
-            mb: 2
-          }}
-        />
-        
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
-            <Email fontSize="small" sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-              {provider.email}
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
-            <LocationOn fontSize="small" sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-              {provider.address || 'No Location'}
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PermIdentity fontSize="small" sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />
-            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
-              {provider.nic || 'No NIC'}
-            </Typography>
-          </Box>
-        </Box>
-        
-        <Box sx={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          justifyContent: 'center',
-          gap: 0.5,
-          mb: 2 
-        }}>
-          {provider.selectedLanguages?.map(lang => (
-            <Chip
-              key={lang}
-              label={lang}
-              size="small"
-              sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                color: 'white',
-                fontSize: '0.7rem'
-              }}
-            />
-          ))}
-          {(!provider.selectedLanguages || provider.selectedLanguages.length === 0) && (
-            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-              No languages specified
-            </Typography>
-          )}
-        </Box>
-        
-        <Divider sx={{ 
-          mb: 2, 
-          backgroundColor: 'rgba(255, 255, 255, 0.1)' 
-        }} />
-        
-        <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
-          <Tooltip title="View Details">
-            <StyledIconButton 
-              onClick={() => onViewDetails(provider)}
-              size="small"
-              sx={{ backgroundColor: 'rgba(25, 118, 210, 0.2)' }}
-            >
-              <Visibility fontSize="small" />
-            </StyledIconButton>
-          </Tooltip>
-          
-          <Tooltip title="Delete">
-            <StyledIconButton 
-              onClick={() => onDelete(provider)}
-              size="small"
-              sx={{ backgroundColor: 'rgba(211, 47, 47, 0.2)' }}
-            >
-              <Delete fontSize="small" />
-            </StyledIconButton>
-          </Tooltip>
-        </Box>
-      </StyledCardContent>
-    </StyledCard>
-  );
-};
-
 const Users = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
   const [serviceProviders, setServiceProviders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState(null);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingProvider, setEditingProvider] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(1);
-  const [view, setView] = useState('grid'); // 'grid' or 'table'
-  const rowsPerPage = 9; // Adjusted for grid view
+  const rowsPerPage = 10;
 
   useEffect(() => {
     fetchServiceProviders();
@@ -346,11 +95,6 @@ const Users = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleViewDetails = (provider) => {
-    setSelectedProvider(provider);
-    setDetailsDialogOpen(true);
-  };
-
   const handleDeleteConfirm = async () => {
     try {
       await axios.delete(`${API_BASE_URL}/delete-service-provider/${providerToDelete._id}`);
@@ -360,6 +104,55 @@ const Users = () => {
       showSnackbar('Failed to delete service provider', 'error');
     }
     setDeleteDialogOpen(false);
+  };
+
+  const handleEditClick = (provider) => {
+    setEditingProvider({ ...provider });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSave = async () => {
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/update-service-provider/${editingProvider._id}`,
+        editingProvider
+      );
+      
+      const updatedProvider = response.data.data;
+      const normalizedProvider = {
+        ...updatedProvider,
+        name: updatedProvider.name || '',
+        email: updatedProvider.email || '',
+        serviceType: updatedProvider.serviceType || '',
+        location: updatedProvider.location || '',
+        payRate: updatedProvider.payRate || [500, 2000],
+        selectedLanguages: updatedProvider.selectedLanguages || [],
+        availability: updatedProvider.availability || 'no',
+      };
+      
+      setServiceProviders(serviceProviders.map(sp => 
+        sp._id === editingProvider._id ? normalizedProvider : sp
+      ));
+      
+      showSnackbar('Service provider updated successfully', 'success');
+      setEditDialogOpen(false);
+    } catch (err) {
+      showSnackbar('Failed to update service provider', 'error');
+    }
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditingProvider({ ...editingProvider, [name]: value });
+  };
+
+  const handleCheckboxChange = (field, value) => {
+    const currentValues = editingProvider[field] || [];
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter(item => item !== value)
+      : [...currentValues, value];
+    
+    setEditingProvider({ ...editingProvider, [field]: newValues });
   };
 
   const showSnackbar = (message, severity) => {
@@ -394,6 +187,8 @@ const Users = () => {
   const generatePDF = () => {
     const doc = new jsPDF();
     
+    // No need to manually apply autoTable; it's automatically available with the correct import
+
     let yPosition = 20;
 
     // Header
@@ -512,50 +307,20 @@ const Users = () => {
     doc.save('service-providers-report.pdf');
   };
 
+  console.log('searchTerm:', searchTerm);
+  console.log('filter:', filter);
+  console.log('serviceProviders:', serviceProviders);
+  console.log('serviceTypes:', serviceTypes);
+  console.log('filteredProviders:', filteredProviders);
+
   return (
     <Box sx={{ 
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #121212 0%, #000000 100%)',
+      background: 'linear-gradient(to bottom right, #1a1a1a, #000000)',
       color: 'white',
-      p: { xs: 2, md: 4 },
-      position: 'relative'
+      p: 4
     }}>
-      {/* Decorative background elements */}
-      <Box sx={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0, 
-        overflow: 'hidden',
-        zIndex: 0
-      }}>
-        <Box sx={{ 
-          position: 'absolute', 
-          width: '500px', 
-          height: '500px', 
-          borderRadius: '50%', 
-          background: 'radial-gradient(circle, rgba(25, 118, 210, 0.1) 0%, rgba(25, 118, 210, 0) 70%)',
-          top: '-250px',
-          right: '-250px'
-        }} />
-        <Box sx={{ 
-          position: 'absolute', 
-          width: '600px', 
-          height: '600px', 
-          borderRadius: '50%', 
-          background: 'radial-gradient(circle, rgba(156, 39, 176, 0.1) 0%, rgba(156, 39, 176, 0) 70%)',
-          bottom: '-300px',
-          left: '-300px'
-        }} />
-      </Box>
-
-      <Box sx={{ 
-        maxWidth: 'xl', 
-        mx: 'auto', 
-        position: 'relative', 
-        zIndex: 1
-      }}>
+      <Box sx={{ maxWidth: '7xl', mx: 'auto', px: 4, py: 8 }}>
         <Typography
           variant="h4"
           gutterBottom
@@ -564,923 +329,599 @@ const Users = () => {
             color: 'white',
             mb: 4,
             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            display: 'inline-block',
           }}
         >
-          <Person sx={{ mr: 2, fontSize: 40 }} />
           Service Providers Management
         </Typography>
-
-        {/* Search and Filter Controls */}
-        <StyledGridContainer>
-          <Grid item xs={12} md={4}>
-            <StyledTextField
-              placeholder="Search by name, email, location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth>
-              <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Filter by Service Type</InputLabel>
-              <Select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                sx={{
-                  borderRadius: 2,
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  color: 'white',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(255, 255, 255, 0.2)'
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(255, 255, 255, 0.3)'
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(255, 255, 255, 0.5)'
-                  },
-                  '& .MuiSvgIcon-root': {
-                    color: 'white'
+        
+        <Paper sx={{ 
+          p: 2, 
+          mb: 3, 
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Search providers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <Search sx={{ color: 'white', mr: 1 }} />
+                  ),
+                  sx: {
+                    color: 'white',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)'
+                    }
                   }
                 }}
-                startAdornment={
-                  <InputAdornment position="start">
-                    <FilterList sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
-                  </InputAdornment>
-                }
-              >
-                <MenuItem value="all">All Service Types</MenuItem>
-                {serviceTypes.map(type => (
-                  <MenuItem key={type} value={type.toLowerCase()}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              />
+            </Grid>
+            {/* <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth>
+                <InputLabel sx={{ color: 'white' }}>Filter by Service</InputLabel>
+                <Select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  sx={{
+                    color: 'white',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)'
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: 'white'
+                    }
+                  }}
+                >
+                  <MenuItem value="all">All Services</MenuItem>
+                  {serviceTypes.map(type => (
+                    <MenuItem key={type} value={type.toLowerCase()}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid> */}
+            <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Tooltip title="Download PDF">
+                <IconButton onClick={generatePDF} sx={{ color: 'white', mr: 1 }}>
+                  <Download />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Refresh">
+                <IconButton onClick={fetchServiceProviders} sx={{ color: 'white' }}>
+                  <Refresh />
+                </IconButton>
+              </Tooltip>
+            </Grid>
           </Grid>
-          
-          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button
-              variant="contained"
-              startIcon={<Download />}
-              onClick={generatePDF}
-              sx={{
-                backgroundColor: 'rgba(25, 118, 210, 0.8)',
-                '&:hover': {
-                  backgroundColor: 'rgba(25, 118, 210, 1)',
-                },
-                borderRadius: 2,
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.25)',
-              }}
-            >
-              {isMobile ? '' : 'Download Report'}
-            </Button>
-            
-            <Button
-              variant="contained"
-              startIcon={<Refresh />}
-              onClick={fetchServiceProviders}
-              sx={{
-                backgroundColor: 'rgba(76, 175, 80, 0.8)',
-                '&:hover': {
-                  backgroundColor: 'rgba(76, 175, 80, 1)',
-                },
-                borderRadius: 2,
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.25)',
-              }}
-            >
-              {isMobile ? '' : 'Refresh'}
-            </Button>
-            
-            <Button
-              variant="contained"
-              startIcon={view === 'grid' ? <FilterList /> : <FilterList />}
-              onClick={() => setView(view === 'grid' ? 'table' : 'grid')}
-              sx={{
-                backgroundColor: 'rgba(156, 39, 176, 0.8)',
-                '&:hover': {
-                  backgroundColor: 'rgba(156, 39, 176, 1)',
-                },
-                borderRadius: 2,
-                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.25)',
-              }}
-            >
-              {isMobile ? '' : view === 'grid' ? 'Table View' : 'Grid View'}
-            </Button>
-          </Grid>
-        </StyledGridContainer>
+        </Paper>
 
-        {/* Stats Cards */}
-        <StyledGridContainer>
-          <Grid item xs={12} sm={6} md={3}>
-            <StyledCard sx={{ backgroundColor: 'rgba(25, 118, 210, 0.1)' }}>
-              <StyledCardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box>
-                    <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold' }}>
-                      {serviceProviders.length}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                      Total Providers
-                    </Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: 'rgba(25, 118, 210, 0.2)' }}>
-                    <Person />
-                  </Avatar>
-                </Box>
-              </StyledCardContent>
-            </StyledCard>
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
-            <StyledCard sx={{ backgroundColor: 'rgba(76, 175, 80, 0.1)' }}>
-              <StyledCardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box>
-                    <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold' }}>
-                      {serviceProviders.filter(sp => sp.availability === 'yes').length}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                      Available Providers
-                    </Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: 'rgba(76, 175, 80, 0.2)' }}>
-                    <VerifiedUser />
-                  </Avatar>
-                </Box>
-              </StyledCardContent>
-            </StyledCard>
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
-            <StyledCard sx={{ backgroundColor: 'rgba(255, 152, 0, 0.1)' }}>
-              <StyledCardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box>
-                    <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold' }}>
-                      {serviceTypes.length}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                      Service Categories
-                    </Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: 'rgba(255, 152, 0, 0.2)' }}>
-                    <Badge />
-                  </Avatar>
-                </Box>
-              </StyledCardContent>
-            </StyledCard>
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
-            <StyledCard sx={{ backgroundColor: 'rgba(156, 39, 176, 0.1)' }}>
-              <StyledCardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box>
-                    <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold' }}>
-                      {serviceProviders.filter(sp => sp.availability === 'no').length}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                      Unavailable Providers
-                    </Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: 'rgba(156, 39, 176, 0.2)' }}>
-                    <Block />
-                  </Avatar>
-                </Box>
-              </StyledCardContent>
-            </StyledCard>
-          </Grid>
-        </StyledGridContainer>
-
-        {/* Content */}
         {loading ? (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            height: '200px' 
-          }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
             <CircularProgress sx={{ color: 'white' }} />
           </Box>
         ) : error ? (
-          <Box sx={{ 
-            p: 3, 
-            textAlign: 'center', 
-            backgroundColor: 'rgba(255, 0, 0, 0.1)',
-            borderRadius: 2,
-            border: '1px solid rgba(255, 0, 0, 0.3)'
-          }}>
-            <Typography color="error">{error}</Typography>
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={fetchServiceProviders}
-              sx={{ mt: 2 }}
-            >
-              Try Again
-            </Button>
-          </Box>
+          <Typography color="error">{error}</Typography>
         ) : (
           <>
-            {/* Grid or Table View */}
-            {view === 'grid' ? (
-              <StyledGridContainer>
-                {paginatedProviders.length > 0 ? (
-                  paginatedProviders.map((provider) => (
-                    <Grid item xs={12} sm={6} md={4} key={provider._id}>
-                      <ServiceProviderCard
-                        provider={provider}
-                        onDelete={handleDeleteClick}
-                        onViewDetails={handleViewDetails}
-                      />
-                    </Grid>
-                  ))
-                ) : (
-                  <Grid item xs={12}>
-                    <Box sx={{ 
-                      p: 4, 
-                      textAlign: 'center', 
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      borderRadius: 2,
-                      border: '1px dashed rgba(255, 255, 255, 0.2)'
-                    }}>
-                      <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
-                        No service providers found matching your search criteria.
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        onClick={() => {
-                          setSearchTerm('');
-                          setFilter('all');
-                        }}
+            <TableContainer component={Paper} sx={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Table>
+                <TableHead sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+                  <TableRow>
+                    <TableCell sx={{ color: 'white' }}>Profile</TableCell>
+                    <TableCell sx={{ color: 'white' }}>Name</TableCell>
+                    <TableCell sx={{ color: 'white' }}>Email</TableCell>
+                    <TableCell sx={{ color: 'white' }}>Location</TableCell>
+                    <TableCell sx={{ color: 'white' }}>NIC</TableCell>
+                    <TableCell sx={{ color: 'white' }}>Languages</TableCell>
+                    <TableCell sx={{ color: 'white' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedProviders.length > 0 ? (
+                    paginatedProviders.map((provider) => (
+                      <TableRow 
+                        key={provider._id} 
                         sx={{ 
-                          color: 'white',
-                          borderColor: 'rgba(255, 255, 255, 0.3)',
-                          '&:hover': {
-                            borderColor: 'white'
-                          }
+                          '&:hover': { 
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)' 
+                          } 
                         }}
                       >
-                        Clear Filters
-                      </Button>
-                    </Box>
-                  </Grid>
-                )}
-              </StyledGridContainer>
-            ) : (
-              <StyledTableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Profile</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Name</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Email</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Location</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Service Type</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>NIC</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Languages</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {paginatedProviders.length > 0 ? (
-                      paginatedProviders.map((provider) => (
-                        <TableRow 
-                          key={provider._id} 
-                          sx={{ 
-                            '&:hover': { 
-                              backgroundColor: 'rgba(255, 255, 255, 0.05)' 
-                            },
-                            transition: 'background-color 0.2s'
-                          }}
-                        >
-                          <TableCell>
-                            <Avatar 
-                              src={provider.profile_pic} 
-                              alt={provider.name}
-                              sx={{ 
-                                width: 40, 
-                                height: 40,
-                                border: '2px solid rgba(255, 255, 255, 0.2)'
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ color: 'white' }}>{provider.name}</TableCell>
-                          <TableCell sx={{ color: 'white' }}>{provider.email}</TableCell>
-                          <TableCell sx={{ color: 'white' }}>{provider.address}</TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={provider.serviceType || 'N/A'} 
-                              size="small"
-                              sx={{ 
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                                color: 'white' 
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ color: 'white' }}>{provider.nic || 'N/A'}</TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {provider.selectedLanguages?.map(lang => (
-                                <Chip
-                                  key={lang}
-                                  label={lang}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                    color: 'white',
-                                    fontSize: '0.7rem'
-                                  }}
-                                />
-                              ))}
-                              {(!provider.selectedLanguages || provider.selectedLanguages.length === 0) && (
-                                <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                                  None
-                                </Typography>
-                              )}
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex' }}>
-                              <Tooltip title="View Details">
-                                <StyledIconButton 
-                                  onClick={() => handleViewDetails(provider)}
-                                  size="small"
-                                  sx={{ mr: 1, backgroundColor: 'rgba(25, 118, 210, 0.2)' }}
-                                >
-                                  <Visibility fontSize="small" />
-                                </StyledIconButton>
-                              </Tooltip>
-                              
-                              <Tooltip title="Delete">
-                                <StyledIconButton 
-                                  onClick={() => handleDeleteClick(provider)}
-                                  size="small"
-                                  sx={{ backgroundColor: 'rgba(211, 47, 47, 0.2)' }}
-                                >
-                                  <Delete fontSize="small" />
-                                </StyledIconButton>
-                              </Tooltip>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={8} align="center" sx={{ color: 'white', py: 4 }}>
-                          <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 2 }}>
-                            No service providers found matching your search criteria.
-                          </Typography>
-                          <Button
-                            variant="outlined"
-                            onClick={() => {
-                              setSearchTerm('');
-                              setFilter('all');
-                            }}
-                            sx={{ 
-                              color: 'white',
-                              borderColor: 'rgba(255, 255, 255, 0.3)',
-                              '&:hover': {
-                                borderColor: 'white'
-                              }
-                            }}
-                          >
-                            Clear Filters
-                          </Button>
+                        <TableCell>
+                          <Avatar src={provider.profile_pic} alt={provider.name} />
+                        </TableCell>
+                        <TableCell sx={{ color: 'white' }}>{provider.name}</TableCell>
+                        <TableCell sx={{ color: 'white' }}>{provider.email}</TableCell>
+                        <TableCell sx={{ color: 'white' }}>{provider.address}</TableCell>
+                        <TableCell sx={{ color: 'white' }}>{provider.nic}</TableCell>
+                       
+                        <TableCell>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {provider.selectedLanguages?.map(lang => (
+                              <Chip
+                                key={lang}
+                                label={lang}
+                                size="small"
+                                sx={{
+                                  color: 'white',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </TableCell>
+                
+                        <TableCell>
+                          <Tooltip title="Edit">
+                            <IconButton 
+                              onClick={() => handleEditClick(provider)} 
+                              sx={{ color: 'blue' }}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton 
+                              onClick={() => handleDeleteClick(provider)} 
+                              sx={{ color: 'red' }}
+                            >
+                              <Delete />
+                            </IconButton>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </StyledTableContainer>
-            )}
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={9} align="center" sx={{ color: 'white' }}>
+                        No service providers found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-            {/* Pagination */}
-            {filteredProviders.length > 0 && (
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                mt: 3, 
-                mb: 4,
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: 2,
-                p: 1
-              }}>
-                <Pagination
-                  count={Math.ceil(filteredProviders.length / rowsPerPage)}
-                  page={page}
-                  onChange={(e, value) => setPage(value)}
-                  sx={{
-                    '& .MuiPaginationItem-root': {
-                      color: 'white',
-                      '&.Mui-selected': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        fontWeight: 'bold'
-                      }
-                    }
-                  }}
-                />
-              </Box>
-            )}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+              <Pagination
+                count={Math.ceil(filteredProviders.length / rowsPerPage)}
+                page={page}
+                onChange={(e, value) => setPage(value)}
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    color: 'white'
+                  }
+                }}
+              />
+            </Box>
           </>
         )}
 
-        {/* Delete Confirmation Dialog */}
         <Dialog
           open={deleteDialogOpen}
           onClose={() => setDeleteDialogOpen(false)}
           PaperProps={{
             sx: {
               backgroundColor: '#1a1a1a',
-              color: 'white',
-              borderRadius: 2,
-              backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03))'
+              color: 'white'
             }
           }}
         >
-          <DialogTitle sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Delete sx={{ color: '#f44336', mr: 1 }} />
-              Confirm Delete
-            </Box>
-          </DialogTitle>
-          <DialogContent sx={{ mt: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Avatar 
-                src={providerToDelete?.profile_pic} 
-                alt={providerToDelete?.name}
-                sx={{ mr: 2, width: 50, height: 50 }}
-              />
-              <Box>
-                <Typography variant="h6" sx={{ color: 'white' }}>
-                  {providerToDelete?.name}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  {providerToDelete?.email}
-                </Typography>
-              </Box>
-            </Box>
-            <Typography sx={{ color: 'white', mt: 2 }}>
-              Are you sure you want to delete this service provider? This action cannot be undone and will remove all associated data.
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            <Typography sx={{ color: 'white' }}>
+              Are you sure you want to delete {providerToDelete?.name}? This action cannot be undone.
             </Typography>
           </DialogContent>
-          <DialogActions sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', p: 2 }}>
+          <DialogActions>
             <Button 
               onClick={() => setDeleteDialogOpen(false)} 
               startIcon={<Cancel />}
-              sx={{ 
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                }
-              }}
+              sx={{ color: 'white' }}
             >
               Cancel
             </Button>
             <Button 
               onClick={handleDeleteConfirm} 
-              startIcon={<Delete />}
-              variant="contained"
               color="error"
-              sx={{
-                backgroundColor: 'rgba(211, 47, 47, 0.8)',
-                '&:hover': {
-                  backgroundColor: 'rgba(211, 47, 47, 1)'
-                }
-              }}
+              startIcon={<Delete />}
             >
-              Delete Permanently
+              Delete
             </Button>
           </DialogActions>
         </Dialog>
 
-        {/* Provider Details Dialog */}
-        <Dialog
-          open={detailsDialogOpen}
-          onClose={() => setDetailsDialogOpen(false)}
-          fullWidth
-          maxWidth="md"
-          PaperProps={{
-            sx: {
-              backgroundColor: '#1a1a1a',
-              color: 'white',
-              borderRadius: 2,
-              backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03))'
-            }
-          }}
-        >
-          {selectedProvider && (
-            <>
-              <DialogTitle sx={{ 
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                pb: 1
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Info sx={{ color: '#2196f3', mr: 1 }} />
-                  Provider Details
-                </Box>
-              </DialogTitle>
-              <DialogContent sx={{ p: 0 }}>
-                {/* Profile Header */}
-                <Box sx={{ 
-                  height: 120, 
-                  background: 'linear-gradient(45deg, #1a237e 30%, #4a148c 90%)',
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'flex-end',
-                  p: 2,
-                  pb: 6
-                }}>
-                  <Avatar 
-                    src={selectedProvider.profile_pic} 
-                    alt={selectedProvider.name}
-                    sx={{ 
-                      width: 100, 
-                      height: 100, 
-                      border: '4px solid white',
-                      position: 'absolute',
-                      left: 24,
-                      bottom: -50,
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+        {editingProvider && (
+          <Dialog
+            open={editDialogOpen}
+            onClose={() => setEditDialogOpen(false)}
+            fullWidth
+            maxWidth="md"
+            PaperProps={{
+              sx: {
+                backgroundColor: '#1a1a1a',
+                color: 'white'
+              }
+            }}
+          >
+            <DialogTitle sx={{ color: 'white' }}>Edit Service Provider</DialogTitle>
+            <DialogContent dividers>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Name"
+                    name="name"
+                    value={editingProvider.name || ''}
+                    onChange={handleEditChange}
+                    margin="normal"
+                    InputProps={{
+                      sx: { color: 'white' }
+                    }}
+                    InputLabelProps={{
+                      sx: { color: 'white' }
                     }}
                   />
-                  <Box sx={{ ml: 16 }}>
-                    <Typography variant="h5" sx={{ color: 'white', fontWeight: 'bold' }}>
-                      {selectedProvider.name}
-                    </Typography>
-                    <Chip 
-                      label={selectedProvider.serviceType || 'No Service Type'} 
-                      size="small"
-                      sx={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    name="email"
+                    value={editingProvider.email || ''}
+                    onChange={handleEditChange}
+                    margin="normal"
+                    InputProps={{
+                      sx: { color: 'white' }
+                    }}
+                    InputLabelProps={{
+                      sx: { color: 'white' }
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    label="NIC"
+                    name="nic"
+                    value={editingProvider.nic || ''}
+                    onChange={handleEditChange}
+                    margin="normal"
+                    InputProps={{
+                      sx: { color: 'white' }
+                    }}
+                    InputLabelProps={{
+                      sx: { color: 'white' }
+                    }}
+                  />
+                  <FormControl fullWidth margin="normal">
+                    <InputLabel sx={{ color: 'white' }}>Location</InputLabel>
+                    <Select
+                      name="location"
+                      value={editingProvider.location || ''}
+                      onChange={handleEditChange}
+                      sx={{
                         color: 'white',
-                        mt: 0.5
+                        '& .MuiSvgIcon-root': {
+                          color: 'white'
+                        }
+                      }}
+                    >
+                      {[
+                        'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 
+                        'Nuwara Eliya', 'Galle', 'Matara', 'Hambantota', 
+                        'Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya', 
+                        'Mullaitivu', 'Batticaloa', 'Ampara', 'Trincomalee', 
+                        'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 
+                        'Badulla', 'Monaragala', 'Ratnapura', 'Kegalle'
+                      ].map(loc => (
+                        <MenuItem key={loc} value={loc}>{loc}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth margin="normal">
+                    <InputLabel sx={{ color: 'white' }}>Service Type</InputLabel>
+                    <Select
+                      name="serviceType"
+                      value={editingProvider.serviceType || ''}
+                      onChange={handleEditChange}
+                      sx={{
+                        color: 'white',
+                        '& .MuiSvgIcon-root': {
+                          color: 'white'
+                        }
+                      }}
+                    >
+                      <MenuItem value="HouseCleaning">House Cleaning</MenuItem>
+                      <MenuItem value="KitchenHelpers">Kitchen Helpers</MenuItem>
+                      <MenuItem value="ChildCare">Child Care</MenuItem>
+                      <MenuItem value="ElderCare">Elder Care</MenuItem>
+                      <MenuItem value="PetCare">Pet Care</MenuItem>
+                      <MenuItem value="Education">Education</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                    <TextField
+                      fullWidth
+                      label="Min Rate (Rs)"
+                      name="payRate[0]"
+                      type="number"
+                      value={editingProvider.payRate[0] || 500}
+                      onChange={(e) => {
+                        const newPayRate = [...editingProvider.payRate];
+                        newPayRate[0] = e.target.value;
+                        setEditingProvider({ ...editingProvider, payRate: newPayRate });
+                      }}
+                      margin="normal"
+                      InputProps={{
+                        sx: { color: 'white' }
+                      }}
+                      InputLabelProps={{
+                        sx: { color: 'white' }
+                      }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Max Rate (Rs)"
+                      name="payRate[1]"
+                      type="number"
+                      value={editingProvider.payRate[1] || 2000}
+                      onChange={(e) => {
+                        const newPayRate = [...editingProvider.payRate];
+                        newPayRate[1] = e.target.value;
+                        setEditingProvider({ ...editingProvider, payRate: newPayRate });
+                      }}
+                      margin="normal"
+                      InputProps={{
+                        sx: { color: 'white' }
+                      }}
+                      InputLabelProps={{
+                        sx: { color: 'white' }
                       }}
                     />
                   </Box>
-                </Box>
-                
-                <Box sx={{ p: 3, pt: 6 }}>
-                  {/* Contact Info Section */}
-                  <StyledGridContainer>
-                    <Grid item xs={12} md={6}>
-                      <Typography variant="subtitle1" sx={{ 
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        fontWeight: 'bold',
-                        mb: 2,
-                        display: 'flex',
-                        alignItems: 'center'
-                      }}>
-                        <ContactPhone sx={{ mr: 1 }} /> Contact Information
-                      </Typography>
-                      
-                      <Box sx={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)', 
-                        borderRadius: 2,
-                        p: 2
-                      }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Email sx={{ color: 'rgba(255, 255, 255, 0.7)', mr: 2 }} />
-                          <Box>
-                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                              Email
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'white' }}>
-                              {selectedProvider.email}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Phone sx={{ color: 'rgba(255, 255, 255, 0.7)', mr: 2 }} />
-                          <Box>
-                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                              Phone
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'white' }}>
-                              {selectedProvider.mobileNumber || 'Not provided'}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <LocationOn sx={{ color: 'rgba(255, 255, 255, 0.7)', mr: 2 }} />
-                          <Box>
-                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                              Location
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'white' }}>
-                              {selectedProvider.address || 'Not provided'}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    
-                    <Grid item xs={12} md={6}>
-                      <Typography variant="subtitle1" sx={{ 
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        fontWeight: 'bold',
-                        mb: 2,
-                        display: 'flex',
-                        alignItems: 'center'
-                      }}>
-                        <PermIdentity sx={{ mr: 1 }} /> Personal Information
-                      </Typography>
-                      
-                      <Box sx={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)', 
-                        borderRadius: 2,
-                        p: 2
-                      }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <PermIdentity sx={{ color: 'rgba(255, 255, 255, 0.7)', mr: 2 }} />
-                          <Box>
-                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                              NIC
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'white' }}>
-                              {selectedProvider.nic || 'Not provided'}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                          <Language sx={{ color: 'rgba(255, 255, 255, 0.7)', mr: 2 }} />
-                          <Box>
-                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                              Languages
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                              {selectedProvider.selectedLanguages?.map(lang => (
-                                <Chip
-                                  key={lang}
-                                  label={lang}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                    color: 'white',
-                                    fontSize: '0.7rem'
-                                  }}
-                                />
-                              ))}
-                              {(!selectedProvider.selectedLanguages || selectedProvider.selectedLanguages.length === 0) && (
-                                <Typography variant="body2" sx={{ color: 'white' }}>
-                                  None specified
-                                </Typography>
-                              )}
-                            </Box>
-                          </Box>
-                        </Box>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <AccessTime sx={{ color: 'rgba(255, 255, 255, 0.7)', mr: 2 }} />
-                          <Box>
-                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                              Availability
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'white' }}>
-                              {selectedProvider.availability === 'yes' ? 'Available' : 'Not Available'}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  </StyledGridContainer>
-                  
-                  {/* Service Details Section */}
-                  <Typography variant="subtitle1" sx={{ 
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    fontWeight: 'bold',
-                    mb: 2,
-                    mt: 3,
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}>
-                    <Badge sx={{ mr: 1 }} /> Service Details
-                  </Typography>
-                  
-                  <Box sx={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)', 
-                    borderRadius: 2,
-                    p: 2,
-                    mb: 3
-                  }}>
-                    <StyledGridContainer>
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                          Service Type
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: 'white', mb: 2 }}>
-                          {selectedProvider.serviceType || 'Not specified'}
-                        </Typography>
-                        
-                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                          Pay Rate (Rs/hr)
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: 'white' }}>
-                          {selectedProvider.payRate ? `${selectedProvider.payRate[0]} - ${selectedProvider.payRate[1]}` : 'Not specified'}
-                        </Typography>
-                      </Grid>
-                      
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                          Services Offered
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                          {selectedProvider.selectedServices?.map(service => (
-                            <Chip
-                              key={service}
-                              label={service}
-                              size="small"
-                              sx={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                color: 'white',
-                                fontSize: '0.7rem'
-                              }}
-                            />
-                          ))}
-                          {(!selectedProvider.selectedServices || selectedProvider.selectedServices.length === 0) && (
-                            <Typography variant="body2" sx={{ color: 'white' }}>
-                              None specified
-                            </Typography>
-                          )}
-                        </Box>
-                      </Grid>
-                    </StyledGridContainer>
-                  </Box>
-                  
-                  {/* Specific Service Type Info */}
-                  {selectedProvider.serviceType === 'PetCare' && selectedProvider.selectedPetTypes && (
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
-                        Pet Types:
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selectedProvider.selectedPetTypes.map(pet => (
-                          <Chip
-                            key={pet}
-                            label={pet}
-                            size="small"
-                            sx={{
-                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                              color: 'white'
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
-                  
-                  {selectedProvider.serviceType === 'ChildCare' && selectedProvider.selectedAgeGroups && (
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
-                        Age Groups:
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selectedProvider.selectedAgeGroups.map(age => (
-                          <Chip
-                            key={age}
-                            label={age}
-                            size="small"
-                            sx={{
-                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                              color: 'white'
-                            }}
-                          />
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
-                  
-                  {selectedProvider.serviceType === 'Education' && (
-                    <>
-                      {selectedProvider.selectedSyllabi && (
-                        <Box sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
-                            Syllabi:
-                          </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {selectedProvider.selectedSyllabi.map(syllabus => (
-                              <Chip
-                                key={syllabus}
-                                label={syllabus}
-                                size="small"
-                                sx={{
-                                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                  color: 'white'
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      )}
-                      
-                      {selectedProvider.selectedSubjects && (
-                        <Box sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
-                            Subjects:
-                          </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {selectedProvider.selectedSubjects.map(subject => (
-                              <Chip
-                                key={subject}
-                                label={subject}
-                                size="small"
-                                sx={{
-                                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                  color: 'white'
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      )}
-                      
-                      {selectedProvider.selectedGrades && (
-                        <Box sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
-                            Grades:
-                          </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {selectedProvider.selectedGrades.map(grade => (
-                              <Chip
-                                key={grade}
-                                label={grade}
-                                size="small"
-                                sx={{
-                                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                  color: 'white'
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      )}
-                    </>
-                  )}
-                  
-                  {/* About Section */}
-                  <Typography variant="subtitle1" sx={{ 
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    fontWeight: 'bold',
-                    mb: 2,
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}>
-                    <Info sx={{ mr: 1 }} /> About
-                  </Typography>
-                  
-                  <Box sx={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)', 
-                    borderRadius: 2,
-                    p: 2
-                  }}>
-                    <Typography variant="body1" sx={{ color: 'white' }}>
-                      {selectedProvider.about || 'No additional information provided.'}
-                    </Typography>
-                  </Box>
-                </Box>
-              </DialogContent>
-              <DialogActions sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', p: 2 }}>
-                <Button 
-                  onClick={() => handleDeleteClick(selectedProvider)} 
-                  startIcon={<Delete />}
-                  color="error"
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: 'rgba(211, 47, 47, 0.1)'
-                    }
-                  }}
-                >
-                  Delete Provider
-                </Button>
-                <Button 
-                  onClick={() => setDetailsDialogOpen(false)} 
-                  variant="contained"
-                  sx={{
-                    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                    boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
-                  }}
-                >
-                  Close
-                </Button>
-              </DialogActions>
-            </>
-          )}
-        </Dialog>
 
-        {/* Snackbar for notifications */}
+                  <FormControl fullWidth margin="normal">
+                    <InputLabel sx={{ color: 'white' }}>Availability</InputLabel>
+                    <Select
+                      name="availability"
+                      value={editingProvider.availability || ''}
+                      onChange={handleEditChange}
+                      sx={{
+                        color: 'white',
+                        '& .MuiSvgIcon-root': {
+                          color: 'white'
+                        }
+                      }}
+                    >
+                      <MenuItem value="yes">Available</MenuItem>
+                      <MenuItem value="no">Not Available</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
+                    Languages Spoken
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {['Sinhala', 'English', 'Tamil'].map(lang => (
+                      <FormControlLabel
+                        key={lang}
+                        control={
+                          <Checkbox
+                            checked={editingProvider.selectedLanguages?.includes(lang) || false}
+                            onChange={() => handleCheckboxChange('selectedLanguages', lang)}
+                            sx={{ color: 'white' }}
+                          />
+                        }
+                        label={<Typography sx={{ color: 'white' }}>{lang}</Typography>}
+                      />
+                    ))}
+                  </Box>
+                </Grid>
+
+                {editingProvider.serviceType === 'PetCare' && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
+                      Pet Types
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {['Dogs', 'Cats', 'Birds', 'Fish'].map(pet => (
+                        <FormControlLabel
+                          key={pet}
+                          control={
+                            <Checkbox
+                              checked={editingProvider.selectedPetTypes?.includes(pet) || false}
+                              onChange={() => handleCheckboxChange('selectedPetTypes', pet)}
+                              sx={{ color: 'white' }}
+                            />
+                          }
+                          label={<Typography sx={{ color: 'white' }}>{pet}</Typography>}
+                        />
+                      ))}
+                    </Box>
+                  </Grid>
+                )}
+
+                {editingProvider.serviceType === 'ChildCare' && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
+                      Age Groups
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {['Newborn', 'Toddler', 'Pre-school', 'Primary School', 'Teenager (12+ years)'].map(age => (
+                        <FormControlLabel
+                          key={age}
+                          control={
+                            <Checkbox
+                              checked={editingProvider.selectedAgeGroups?.includes(age) || false}
+                              onChange={() => handleCheckboxChange('selectedAgeGroups', age)}
+                              sx={{ color: 'white' }}
+                            />
+                          }
+                          label={<Typography sx={{ color: 'white' }}>{age}</Typography>}
+                        />
+                      ))}
+                    </Box>
+                  </Grid>
+                )}
+
+                {editingProvider.serviceType === 'Education' && (
+                  <>
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
+                        Syllabus
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {['Local Syllabus', 'Cambridge Syllabus', 'Edxcel Syllabus'].map(syllabus => (
+                          <FormControlLabel
+                            key={syllabus}
+                            control={
+                              <Checkbox
+                                checked={editingProvider.selectedSyllabi?.includes(syllabus) || false}
+                                onChange={() => handleCheckboxChange('selectedSyllabi', syllabus)}
+                                sx={{ color: 'white' }}
+                              />
+                            }
+                            label={<Typography sx={{ color: 'white' }}>{syllabus}</Typography>}
+                          />
+                        ))}
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
+                        Subjects
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {['Art', 'Business', 'ICT', 'Mathematics', 'Physics', 'Science', 'Music', 'English', 'Chemistry', 'History', 'Other Languages'].map(subject => (
+                          <FormControlLabel
+                            key={subject}
+                            control={
+                              <Checkbox
+                                checked={editingProvider.selectedSubjects?.includes(subject) || false}
+                                onChange={() => handleCheckboxChange('selectedSubjects', subject)}
+                                sx={{ color: 'white' }}
+                              />
+                            }
+                            label={<Typography sx={{ color: 'white' }}>{subject}</Typography>}
+                          />
+                        ))}
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
+                        Grades
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'O/L', 'A/L'].map(grade => (
+                          <FormControlLabel
+                            key={grade}
+                            control={
+                              <Checkbox
+                                checked={editingProvider.selectedGrades?.includes(grade) || false}
+                                onChange={() => handleCheckboxChange('selectedGrades', grade)}
+                                sx={{ color: 'white' }}
+                              />
+                            }
+                            label={<Typography sx={{ color: 'white' }}>{grade}</Typography>}
+                          />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+
+                {editingProvider.serviceType !== 'Education' && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
+                      Services Offered
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {(() => {
+                        switch(editingProvider.serviceType) {
+                          case 'HouseCleaning':
+                            return ['Bathroom Cleaning', 'Carpet Cleaning', 'Kitchen Cleaning', 'Laundry', 'Windows Cleaning'];
+                          case 'KitchenHelpers':
+                            return ['Birthday', 'Family Reunion', 'Friends Gathering', 'Alms Giving', 'Foodie Adventure', 'Other'];
+                          case 'ElderCare':
+                            return ['Personal Care', 'Transportation', 'Specialized Care', 'Household Tasks', 'Hospice Care', 'Nursing and Health Care'];
+                          case 'PetCare':
+                            return ['Walking', 'Day Care', 'Overnight Sitting', 'Training', 'Grooming', 'Transportation'];
+                          case 'ChildCare':
+                            return ['Day Care', 'After School Care', 'Nannies', 'Baby Sitters', 'In-Home Care', 'Childminders'];
+                          default:
+                            return [];
+                        }
+                      })().map(service => (
+                        <FormControlLabel
+                          key={service}
+                          control={
+                            <Checkbox
+                              checked={editingProvider.selectedServices?.includes(service) || false}
+                              onChange={() => handleCheckboxChange('selectedServices', service)}
+                              sx={{ color: 'white' }}
+                            />
+                          }
+                          label={<Typography sx={{ color: 'white' }}>{service}</Typography>}
+                        />
+                      ))}
+                    </Box>
+                  </Grid>
+                )}
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="About"
+                    name="about"
+                    value={editingProvider.about || ''}
+                    onChange={handleEditChange}
+                    multiline
+                    rows={4}
+                    margin="normal"
+                    InputProps={{
+                      sx: { color: 'white' }
+                    }}
+                    InputLabelProps={{
+                      sx: { color: 'white' }
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button 
+                onClick={() => setEditDialogOpen(false)} 
+                startIcon={<Cancel />}
+                sx={{ color: 'white' }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleEditSave} 
+                color="primary"
+                startIcon={<Save />}
+              >
+                Save Changes
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
+
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={6000}
@@ -1490,14 +931,7 @@ const Users = () => {
           <Alert 
             onClose={handleSnackbarClose} 
             severity={snackbarSeverity}
-            sx={{ 
-              width: '100%',
-              backgroundColor: snackbarSeverity === 'success' ? 'rgba(76, 175, 80, 0.9)' : 'rgba(211, 47, 47, 0.9)',
-              color: 'white',
-              '& .MuiAlert-icon': {
-                color: 'white'
-              }
-            }}
+            sx={{ width: '100%' }}
           >
             {snackbarMessage}
           </Alert>
