@@ -19,6 +19,7 @@ import Profile from "./Component/Pages/Profile";
 import BookmarkPage from "./Component/Pages/Bookmarks";
 import ServiceProviderDashboard from "./Component/Pages/ServiceProvider/ServiceProviderDashboard";
 import MyBookings from "./Component/Pages/MyBookings";
+import Chatbot from './Component/Chatbot/Chatbot';
 
 import ServiceSelection1 from "./Component/Pages/ServiceProvider/ServiceSelection";
 import HouseCleaningService from "./Component/Pages/ServiceProvider/HouseCleaningService";
@@ -142,6 +143,7 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Login />} />
       </Routes>
+      <Chatbot />
     </Router>
   );
 }
