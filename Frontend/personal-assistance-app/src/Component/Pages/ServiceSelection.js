@@ -180,17 +180,17 @@ const ServiceSelection = () => {
   // Filter providers based on search query
   const filteredProviders = searchQuery
     ? serviceProviders.filter(
-        (provider) =>
-          provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          provider.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          provider.about.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          provider.selectedLanguages.some((lang) =>
-            lang.toLowerCase().includes(searchQuery.toLowerCase())
-          ) ||
-          provider.selectedServices.some((service) =>
-            service.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-      )
+      (provider) =>
+        provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        provider.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        provider.about.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        provider.selectedLanguages.some((lang) =>
+          lang.toLowerCase().includes(searchQuery.toLowerCase())
+        ) ||
+        provider.selectedServices.some((service) =>
+          service.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    )
     : serviceProviders;
 
   // Get current category object
@@ -229,7 +229,7 @@ const ServiceSelection = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans w-full">
+    <div className="min-h-screen bg-gray-50 font-sans w-screen">
       {/* Notification Bar */}
       <AnimatePresence>
         {bookingSuccess && (
@@ -304,11 +304,10 @@ const ServiceSelection = () => {
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id)}
-                  className={`flex items-center justify-center px-5 py-3 rounded-xl font-medium text-sm transition duration-300 whitespace-nowrap ${
-                    category === cat.id
+                  className={`flex items-center justify-center px-5 py-3 rounded-xl font-medium text-sm transition duration-300 whitespace-nowrap ${category === cat.id
                       ? "bg-teal-500 text-white shadow-md"
                       : "text-gray-600 hover:bg-teal-50 hover:text-teal-700"
-                  }`}
+                    }`}
                   aria-label={`Select ${cat.label} category`}
                 >
                   <Icon className="mr-2 h-5 w-5" />
@@ -414,9 +413,8 @@ const ServiceSelection = () => {
                         <p className="text-gray-600 flex items-center text-sm">
                           <FaInfoCircle className="mr-2 text-teal-500 h-4 w-4" /> Availability:{" "}
                           <span
-                            className={`ml-1 ${
-                              provider.availability === "yes" ? "text-green-600" : "text-red-600"
-                            } font-medium`}
+                            className={`ml-1 ${provider.availability === "yes" ? "text-green-600" : "text-red-600"
+                              } font-medium`}
                           >
                             {provider.availability === "yes" ? "Available" : "Not Available"}
                           </span>
@@ -664,9 +662,8 @@ const ServiceSelection = () => {
                       name="monthlyPayment"
                       value={formData.monthlyPayment}
                       onChange={handleFormChange}
-                      className={`w-full border-none p-3 focus:outline-none focus:ring-0 bg-gray-50 ${
-                        validationErrors.monthlyPayment ? "text-red-500" : "text-gray-700"
-                      }`}
+                      className={`w-full border-none p-3 focus:outline-none focus:ring-0 bg-gray-50 ${validationErrors.monthlyPayment ? "text-red-500" : "text-gray-700"
+                        }`}
                       min="15000"
                       step="100"
                       aria-label="Enter monthly payment"
@@ -688,9 +685,8 @@ const ServiceSelection = () => {
                     name="bookingDate"
                     value={formData.bookingDate}
                     onChange={handleFormChange}
-                    className={`w-full border ${
-                      validationErrors.bookingDate ? "border-red-500" : "border-gray-300"
-                    } rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200 bg-gray-50`}
+                    className={`w-full border ${validationErrors.bookingDate ? "border-red-500" : "border-gray-300"
+                      } rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200 bg-gray-50`}
                     min={new Date().toISOString().split("T")[0]}
                     aria-label="Select booking date"
                   />
@@ -710,9 +706,8 @@ const ServiceSelection = () => {
                     name="bookingTime"
                     value={formData.bookingTime}
                     onChange={handleFormChange}
-                    className={`w-full border ${
-                      validationErrors.bookingTime ? "border-red-500" : "border-gray-300"
-                    } rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200 bg-gray-50`}
+                    className={`w-full border ${validationErrors.bookingTime ? "border-red-500" : "border-gray-300"
+                      } rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200 bg-gray-50`}
                     aria-label="Select booking time"
                   />
                   {validationErrors.bookingTime && (
