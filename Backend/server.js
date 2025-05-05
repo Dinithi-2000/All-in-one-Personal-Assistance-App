@@ -14,7 +14,8 @@ import { schedulePaymentComplete } from "./services/paymentschedule.js"
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import chatBotRoutes from './routes/chatBotRoutes.js';
-import spRoutes from './routes/spRoutes.js'
+import spRoutes from './routes/spRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'
 
 //import middlewares
 import validateToken from "./middlwares/validateTokenHandler.js"
@@ -72,6 +73,7 @@ app.use("/home/payment/savedPayment", savedPaymentRouter)
 app.use("/adminDashBoard/Financial", financialActivityRoute)
 app.use("/home/booking", bookingRouter);
 app.use("/home/serviceProvider", ServiceProviderRouter)
+app.use("/admin", adminRoutes)
 app.use('/api/chat/',chatBotRoutes);
 
 schedulePaymentComplete();

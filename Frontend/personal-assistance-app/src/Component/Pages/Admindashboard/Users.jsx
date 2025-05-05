@@ -45,7 +45,7 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable'; // Import jspdf-autotable correctly
 
-const API_BASE_URL = 'http://localhost:8070/home/serviceProvider';
+const API_BASE_URL = 'http://localhost:8070';
 
 const Users = () => {
   const [serviceProviders, setServiceProviders] = useState([]);
@@ -70,10 +70,10 @@ const Users = () => {
   const fetchServiceProviders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/service-providers`);
+      const response = await axios.get(`${API_BASE_URL}/admin/get-all-users`);
       const normalizedProviders = response.data.map(provider => ({
         ...provider,
-        name: provider.name || '',
+        name: `${provider.firstName} ${provider.lastName}`|| '',
         email: provider.email || '',
         serviceType: provider.serviceType || '',
         location: provider.location || '',
@@ -365,7 +365,7 @@ const Users = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            {/* <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth>
                 <InputLabel sx={{ color: 'white' }}>Filter by Service</InputLabel>
                 <Select
@@ -389,7 +389,7 @@ const Users = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Tooltip title="Download PDF">
                 <IconButton onClick={generatePDF} sx={{ color: 'white', mr: 1 }}>
@@ -423,9 +423,8 @@ const Users = () => {
                     <TableCell sx={{ color: 'white' }}>Profile</TableCell>
                     <TableCell sx={{ color: 'white' }}>Name</TableCell>
                     <TableCell sx={{ color: 'white' }}>Email</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Service Type</TableCell>
                     <TableCell sx={{ color: 'white' }}>Location</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Rate (Rs/hr)</TableCell>
+                    <TableCell sx={{ color: 'white' }}>NIC</TableCell>
                     <TableCell sx={{ color: 'white' }}>Languages</TableCell>
                     <TableCell sx={{ color: 'white' }}>Status</TableCell>
                     <TableCell sx={{ color: 'white' }}>Actions</TableCell>
@@ -443,21 +442,13 @@ const Users = () => {
                         }}
                       >
                         <TableCell>
-                          <Avatar src={provider.photo} alt={provider.name} />
+                          <Avatar src={provider.profile_pic} alt={provider.name} />
                         </TableCell>
                         <TableCell sx={{ color: 'white' }}>{provider.name}</TableCell>
                         <TableCell sx={{ color: 'white' }}>{provider.email}</TableCell>
-                        <TableCell>
-                          <Chip 
-                            label={provider.serviceType} 
-                            color="primary" 
-                            size="small" 
-                          />
-                        </TableCell>
-                        <TableCell sx={{ color: 'white' }}>{provider.location}</TableCell>
-                        <TableCell sx={{ color: 'white' }}>
-                          {provider.payRate[0]} - {provider.payRate[1]}
-                        </TableCell>
+                        <TableCell sx={{ color: 'white' }}>{provider.address}</TableCell>
+                        <TableCell sx={{ color: 'white' }}>{provider.nic}</TableCell>
+                       
                         <TableCell>
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {provider.selectedLanguages?.map(lang => (

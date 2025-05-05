@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler"
 import { prisma } from "../../config/prismaConfig.js";
 import ServiceProvider from "../ServiceProvider.js";
 import { startOfMonth, endOfMonth } from "date-fns";
+import UserModel from "../UserModel.js";
 
 
 
@@ -25,7 +26,7 @@ export const totalBooking = asyncHandler(async (req, res) => {
 });
 export const totatlUsers = asyncHandler(async (req, res) => {
     try {
-        const totaUsers = await prisma.customer.count();
+        const totaUsers = await UserModel.countDocuments({});
         res.status(200).json({
             success: true,
             count: totaUsers
