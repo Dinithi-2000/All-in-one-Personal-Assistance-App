@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Spinner, Alert } from "react-bootstrap";
 import { Pagination } from "../Common/Pagination";
 
 export default function SalaryApprovalList() {
   const [info, setInfo] = useState([]);
+
   const [isloading, setIsloading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
