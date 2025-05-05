@@ -7,14 +7,14 @@ const LoginPage = ({ handleLogin }) => {
 
   const location = useLocation();
 
-  const from =
-    location.state?.from?.pathname ||
-    (username === "SerenniAdmin" ? "/admin" : "/");
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin(username);
+    const redirectTo =
+      location.state?.from?.pathname ||
+      (username === "SerenniAdmin" ? "/admin" : "/payment");
     // Redirect based on role
-    navigate(from, { replace: true });
+    navigate(redirectTo, { replace: true });
   };
 
   return (

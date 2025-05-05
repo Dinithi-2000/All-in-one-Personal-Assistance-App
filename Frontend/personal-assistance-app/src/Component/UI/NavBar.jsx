@@ -7,8 +7,7 @@ const NavBar = ({ handleLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const onLogout = () => {
-    handleLogout();
-    navigate("/");
+    navigate("/login");
   };
 
   const staticUser = {
@@ -87,7 +86,7 @@ const NavBar = ({ handleLogout }) => {
               onClick={onLogout}
               className="py-2 px-4 text-[#003366] font-semibold border border-teal-500 rounded-md hover:bg-teal-500 hover:text-white transition duration-300 whitespace-nowrap"
             >
-              Log Out
+              Log In
             </button>
           </div>
 
@@ -166,7 +165,7 @@ const NavBar = ({ handleLogout }) => {
               onClick={onLogout}
               className="block w-full text-left py-2 px-4 text-[#003366] font-semibold border border-teal-500 hover:bg-teal-500 hover:text-white transition duration-300"
             >
-              Log Out
+              Log out
             </button>
           </div>
         )}
