@@ -1,9 +1,17 @@
-import { BrowserRouter as Router, Routes, Route, Navigate,Outlet  } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import ProtectedRoute from "./Routes/ProtectedRoute";
+import AdminProtectedRoute from "./Routes/AdminProtectedRoute";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Login from "./Component/Pages/Login";
 import Signup from "./Component/Pages/Signup";
+import AdminLogin from "./Component/Pages/AdminLogin";
 import Dashboard from "./Component/Pages/Dashboard";
 import CreateAccount from "./Component/Pages/ServiceProvider/CreateSProviderAccount";
 import ServiceSelection from "./Component/Pages/ServiceSelection";
@@ -21,6 +29,17 @@ import EducationService from "./Component/Pages/ServiceProvider/EducationService
 
 import ClaudeChatbot from "./Component/Pages/ClaudeChatbot";
 
+//import admin routes
+import AdminLayout from "./Component/UI/AdminDashboard/AdminLayout";
+import Overview from "./Component/Pages/Admindashboard/Overview";
+import Users from "./Component/Pages/Admindashboard/Users";
+import Transactions from "./Component/Pages/Admindashboard/Transactions";
+import ProviderPage from "./Component/Pages/Admindashboard/ProviderPage";
+import ProfitLoss from "./Component/Pages/Admindashboard/ProfitLoss";
+import SalaryCalculation from "./Component/Pages/Admindashboard/SalaryCalculation";
+import RefundPage from "./Component/Pages/Admindashboard/RefundPage";
+import Settings from "./Component/Pages/Admindashboard/Settings";
+import AdminBookings from "./Component/Pages/Admindashboard/AdminBookings";
 
 function AuthRedirector() {
   const [loading, setLoading] = useState(true);
@@ -34,7 +53,6 @@ function AuthRedirector() {
         const decodedToken = jwtDecode(token);
 
         if (decodedToken.exp * 1000 > Date.now()) {
-      
           setIsAuthenticated(true);
         } else {
           localStorage.removeItem("authToken");
@@ -51,13 +69,22 @@ function AuthRedirector() {
 
   if (loading) return null; // Or a loading spinner
 
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/signin" replace />;
+  return isAuthenticated ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    <Navigate to="/signin" replace />
+  );
 }
 
 const ProtectedLayout = () => (
   <ProtectedRoute>
     <Outlet />
   </ProtectedRoute>
+);
+const ProtectedLayout2 = () => (
+  <AdminProtectedRoute>
+    <Outlet />
+  </AdminProtectedRoute>
 );
 
 function App() {
@@ -69,13 +96,16 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/createaccount" element={<CreateAccount />} />
         <Route path="/serviceselections" element={<ServiceSelection1 />} />
-        <Route path='/housecselection' element={<HouseCleaningService />} />
-        <Route path='/kitchensselection' element={<KitchenServiceSelection />} />
-        <Route path='/eldercselection' element={<ElderCareService />} />
-        <Route path='/petcaresselection' element={<PetCareService />} />
-        <Route path='/childcaresselection' element={<ChildCareService />} />
-        <Route path='/educationsselection' element={<EducationService />} />
-        <Route path='/chat-bot' element={<ClaudeChatbot />} />
+        <Route path="/housecselection" element={<HouseCleaningService />} />
+        <Route
+          path="/kitchensselection"
+          element={<KitchenServiceSelection />}
+        />
+        <Route path="/eldercselection" element={<ElderCareService />} />
+        <Route path="/petcaresselection" element={<PetCareService />} />
+        <Route path="/childcaresselection" element={<ChildCareService />} />
+        <Route path="/educationsselection" element={<EducationService />} />
+        <Route path="/chat-bot" element={<ClaudeChatbot />} />
 
         {/* Protected routes grouped under ProtectedLayout */}
         <Route element={<ProtectedLayout />}>
@@ -84,6 +114,24 @@ function App() {
           <Route path="/serviceselection" element={<ServiceSelection />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/profile" element={<Profile />} />
+        </Route>
+
+        {/* admin */}
+        <Route path="/admin-signin" element={<AdminLogin />} />
+
+        <Route element={<ProtectedLayout2 />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Overview />} />
+            <Route path="user" element={<Users />} />
+            {/* <Route path="servicePage" element={<ServicePage />} /> */}
+            <Route path="transaction" element={<Transactions />} />
+            <Route path="provider" element={<ProviderPage />} />
+            <Route path="profitLoss" element={<ProfitLoss />} />
+            <Route path="salary" element={<SalaryCalculation />} />
+            <Route path="refund" element={<RefundPage />} />
+            <Route path="setting" element={<Settings />} />
+            <Route path="bookings" element={<AdminBookings />} />{" "}
+          </Route>
         </Route>
 
         {/* Fallback */}

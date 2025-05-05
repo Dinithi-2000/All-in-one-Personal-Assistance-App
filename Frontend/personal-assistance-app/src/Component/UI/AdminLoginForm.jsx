@@ -7,7 +7,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [loginAs, setLoginAs] = useState("user"); // "user" or "provider"
+  const [loginAs, setLoginAs] = useState("admin"); // 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -16,7 +16,7 @@ function LoginForm() {
     setErrorMsg("");
 
     try {
-      const endpoint = loginAs === "user" ? "/api/auth/token" : "/api/auth/token-service-provider";
+      const endpoint = loginAs === "admin" ? "/api/auth/admin-token" : "/api/auth/admin-token";
       
       const res = await api.post(endpoint, {
         email,
@@ -24,9 +24,9 @@ function LoginForm() {
       });
 
       if (res.data.token) {
-        localStorage.setItem("authToken", res.data.token);
+        localStorage.setItem("adminToken", res.data.token);
         localStorage.setItem("userRole", loginAs);
-        navigate(loginAs === "user" ? "/dashboard" : "/spdashboard");
+        navigate(loginAs === "admin" ? "/admin" : "/admin");
       } else {
         setErrorMsg(res.data.message || "Login failed");
       }
@@ -56,24 +56,13 @@ function LoginForm() {
           <button
             type="button"
             className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-              loginAs === "user" 
+              loginAs === "admin" 
                 ? "bg-white text-blue-600 shadow-sm" 
                 : "text-gray-500 hover:text-gray-700"
             }`}
-            onClick={() => setLoginAs("user")}
+            onClick={() => setLoginAs("admin")}
           >
-            Customer
-          </button>
-          <button
-            type="button"
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-              loginAs === "provider" 
-                ? "bg-white text-blue-600 shadow-sm" 
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-            onClick={() => setLoginAs("provider")}
-          >
-            Service Provider
+            Admin
           </button>
         </div>
         
@@ -145,34 +134,11 @@ function LoginForm() {
                   Processing...
                 </>
               ) : (
-                `Sign in as ${loginAs === "user" ? "Customer" : "Service Provider"}`
+                `Sign in as ${loginAs === "admin" ? "Admin" : "Service Provider"}`
               )}
             </button>
           </div>
         </form>
-        
-        <div className="mt-8 text-center">
-          <p className="text-gray-600">
-            Don't have an account?{" "}
-            <a 
-              href={loginAs === "user" ? "/signup" : "/serviceselections"} 
-              className="text-blue-600 font-medium hover:text-blue-800"
-            >
-              Sign up
-            </a>
-          </p>
-        </div>
-        <div className="mt-4 text-center">
-          <p className="text-gray-600">
-            signin As Admin{" "}
-            <a 
-              href= '/admin-signin' 
-              className="text-blue-600 font-medium hover:text-blue-800"
-            >
-              Sign in
-            </a>
-          </p>
-        </div>
         
         <div className="mt-8 pt-6 border-t border-gray-200">
           <div className="flex items-center justify-center">

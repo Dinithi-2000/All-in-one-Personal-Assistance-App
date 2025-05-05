@@ -6,6 +6,7 @@ import speakeasy from 'speakeasy';
 import { generateToken } from '../utils.js';
 import ServiceProvider from '../models/ServiceProvider.js';
 import UserModel from '../models/UserModel.js';
+import AdminModel from '../models/Adminisator/AdminModel.js';
 
 const router = express.Router();
 
@@ -54,6 +55,66 @@ router.post(
         res.status(400).send({ message: 'No Matching Account Found.' });
       }
     }),
+);
+
+router.post(
+  '/admin-token',
+  expressAsyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    if(!email || !password){
+      return res.status(400).send({ message: 'Please Enter Email and Password.'})
+    }
+
+    const user = await AdminModel.findOne({ email });
+
+    if (user) {
+      if (bcrypt.compareSync(password, user.password)) {
+        return res.send({
+          token: generateToken(user)
+        });
+      } else {
+        res.status(400).send({ message: 'Invalid password' });
+      }
+    } else {
+      res.status(400).send({ message: 'No Matching Account Found.' });
+    }
+  }),
+);
+
+router.post(
+  '/admin-register',
+  expressAsyncHandler(async (req, res) => {
+    const { firstName, lastName, email, mobile, password  } = req.body;
+
+    try {
+      const secret = speakeasy.generateSecret();
+   
+      const db_user = await UserModel.findOne({email});
+
+      if (db_user) {
+        return res.status(400).send({ message: 'User already Registered!' });
+      }
+
+      const hashPassword = await bcrypt.hash(password, 8);
+      
+      const user = new AdminModel({
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        mobile: mobile,
+        password: hashPassword,
+        twoFactorAuthSecret: secret.base32,
+      });
+
+      await user.save();
+      
+      return res.status(200).send({ message: 'success'});
+      
+    } catch (err) {
+      return res.status(500).send({ message: err.message });
+    }
+  }),
 );
 
 router.post(
