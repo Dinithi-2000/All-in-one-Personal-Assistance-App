@@ -1565,8 +1565,8 @@ const ServiceProviderDashboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-lg bg-white p-6 shadow">
-                {reviews.length === 0 ? (
+              <div className="rounded-lg bg-white p-6 shadow">  
+                {reviews.length != 0 ? (
                   <div className="py-8 text-center text-gray-500">
                     No reviews yet
                   </div>
