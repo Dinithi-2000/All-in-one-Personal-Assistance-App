@@ -12,6 +12,7 @@
   "license": "y",
   "private": true,
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^6.5.0",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
