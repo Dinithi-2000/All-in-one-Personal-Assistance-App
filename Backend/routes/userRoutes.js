@@ -110,9 +110,9 @@ router.post('/review/post-review',
     try {
     
       const isThere = await ReviewModel.findOne({ customerID: req.user.id,providerID, });
-      if (isThere) {
-        return res.status(400).send({ message: 'Already Sumbit a Review' });
-      }
+      // if (isThere) {
+      //   return res.status(400).send({ message: 'Already Sumbit a Review' });
+      // }
 
       const taskerReview = new ReviewModel({
         customerID: req.user.id,
