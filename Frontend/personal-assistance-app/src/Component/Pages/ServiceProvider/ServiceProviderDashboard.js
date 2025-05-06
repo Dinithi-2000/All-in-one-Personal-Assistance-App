@@ -46,8 +46,7 @@ import {
   Briefcase,
   Camera,
   Plus,
- Save, Loader,
- Edit,
+ Save, Loader
 } from "lucide-react";
 
 
@@ -73,8 +72,6 @@ const ServiceProviderDashboard = () => {
   const [formData, setFormData] = useState({});
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [isViewingProfile, setIsViewingProfile] = useState(false);
-  
 
   // Fetch bookings from API
 
@@ -689,190 +686,8 @@ const ServiceProviderDashboard = () => {
     );
   }
 
-  // Profile View Component
-  const ProfileView = ({ provider }) => (
-    <div className="rounded-lg bg-white p-6 shadow">
-      <div className="mb-6 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-6 sm:flex-row sm:items-center">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-blue-100">
-              {provider?.photo ? (
-                <img
-                  src={provider.photo}
-                  alt="Profile"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <User className="h-full w-full p-4 text-blue-500" />
-              )}
-            </div>
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-800">
-              {provider?.name || "Your Name"}
-            </h3>
-            <p className="text-gray-500">
-              {provider?.serviceType || "Service Provider"}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => setIsViewingProfile(false)}
-          className="flex items-center space-x-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <Edit size={16} />
-          <span>Edit Profile</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <h4 className="mb-4 text-lg font-medium text-gray-800">
-            Personal Information
-          </h4>
-          <div className="space-y-4 rounded-lg bg-gray-50 p-4">
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Full Name
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.name || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Email
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.email || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                NIC
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.nic || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Gender
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.gender || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Location
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.location || "N/A"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h4 className="mb-4 text-lg font-medium text-gray-800">
-            Service Information
-          </h4>
-          <div className="space-y-4 rounded-lg bg-gray-50 p-4">
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Service Type
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.serviceType || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Pay Rate
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.payRate
-                  ? `Rs. ${provider.payRate[0]} - Rs. ${provider.payRate[1]}`
-                  : "N/A"}
-              </span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Languages
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.selectedLanguages?.join(", ") || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-                Availability
-              </span>
-              <span className="text-sm text-gray-800">
-                {provider?.availability === "yes" ? "Available" : "Not Available"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-6 border-t border-gray-200 pt-6">
-        <h4 className="mb-4 text-lg font-medium text-gray-800">
-          Professional Details
-        </h4>
-        <div className="rounded-lg bg-gray-50 p-4">
-          <div className="flex items-start">
-            <span className="w-32 flex-shrink-0 text-sm font-medium text-gray-500">
-              About Me
-            </span>
-            <span className="text-sm text-gray-800">
-              {provider?.about || "N/A"}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  
-
-
   return (
-    // <div className="flex h-screen bg-gray-50">
-    //   {/* Sidebar - Desktop */}
-    //   <aside className="hidden w-64 flex-shrink-0 border-r border-gray-200 bg-white md:block">
-    //     <div className="flex h-16 items-center justify-center border-b border-gray-200"
-    //     onClick={() => navigate('/viewspprofile')} 
-       
-    //     >
-    //       <h1 className="text-xl font-bold text-blue-600">SereniLux</h1>
-    //     </div>
-
-    //     <div className="p-4">
-    //       <div className="flex items-center space-x-3 rounded-lg bg-blue-50 p-3">
-    //         <div className="relative h-12 w-12 overflow-hidden rounded-full bg-blue-100">
-    //           {serviceProvider?.photo ? (
-    //             <img
-    //               src={serviceProvider.photo}
-    //               alt="Profile"
-    //               className="h-full w-full object-cover"
-    //             />
-    //           ) : (
-    //             <User className="h-full w-full p-2 text-blue-500" />
-    //           )}
-    //         </div>
-    //         <div>
-    //           <p className="font-medium text-gray-800">
-    //             {serviceProvider?.name || "User"}
-    //           </p>
-    //           <p className="text-sm text-gray-500">
-    //             {serviceProvider?.serviceType || "Elder Care"}
-    //           </p>
-    //         </div>
-    //       </div>
-    //     </div> 
-        <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar - Desktop */}
       <aside className="hidden w-64 flex-shrink-0 border-r border-gray-200 bg-white md:block">
         <div className="flex h-16 items-center justify-center border-b border-gray-200">
@@ -880,13 +695,7 @@ const ServiceProviderDashboard = () => {
         </div>
 
         <div className="p-4">
-          <div 
-            className="flex items-center space-x-3 rounded-lg bg-blue-50 p-3 cursor-pointer hover:bg-blue-100 transition-colors"
-            onClick={() => {
-              setActiveTab("profile");
-              setIsViewingProfile(true);
-            }}
-          >
+          <div className="flex items-center space-x-3 rounded-lg bg-blue-50 p-3">
             <div className="relative h-12 w-12 overflow-hidden rounded-full bg-blue-100">
               {serviceProvider?.photo ? (
                 <img
@@ -908,7 +717,6 @@ const ServiceProviderDashboard = () => {
             </div>
           </div>
         </div>
-
 
         <nav className="mt-4 space-y-1 px-2">
           {[
@@ -1855,11 +1663,9 @@ const ServiceProviderDashboard = () => {
           {activeTab === "profile" && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-800">
-              {isViewingProfile ? "Your Profile" : "Profile Settings"}
+                Profile Settings
               </h2>
-              {isViewingProfile ? (
-                <ProfileView provider={serviceProvider} />
-              ) : (
+
               <form
                 onSubmit={handleSubmit}
                 className="rounded-lg bg-white p-6 shadow"
@@ -1998,18 +1804,13 @@ const ServiceProviderDashboard = () => {
                           required
                         >
                           <option value="">Select a service type</option>
-                          <option value="HouseCleaning">House Cleaning</option>
-                          <option value="KitchenHelpers">Kitchen Helpers & Chefs</option>
-                          <option value="ChildCare">Child Care & Baby Sittings</option>
-                          <option value="ElderCare">Elder Care</option>
-                          <option value="PetCare">Pet Care Services</option>            
-                          <option value="Education">Education & Tutoring</option>
-                          {/* <option value="Nursing">Nursing</option>
+                          <option value="Home Care">Home Care</option>
+                          <option value="Nursing">Nursing</option>
                           <option value="Physiotherapy">Physiotherapy</option>
                           <option value="Elder Care">Elder Care</option>
                           <option value="Child Care">Child Care</option>
                           <option value="Pet Care">Pet Care</option>
-                          <option value="Tutoring">Education</option> */}
+                          <option value="Tutoring">Tutoring</option>
                         </select>
                       </div>
                       <div>
@@ -2551,10 +2352,7 @@ const ServiceProviderDashboard = () => {
                 <div className="mt-6 flex justify-end space-x-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsViewingProfile(true);
-                      setFormData(serviceProvider);
-                    }}
+                    onClick={() => setFormData(serviceProvider)}
                     className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Cancel
@@ -2585,7 +2383,6 @@ const ServiceProviderDashboard = () => {
                   </button>
                 </div>
               </form>
-              )}
             </div>
           )}
         </div>

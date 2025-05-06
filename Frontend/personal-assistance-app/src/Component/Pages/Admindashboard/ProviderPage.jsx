@@ -43,8 +43,8 @@ import {
 } from '@mui/icons-material';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import Swal from 'sweetalert2';
+import autoTable from 'jspdf-autotable'; // Import jspdf-autotable correctly
+
 const API_BASE_URL = 'http://localhost:8070/home/serviceProvider';
 
 const ProviderPage = () => {
@@ -60,9 +60,6 @@ const ProviderPage = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [languageFilter, setLanguageFilter] = useState('all');
-  const [locationFilter, setLocationFilter] = useState('all');
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -100,39 +97,14 @@ const ProviderPage = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      // Show loading indicator
-    Swal.fire({
-      title: 'Deleting Provider...',
-      text: 'Please wait while we delete the service provider',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
       await axios.delete(`${API_BASE_URL}/delete-service-provider/${providerToDelete._id}`);
       setServiceProviders(serviceProviders.filter(sp => sp._id !== providerToDelete._id));
-      // Show success message
-    Swal.fire({
-      title: 'Deleted!',
-      text: 'Service provider has been deleted successfully',
-      icon: 'success',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#40E0D0',
-    });
-  } catch (err) {
-    // Show error message
-    Swal.fire({
-      title: 'Error!',
-      text: 'Failed to delete service provider',
-      icon: 'error',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#FF7F50',
-    });
-  } finally {
+      showSnackbar('Service provider deleted successfully', 'success');
+    } catch (err) {
+      showSnackbar('Failed to delete service provider', 'error');
+    }
     setDeleteDialogOpen(false);
-  }
-};
+  };
 
   const handleEditClick = (provider) => {
     setEditingProvider({ ...provider });
@@ -141,16 +113,6 @@ const ProviderPage = () => {
 
   const handleEditSave = async () => {
     try {
-      // Show loading indicator
-    Swal.fire({
-      title: 'Updating Provider...',
-      text: 'Please wait while we update the service provider',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
       const response = await axios.put(
         `${API_BASE_URL}/update-service-provider/${editingProvider._id}`,
         editingProvider
@@ -172,24 +134,10 @@ const ProviderPage = () => {
         sp._id === editingProvider._id ? normalizedProvider : sp
       ));
       
-      // Show success message
-    Swal.fire({
-      title: 'Updated!',
-      text: 'Service provider has been updated successfully',
-      icon: 'success',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#40E0D0',
-    });
+      showSnackbar('Service provider updated successfully', 'success');
       setEditDialogOpen(false);
-    }  catch (err) {
-      // Show error message
-      Swal.fire({
-        title: 'Error!',
-        text: 'Failed to update service provider',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#FF7F50',
-      });
+    } catch (err) {
+      showSnackbar('Failed to update service provider', 'error');
     }
   };
 
@@ -218,29 +166,15 @@ const ProviderPage = () => {
   };
 
   const filteredProviders = serviceProviders.filter(provider => {
-    const searchLower = searchTerm.toLowerCase();
     const matchesSearch = 
-      (provider.name || '').toLowerCase().includes(searchLower) ||
-      (provider.email || '').toLowerCase().includes(searchLower) ||
-      (provider.serviceType || '').toLowerCase().includes(searchLower) ||
-      (provider.location || '').toLowerCase().includes(searchLower) ||
-      (provider.selectedLanguages || []).some(lang => lang.toLowerCase().includes(searchLower)) ||
-      (searchLower === 'available' && provider.availability === 'yes') ||
-      (searchLower === 'not available' && provider.availability === 'no');
+      (provider.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (provider.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (provider.serviceType || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (provider.location || '').toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesServiceFilter = filter === 'all' || provider.serviceType.toLowerCase() === filter.toLowerCase();
+    const matchesFilter = filter === 'all' || provider.serviceType.toLowerCase() === filter.toLowerCase();
     
-    const matchesStatusFilter = statusFilter === 'all' || 
-      (statusFilter === 'available' && provider.availability === 'yes') ||
-      (statusFilter === 'not-available' && provider.availability === 'no');
-    
-    const matchesLanguageFilter = languageFilter === 'all' || 
-      (provider.selectedLanguages && provider.selectedLanguages.includes(languageFilter));
-    
-    const matchesLocationFilter = locationFilter === 'all' || 
-      provider.location.toLowerCase() === locationFilter.toLowerCase();
-    
-    return matchesSearch && matchesServiceFilter && matchesStatusFilter && matchesLanguageFilter && matchesLocationFilter;
+    return matchesSearch && matchesFilter;
   });
 
   const paginatedProviders = filteredProviders.slice(
@@ -249,87 +183,62 @@ const ProviderPage = () => {
   );
 
   const serviceTypes = [...new Set(serviceProviders.map(sp => sp.serviceType))].filter(type => type !== '');
-  const availableLanguages = ['Sinhala', 'English', 'Tamil'];
-  const availableLocations = [
-    'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 
-    'Nuwara Eliya', 'Galle', 'Matara', 'Hambantota', 
-    'Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya', 
-    'Mullaitivu', 'Batticaloa', 'Ampara', 'Trincomalee', 
-    'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 
-    'Badulla', 'Monaragala', 'Ratnapura', 'Kegalle'
-  ];
 
   const generatePDF = () => {
-    try {
-      const doc = new jsPDF();
-      
-      let yPosition = 20;
+    const doc = new jsPDF();
+    
+    // No need to manually apply autoTable; it's automatically available with the correct import
 
-      // Header
-      doc.setFontSize(20);
+    let yPosition = 20;
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 102, 204); // Blue color for title
+    doc.text('Service Providers Report', 14, yPosition);
+    
+    // Date on the right side of the header
+    const date = new Date().toLocaleDateString();
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100); // Gray color for date
+    doc.text(`Generated on: ${date}`, 140, yPosition);
+    yPosition += 10;
+
+    // Add a horizontal line below the header
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(0, 102, 204);
+    doc.line(14, yPosition, 196, yPosition);
+    yPosition += 10;
+
+    // Group providers by service type
+    const groupedProviders = serviceProviders.reduce((acc, provider) => {
+      const type = provider.serviceType || 'Unknown';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(provider);
+      return acc;
+    }, {});
+
+    // Sort service types alphabetically
+    const sortedServiceTypes = Object.keys(groupedProviders).sort();
+
+    sortedServiceTypes.forEach((serviceType, index) => {
+      // Service Type Header
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(0, 102, 204);
-      doc.text('Service Providers Report', 14, yPosition);
-      yPosition += 10;
+      doc.text(`Category: ${serviceType}`, 14, yPosition);
+      yPosition += 8;
 
-      // Add search/filter info if applicable
-      if (searchTerm || filter !== 'all' || statusFilter !== 'all' || languageFilter !== 'all' || locationFilter !== 'all') {
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100);
-        let filterText = '';
-        if (searchTerm) filterText += `Search: "${searchTerm}" (Name, Email, Service, Location, Language, Status)`;
-        if (filter !== 'all') {
-          if (filterText) filterText += ', ';
-          filterText += `Service: ${filter}`;
-        }
-        if (statusFilter !== 'all') {
-          if (filterText) filterText += ', ';
-          filterText += `Status: ${statusFilter === 'available' ? 'Available' : 'Not Available'}`;
-        }
-        if (languageFilter !== 'all') {
-          if (filterText) filterText += ', ';
-          filterText += `Language: ${languageFilter}`;
-        }
-        if (locationFilter !== 'all') {
-          if (filterText) filterText += ', ';
-          filterText += `Location: ${locationFilter}`;
-        }
-        // Wrap text to avoid overflow
-        const splitText = doc.splitTextToSize(filterText, 170);
-        doc.text(splitText, 14, yPosition);
-        yPosition += splitText.length * 5; // Adjust yPosition based on number of lines
-      }
-
-      // Date on a new line below the search/filter info
-      const date = new Date().toLocaleDateString();
-      doc.setFontSize(12);
+      // Reset font for table
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100);
-      doc.text(`Generated on: ${date}`, 14, yPosition);
-      yPosition += 10;
-
-      // Add a horizontal line below the header
-      doc.setLineWidth(0.5);
-      doc.setDrawColor(0, 102, 204);
-      doc.line(14, yPosition, 196, yPosition);
-      yPosition += 10;
-
-      // Check if there are any filtered providers
-      if (filteredProviders.length === 0) {
-        doc.setFontSize(14);
-        doc.setTextColor(100);
-        doc.text('No service providers match your search criteria', 14, yPosition);
-        doc.save('service-providers-report.pdf');
-        showSnackbar('PDF generated with no results (based on current search)', 'info');
-        return;
-      }
+      doc.setTextColor(0, 0, 0);
 
       // Prepare table data
-      const tableData = filteredProviders.map(provider => [
+      const tableData = groupedProviders[serviceType].map((provider, providerIndex) => [
         provider.name,
         provider.email,
-        provider.serviceType,
         provider.location,
         `${provider.payRate[0]} - ${provider.payRate[1]}`,
         provider.selectedLanguages.join(', ') || 'None',
@@ -340,7 +249,6 @@ const ProviderPage = () => {
       const tableColumns = [
         'Name',
         'Email',
-        'Service Type',
         'Location',
         'Rate (Rs/hr)',
         'Languages',
@@ -352,10 +260,10 @@ const ProviderPage = () => {
         startY: yPosition,
         head: [tableColumns],
         body: tableData,
-        theme: 'striped',
+        theme: 'striped', // Alternating row colors
         headStyles: {
-          fillColor: [0, 102, 204],
-          textColor: 255,
+          fillColor: [0, 102, 204], // Blue header background
+          textColor: 255, // White text
           fontSize: 11,
           fontStyle: 'bold'
         },
@@ -364,7 +272,7 @@ const ProviderPage = () => {
           textColor: 50
         },
         alternateRowStyles: {
-          fillColor: [240, 240, 240]
+          fillColor: [240, 240, 240] // Light gray for alternate rows
         },
         margin: { left: 14, right: 14 },
         styles: {
@@ -373,32 +281,37 @@ const ProviderPage = () => {
           lineColor: 200
         },
         columnStyles: {
-          0: { cellWidth: 25 }, // Name
-          1: { cellWidth: 35 }, // Email
-          2: { cellWidth: 25 }, // Service Type
-          3: { cellWidth: 25 }, // Location
-          4: { cellWidth: 20 }, // Rate
-          5: { cellWidth: 30 }, // Languages
-          6: { cellWidth: 20 }  // Availability
+          0: { cellWidth: 30 }, // Name
+          1: { cellWidth: 40 }, // Email
+          2: { cellWidth: 30 }, // Location
+          3: { cellWidth: 25 }, // Rate
+          4: { cellWidth: 30 }, // Languages
+          5: { cellWidth: 25 }  // Availability
         }
       });
 
-      // Add page numbers as footer
-      const pageCount = doc.internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Page ${i} of ${pageCount}`, 196, 285, { align: 'right' });
-      }
+      // Update yPosition after the table
+      yPosition = doc.lastAutoTable.finalY + 15;
+    });
 
-      // Download the PDF
-      doc.save('service-providers-report.pdf');
-      showSnackbar('PDF report generated successfully (based on current search)', 'success');
-    } catch (err) {
-      showSnackbar('Failed to generate PDF report', 'error');
+    // Add page numbers as footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Page ${i} of ${pageCount}`, 196, 285, { align: 'right' });
     }
+
+    // Download the PDF
+    doc.save('service-providers-report.pdf');
   };
+
+  console.log('searchTerm:', searchTerm);
+  console.log('filter:', filter);
+  console.log('serviceProviders:', serviceProviders);
+  console.log('serviceTypes:', serviceTypes);
+  console.log('filteredProviders:', filteredProviders);
 
   return (
     <Box sx={{ 
@@ -408,27 +321,23 @@ const ProviderPage = () => {
       p: 4
     }}>
       <Box sx={{ maxWidth: '7xl', mx: 'auto', px: 4, py: 8 }}>
-      <Typography
-  variant="h4"
-  gutterBottom
-  sx={{
-    fontWeight: 'bold',
-    color: 'white',
-    mb: 4,
-    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: '8px 16px',
-    borderRadius: '8px',
-    display: 'inline-block',
-    position: 'relative',
-    zIndex: 10,
-    ml: '4%',
-    fontSize: '1.5rem', // Adjust size to match if needed
-    lineHeight: '2rem'
-  }}
->
-  Service Providers Management
-</Typography>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            fontWeight: 'bold',
+            color: 'white',
+            mb: 4,
+            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            display: 'inline-block',
+          }}
+        >
+          Service Providers Management
+        </Typography>
+        
         <Paper sx={{ 
           p: 2, 
           mb: 3, 
@@ -436,57 +345,32 @@ const ProviderPage = () => {
           backdropFilter: 'blur(10px)'
         }}>
           <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6} md={3}>  {/* Increased from md={3} */}
-    <TextField
-      fullWidth
-      variant="outlined"
-      placeholder="Search providers..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      InputProps={{
-        startAdornment: (
-          <Search sx={{ color: 'white', mr: 1 }} />
-        ),
-        sx: {
-          color: 'white',
-          '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(255, 255, 255, 0.3)'
-          }
-        }
-      }}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={2}>
-    <FormControl fullWidth>
-      <InputLabel sx={{ color: 'white' }}>Filter by Service</InputLabel>
-      <Select
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        sx={{
-          color: 'white',
-          '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(255, 255, 255, 0.3)'
-          },
-          '& .MuiSvgIcon-root': {
-            color: 'white'
-          }
-        }}
-      >
-        <MenuItem value="all">All Services</MenuItem>
-        {serviceTypes.map(type => (
-          <MenuItem key={type} value={type.toLowerCase()}>
-            {type}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Search providers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <Search sx={{ color: 'white', mr: 1 }} />
+                  ),
+                  sx: {
+                    color: 'white',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)'
+                    }
+                  }
+                }}
+              />
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
+            <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: 'white' }}>Filter by Status</InputLabel>
+                <InputLabel sx={{ color: 'white' }}>Filter by Service</InputLabel>
                 <Select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
                   sx={{
                     color: 'white',
                     '& .MuiOutlinedInput-notchedOutline': {
@@ -497,64 +381,17 @@ const ProviderPage = () => {
                     }
                   }}
                 >
-                  <MenuItem value="all">All Statuses</MenuItem>
-                  <MenuItem value="available">Available</MenuItem>
-                  <MenuItem value="not-available">Not Available</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth>
-                <InputLabel sx={{ color: 'white' }}>Filter by Language</InputLabel>
-                <Select
-                  value={languageFilter}
-                  onChange={(e) => setLanguageFilter(e.target.value)}
-                  sx={{
-                    color: 'white',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)'
-                    },
-                    '& .MuiSvgIcon-root': {
-                      color: 'white'
-                    }
-                  }}
-                >
-                  <MenuItem value="all">All Languages</MenuItem>
-                  {availableLanguages.map(lang => (
-                    <MenuItem key={lang} value={lang}>
-                      {lang}
+                  <MenuItem value="all">All Services</MenuItem>
+                  {serviceTypes.map(type => (
+                    <MenuItem key={type} value={type.toLowerCase()}>
+                      {type}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth>
-                <InputLabel sx={{ color: 'white' }}>Filter by Location</InputLabel>
-                <Select
-                  value={locationFilter}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  sx={{
-                    color: 'white',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)'
-                    },
-                    '& .MuiSvgIcon-root': {
-                      color: 'white'
-                    }
-                  }}
-                >
-                  <MenuItem value="all">All Locations</MenuItem>
-                  {availableLocations.map(loc => (
-                    <MenuItem key={loc} value={loc.toLowerCase()}>
-                      {loc}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={1} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Tooltip title="Download PDF (based on current search)">
+            <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Tooltip title="Download PDF">
                 <IconButton onClick={generatePDF} sx={{ color: 'white', mr: 1 }}>
                   <Download />
                 </IconButton>
@@ -795,7 +632,14 @@ const ProviderPage = () => {
                         }
                       }}
                     >
-                      {availableLocations.map(loc => (
+                      {[
+                        'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 
+                        'Nuwara Eliya', 'Galle', 'Matara', 'Hambantota', 
+                        'Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya', 
+                        'Mullaitivu', 'Batticaloa', 'Ampara', 'Trincomalee', 
+                        'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 
+                        'Badulla', 'Monaragala', 'Ratnapura', 'Kegalle'
+                      ].map(loc => (
                         <MenuItem key={loc} value={loc}>{loc}</MenuItem>
                       ))}
                     </Select>
