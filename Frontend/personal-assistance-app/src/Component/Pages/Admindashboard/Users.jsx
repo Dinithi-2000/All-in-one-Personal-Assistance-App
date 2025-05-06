@@ -18,8 +18,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Checkbox,
-  FormControlLabel,
   Chip,
   Avatar,
   Box,
@@ -32,127 +30,111 @@ import {
   Pagination
 } from '@mui/material';
 import {
-  Edit,
   Delete,
-  Save,
   Cancel,
   Search,
-  FilterList,
   Refresh,
   Download
 } from '@mui/icons-material';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable'; // Import jspdf-autotable correctly
+import autoTable from 'jspdf-autotable';
+import Swal from 'sweetalert2';
 
 const API_BASE_URL = 'http://localhost:8070';
 
+// Retrieve token from localStorage (adjust based on your token storage)
+const getToken = () => localStorage.getItem('token');
+
 const Users = () => {
-  const [serviceProviders, setServiceProviders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [providerToDelete, setProviderToDelete] = useState(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingProvider, setEditingProvider] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
   useEffect(() => {
-    fetchServiceProviders();
+    fetchUsers();
   }, []);
 
-  const fetchServiceProviders = async () => {
+  const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/admin/get-all-users`);
-      const normalizedProviders = response.data.map(provider => ({
-        ...provider,
-        name: `${provider.firstName} ${provider.lastName}`|| '',
-        email: provider.email || '',
-        serviceType: provider.serviceType || '',
-        location: provider.location || '',
-        payRate: provider.payRate || [500, 2000],
-        selectedLanguages: provider.selectedLanguages || [],
-        availability: provider.availability || 'no',
+      const response = await axios.get(`${API_BASE_URL}/admin/get-all-users`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (!response.data || !Array.isArray(response.data)) {
+        throw new Error('Invalid API response: expected an array of users');
+      }
+      const normalizedUsers = response.data.map(user => ({
+        ...user,
+        name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || '',
+        email: user.email || '',
+        phone: user.mobile || '',
+        nic: user.nic || '',
+        status: user.status || 'active',
+        _id: user._id || '',
+        profile_pic: user.profile_pic || '',
       }));
-      setServiceProviders(normalizedProviders);
-      setLoading(false);
+      setUsers(normalizedUsers);
+      setError(null);
     } catch (err) {
-      setError(err.message);
+      console.error('Error fetching users:', err.response ? err.response.data : err.message);
+      setError(err.message || 'Failed to fetch users');
+    } finally {
       setLoading(false);
-      showSnackbar('Failed to fetch service providers', 'error');
     }
   };
 
-  const handleDeleteClick = (provider) => {
-    setProviderToDelete(provider);
+  const handleDeleteClick = (user) => {
+    setUserToDelete(user);
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`${API_BASE_URL}/delete-service-provider/${providerToDelete._id}`);
-      setServiceProviders(serviceProviders.filter(sp => sp._id !== providerToDelete._id));
-      showSnackbar('Service provider deleted successfully', 'success');
+      Swal.fire({
+        title: 'Deleting User...',
+        text: 'Please wait while we delete the user',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      const response = await axios.delete(`${API_BASE_URL}/delete-user/${userToDelete._id}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (response.status === 200) {
+        setUsers(users.filter(u => u._id !== userToDelete._id));
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'User has been deleted successfully',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#40E0D0',
+        });
+      } else {
+        throw new Error(response.data.message || 'Unexpected response');
+      }
     } catch (err) {
-      showSnackbar('Failed to delete service provider', 'error');
+      console.error('Delete error:', err.response ? err.response.data : err.message);
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.message || 'Failed to delete user',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#FF7F50',
+      });
+    } finally {
+      setDeleteDialogOpen(false);
     }
-    setDeleteDialogOpen(false);
-  };
-
-  const handleEditClick = (provider) => {
-    setEditingProvider({ ...provider });
-    setEditDialogOpen(true);
-  };
-
-  const handleEditSave = async () => {
-    try {
-      const response = await axios.put(
-        `${API_BASE_URL}/update-service-provider/${editingProvider._id}`,
-        editingProvider
-      );
-      
-      const updatedProvider = response.data.data;
-      const normalizedProvider = {
-        ...updatedProvider,
-        name: updatedProvider.name || '',
-        email: updatedProvider.email || '',
-        serviceType: updatedProvider.serviceType || '',
-        location: updatedProvider.location || '',
-        payRate: updatedProvider.payRate || [500, 2000],
-        selectedLanguages: updatedProvider.selectedLanguages || [],
-        availability: updatedProvider.availability || 'no',
-      };
-      
-      setServiceProviders(serviceProviders.map(sp => 
-        sp._id === editingProvider._id ? normalizedProvider : sp
-      ));
-      
-      showSnackbar('Service provider updated successfully', 'success');
-      setEditDialogOpen(false);
-    } catch (err) {
-      showSnackbar('Failed to update service provider', 'error');
-    }
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditingProvider({ ...editingProvider, [name]: value });
-  };
-
-  const handleCheckboxChange = (field, value) => {
-    const currentValues = editingProvider[field] || [];
-    const newValues = currentValues.includes(value)
-      ? currentValues.filter(item => item !== value)
-      : [...currentValues, value];
-    
-    setEditingProvider({ ...editingProvider, [field]: newValues });
   };
 
   const showSnackbar = (message, severity) => {
@@ -165,105 +147,97 @@ const Users = () => {
     setSnackbarOpen(false);
   };
 
-  const filteredProviders = serviceProviders.filter(provider => {
+  const filteredUsers = users.filter(user => {
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch = 
-      (provider.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (provider.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (provider.serviceType || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (provider.location || '').toLowerCase().includes(searchTerm.toLowerCase());
+      (user.name || '').toLowerCase().includes(searchLower) ||
+      (user.email || '').toLowerCase().includes(searchLower) ||
+      (user.phone || '').toLowerCase().includes(searchLower) ||
+      (user.nic || '').toLowerCase().includes(searchLower) ||
+      (searchLower === 'active' && user.status === 'active') ||
+      (searchLower === 'inactive' && user.status === 'inactive');
     
-    const matchesFilter = filter === 'all' || provider.serviceType.toLowerCase() === filter.toLowerCase();
+    const matchesStatusFilter = statusFilter === 'all' || 
+      (statusFilter === 'active' && user.status === 'active') ||
+      (statusFilter === 'inactive' && user.status === 'inactive');
     
-    return matchesSearch && matchesFilter;
+    return matchesSearch && matchesStatusFilter;
   });
 
-  const paginatedProviders = filteredProviders.slice(
+  const paginatedUsers = filteredUsers.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
 
-  const serviceTypes = [...new Set(serviceProviders.map(sp => sp.serviceType))].filter(type => type !== '');
-
   const generatePDF = () => {
-    const doc = new jsPDF();
-    
-    // No need to manually apply autoTable; it's automatically available with the correct import
+    try {
+      const doc = new jsPDF();
+      let yPosition = 20;
 
-    let yPosition = 20;
-
-    // Header
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 102, 204); // Blue color for title
-    doc.text('Service Providers Report', 14, yPosition);
-    
-    // Date on the right side of the header
-    const date = new Date().toLocaleDateString();
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100); // Gray color for date
-    doc.text(`Generated on: ${date}`, 140, yPosition);
-    yPosition += 10;
-
-    // Add a horizontal line below the header
-    doc.setLineWidth(0.5);
-    doc.setDrawColor(0, 102, 204);
-    doc.line(14, yPosition, 196, yPosition);
-    yPosition += 10;
-
-    // Group providers by service type
-    const groupedProviders = serviceProviders.reduce((acc, provider) => {
-      const type = provider.serviceType || 'Unknown';
-      if (!acc[type]) acc[type] = [];
-      acc[type].push(provider);
-      return acc;
-    }, {});
-
-    // Sort service types alphabetically
-    const sortedServiceTypes = Object.keys(groupedProviders).sort();
-
-    sortedServiceTypes.forEach((serviceType, index) => {
-      // Service Type Header
-      doc.setFontSize(16);
+      doc.setFontSize(20);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(0, 102, 204);
-      doc.text(`Category: ${serviceType}`, 14, yPosition);
-      yPosition += 8;
+      doc.text('Users Report', 14, yPosition);
+      yPosition += 10;
 
-      // Reset font for table
-      doc.setFontSize(10);
+      if (searchTerm || statusFilter !== 'all') {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+        let filterText = '';
+        if (searchTerm) filterText += `Search: "${searchTerm}" (Name, Email, Phone, NIC)`;
+        if (statusFilter !== 'all') {
+          if (filterText) filterText += ', ';
+          filterText += `Status: ${statusFilter === 'active' ? 'Active' : 'Inactive'}`;
+        }
+        const splitText = doc.splitTextToSize(filterText, 170);
+        doc.text(splitText, 14, yPosition);
+        yPosition += splitText.length * 5;
+      }
+
+      const date = new Date().toLocaleDateString();
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(100);
+      doc.text(`Generated on: ${date}`, 14, yPosition);
+      yPosition += 10;
 
-      // Prepare table data
-      const tableData = groupedProviders[serviceType].map((provider, providerIndex) => [
-        provider.name,
-        provider.email,
-        provider.location,
-        `${provider.payRate[0]} - ${provider.payRate[1]}`,
-        provider.selectedLanguages.join(', ') || 'None',
-        provider.availability === 'yes' ? 'Available' : 'Not Available'
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(0, 102, 204);
+      doc.line(14, yPosition, 196, yPosition);
+      yPosition += 10;
+
+      if (filteredUsers.length === 0) {
+        doc.setFontSize(14);
+        doc.setTextColor(100);
+        doc.text('No users match your search criteria', 14, yPosition);
+        doc.save('users-report.pdf');
+        showSnackbar('PDF generated with no results (based on current search)', 'info');
+        return;
+      }
+
+      const tableData = filteredUsers.map(user => [
+        user.name,
+        user.email,
+        user.phone,
+        user.nic,
       ]);
 
-      // Define table columns
       const tableColumns = [
         'Name',
         'Email',
-        'Location',
-        'Rate (Rs/hr)',
-        'Languages',
-        'Availability'
+        'Phone Number',
+        'NIC',
       ];
 
-      // Generate table using jspdf-autotable
       autoTable(doc, {
         startY: yPosition,
         head: [tableColumns],
         body: tableData,
-        theme: 'striped', // Alternating row colors
+        theme: 'striped',
         headStyles: {
-          fillColor: [0, 102, 204], // Blue header background
-          textColor: 255, // White text
+          fillColor: [0, 102, 204],
+          textColor: 255,
           fontSize: 11,
           fontStyle: 'bold'
         },
@@ -272,7 +246,7 @@ const Users = () => {
           textColor: 50
         },
         alternateRowStyles: {
-          fillColor: [240, 240, 240] // Light gray for alternate rows
+          fillColor: [240, 240, 240]
         },
         margin: { left: 14, right: 14 },
         styles: {
@@ -281,123 +255,154 @@ const Users = () => {
           lineColor: 200
         },
         columnStyles: {
-          0: { cellWidth: 30 }, // Name
-          1: { cellWidth: 40 }, // Email
-          2: { cellWidth: 30 }, // Location
-          3: { cellWidth: 25 }, // Rate
-          4: { cellWidth: 30 }, // Languages
-          5: { cellWidth: 25 }  // Availability
+          0: { cellWidth: 40 }, // Name
+          1: { cellWidth: 50 }, // Email
+          2: { cellWidth: 40 }, // Phone
+          3: { cellWidth: 40 }, // NIC
         }
       });
 
-      // Update yPosition after the table
-      yPosition = doc.lastAutoTable.finalY + 15;
-    });
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Page ${i} of ${pageCount}`, 196, 285, { align: 'right' });
+      }
 
-    // Add page numbers as footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.setTextColor(100);
-      doc.text(`Page ${i} of ${pageCount}`, 196, 285, { align: 'right' });
+      doc.save('users-report.pdf');
+      showSnackbar('PDF report generated successfully (based on current search)', 'success');
+    } catch (err) {
+      showSnackbar('Failed to generate PDF report', 'error');
     }
-
-    // Download the PDF
-    doc.save('service-providers-report.pdf');
   };
 
-  console.log('searchTerm:', searchTerm);
-  console.log('filter:', filter);
-  console.log('serviceProviders:', serviceProviders);
-  console.log('serviceTypes:', serviceTypes);
-  console.log('filteredProviders:', filteredProviders);
-
   return (
-    <Box sx={{ 
+    <Box sx={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #1a1a1a, #000000)',
-      color: 'white',
-      p: 4
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      color: '#e2e8f0',
+      p: 4,
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     }}>
-      <Box sx={{ maxWidth: '7xl', mx: 'auto', px: 4, py: 8 }}>
+      <Box sx={{ maxWidth: '90rem', mx: 'auto', py: 6 }}>
         <Typography
           variant="h4"
-          gutterBottom
           sx={{
-            fontWeight: 'bold',
-            color: 'white',
-            mb: 4,
-            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            display: 'inline-block',
+            fontWeight: 700,
+            color: '#f8fafc',
+            mb: 6,
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+            background: 'linear-gradient(90deg, #60a5fa, #3b82f6)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            letterSpacing: '-0.025em',
+            fontSize: '2.25rem',
+            lineHeight: '2.5rem',
+            position: 'relative',
+            zIndex: 1,
+            display: 'block',
           }}
         >
-          Service Providers Management
+          Users Management
         </Typography>
-        
-        <Paper sx={{ 
-          p: 2, 
-          mb: 3, 
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(10px)'
+
+        <Paper sx={{
+          p: 3,
+          mb: 4,
+          background: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '1rem',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+          position: 'relative',
+          zIndex: 0,
         }}>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={5}>
               <TextField
                 fullWidth
                 variant="outlined"
-                placeholder="Search providers..."
+                placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
                   startAdornment: (
-                    <Search sx={{ color: 'white', mr: 1 }} />
+                    <Search sx={{ color: '#94a3b8', mr: 1 }} />
                   ),
                   sx: {
-                    color: 'white',
+                    color: '#e2e8f0',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '0.75rem',
                     '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)'
-                    }
+                      borderColor: 'rgba(255, 255, 255, 0.15)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }
+                }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: '#94a3b8',
                   }
                 }}
               />
             </Grid>
-            {/* <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: 'white' }}>Filter by Service</InputLabel>
+                <InputLabel sx={{ color: '#94a3b8' }}>Filter by Status</InputLabel>
                 <Select
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
                   sx={{
-                    color: 'white',
+                    color: '#e2e8f0',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '0.75rem',
                     '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)'
+                      borderColor: 'rgba(255, 255, 255, 0.15)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
                     },
                     '& .MuiSvgIcon-root': {
-                      color: 'white'
-                    }
+                      color: '#94a3b8',
+                    },
+                    transition: 'all 0.3s ease',
                   }}
                 >
-                  <MenuItem value="all">All Services</MenuItem>
-                  {serviceTypes.map(type => (
-                    <MenuItem key={type} value={type.toLowerCase()}>
-                      {type}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="all">All Statuses</MenuItem>
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
                 </Select>
               </FormControl>
-            </Grid> */}
-            <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Tooltip title="Download PDF">
-                <IconButton onClick={generatePDF} sx={{ color: 'white', mr: 1 }}>
+            </Grid>
+            <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Tooltip title="Download PDF (based on current search)">
+                <IconButton sx={{
+                  color: '#60a5fa',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  mr: 1,
+                  '&:hover': {
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    transform: 'scale(1.05)',
+                    transition: 'all 0.3s ease',
+                  }
+                }} onClick={generatePDF}>
                   <Download />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Refresh">
-                <IconButton onClick={fetchServiceProviders} sx={{ color: 'white' }}>
+                <IconButton sx={{
+                  color: '#60a5fa',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  '&:hover': {
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    transform: 'scale(1.05)',
+                    transition: 'all 0.3s ease',
+                  }
+                }} onClick={fetchUsers}>
                   <Refresh />
                 </IconButton>
               </Tooltip>
@@ -406,77 +411,76 @@ const Users = () => {
         </Paper>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <CircularProgress sx={{ color: 'white' }} />
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+            <CircularProgress sx={{ color: '#60a5fa' }} />
           </Box>
         ) : error ? (
-          <Typography color="error">{error}</Typography>
+          <Typography sx={{ color: '#f87171', textAlign: 'center', mt: 4 }}>{error}</Typography>
         ) : (
           <>
-            <TableContainer component={Paper} sx={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)'
+            <TableContainer component={Paper} sx={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '1rem',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
             }}>
-              <Table>
-                <TableHead sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+              <Table sx={{ minWidth: 1000 }}>
+                <TableHead sx={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                }}>
                   <TableRow>
-                    <TableCell sx={{ color: 'white' }}>Profile</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Name</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Email</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Location</TableCell>
-                    <TableCell sx={{ color: 'white' }}>NIC</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Languages</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600, py: 3, width: '8%' }}>Profile</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600, py: 3, width: '15%' }}>Name</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600, py: 3, width: '20%' }}>Email</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600, py: 3, width: '15%' }}>Phone Number</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600, py: 3, width: '15%' }}>NIC</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600, py: 3, width: '12%' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {paginatedProviders.length > 0 ? (
-                    paginatedProviders.map((provider) => (
-                      <TableRow 
-                        key={provider._id} 
-                        sx={{ 
-                          '&:hover': { 
-                            backgroundColor: 'rgba(255, 255, 255, 0.05)' 
-                          } 
+                  {paginatedUsers.length > 0 ? (
+                    paginatedUsers.map((user) => (
+                      <TableRow
+                        key={user._id}
+                        sx={{
+                          background: 'rgba(255, 255, 255, 0.02)',
+                          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+                          },
                         }}
                       >
-                        <TableCell>
-                          <Avatar src={provider.profile_pic} alt={provider.name} />
+                        <TableCell sx={{ width: '8%' }}>
+                          <Avatar
+                            src={user.profile_pic}
+                            alt={user.name}
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              border: '2px solid rgba(255, 255, 255, 0.1)',
+                            }}
+                          />
                         </TableCell>
-                        <TableCell sx={{ color: 'white' }}>{provider.name}</TableCell>
-                        <TableCell sx={{ color: 'white' }}>{provider.email}</TableCell>
-                        <TableCell sx={{ color: 'white' }}>{provider.address}</TableCell>
-                        <TableCell sx={{ color: 'white' }}>{provider.nic}</TableCell>
-                       
-                        <TableCell>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {provider.selectedLanguages?.map(lang => (
-                              <Chip
-                                key={lang}
-                                label={lang}
-                                size="small"
-                                sx={{
-                                  color: 'white',
-                                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </TableCell>
-                
-                        <TableCell>
-                          <Tooltip title="Edit">
-                            <IconButton 
-                              onClick={() => handleEditClick(provider)} 
-                              sx={{ color: 'blue' }}
-                            >
-                              <Edit />
-                            </IconButton>
-                          </Tooltip>
+                        <TableCell sx={{ color: '#e2e8f0', width: '15%' }}>{user.name}</TableCell>
+                        <TableCell sx={{ color: '#e2e8f0', width: '20%' }}>{user.email}</TableCell>
+                        <TableCell sx={{ color: '#e2e8f0', width: '15%' }}>{user.phone}</TableCell>
+                        <TableCell sx={{ color: '#e2e8f0', width: '15%' }}>{user.nic}</TableCell>
+                        <TableCell sx={{ width: '12%' }}>
                           <Tooltip title="Delete">
-                            <IconButton 
-                              onClick={() => handleDeleteClick(provider)} 
-                              sx={{ color: 'red' }}
+                            <IconButton
+                              onClick={() => handleDeleteClick(user)}
+                              sx={{
+                                color: '#ef4444',
+                                '&:hover': {
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  transform: 'scale(1.1)',
+                                  transition: 'all 0.3s ease',
+                                },
+                              }}
                             >
                               <Delete />
                             </IconButton>
@@ -486,8 +490,8 @@ const Users = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={9} align="center" sx={{ color: 'white' }}>
-                        No service providers found
+                      <TableCell colSpan={6} align="center" sx={{ color: '#94a3b8', py: 4 }}>
+                        No users found
                       </TableCell>
                     </TableRow>
                   )}
@@ -495,15 +499,27 @@ const Users = () => {
               </Table>
             </TableContainer>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
               <Pagination
-                count={Math.ceil(filteredProviders.length / rowsPerPage)}
+                count={Math.ceil(filteredUsers.length / rowsPerPage)}
                 page={page}
                 onChange={(e, value) => setPage(value)}
                 sx={{
                   '& .MuiPaginationItem-root': {
-                    color: 'white'
-                  }
+                    color: '#94a3b8',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '0.5rem',
+                    '&:hover': {
+                      background: 'rgba(255, 255, 255, 0.1)',
+                    },
+                  },
+                  '& .Mui-selected': {
+                    background: '#3b82f6',
+                    color: '#ffffff',
+                    '&:hover': {
+                      background: '#2563eb',
+                    },
+                  },
                 }}
               />
             </Box>
@@ -515,412 +531,47 @@ const Users = () => {
           onClose={() => setDeleteDialogOpen(false)}
           PaperProps={{
             sx: {
-              backgroundColor: '#1a1a1a',
-              color: 'white'
+              background: 'rgba(15, 23, 42, 0.95)',
+              backdropFilter: 'blur(8px)',
+              color: '#e2e8f0',
+              borderRadius: '1rem',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
             }
           }}
         >
-          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogTitle sx={{ fontWeight: 600 }}>Confirm Delete</DialogTitle>
           <DialogContent>
-            <Typography sx={{ color: 'white' }}>
-              Are you sure you want to delete {providerToDelete?.name}? This action cannot be undone.
+            <Typography sx={{ color: '#e2e8f0' }}>
+              Are you sure you want to delete {userToDelete?.name}? This action cannot be undone.
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button 
-              onClick={() => setDeleteDialogOpen(false)} 
+            <Button
+              onClick={() => setDeleteDialogOpen(false)}
               startIcon={<Cancel />}
-              sx={{ color: 'white' }}
+              sx={{
+                color: '#94a3b8',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.05)',
+                },
+              }}
             >
               Cancel
             </Button>
-            <Button 
-              onClick={handleDeleteConfirm} 
-              color="error"
+            <Button
+              onClick={handleDeleteConfirm}
               startIcon={<Delete />}
+              sx={{
+                color: '#ef4444',
+                '&:hover': {
+                  background: 'rgba(239, 68, 68, 0.1)',
+                },
+              }}
             >
               Delete
             </Button>
           </DialogActions>
         </Dialog>
-
-        {editingProvider && (
-          <Dialog
-            open={editDialogOpen}
-            onClose={() => setEditDialogOpen(false)}
-            fullWidth
-            maxWidth="md"
-            PaperProps={{
-              sx: {
-                backgroundColor: '#1a1a1a',
-                color: 'white'
-              }
-            }}
-          >
-            <DialogTitle sx={{ color: 'white' }}>Edit Service Provider</DialogTitle>
-            <DialogContent dividers>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Name"
-                    name="name"
-                    value={editingProvider.name || ''}
-                    onChange={handleEditChange}
-                    margin="normal"
-                    InputProps={{
-                      sx: { color: 'white' }
-                    }}
-                    InputLabelProps={{
-                      sx: { color: 'white' }
-                    }}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    value={editingProvider.email || ''}
-                    onChange={handleEditChange}
-                    margin="normal"
-                    InputProps={{
-                      sx: { color: 'white' }
-                    }}
-                    InputLabelProps={{
-                      sx: { color: 'white' }
-                    }}
-                  />
-                  <TextField
-                    fullWidth
-                    label="NIC"
-                    name="nic"
-                    value={editingProvider.nic || ''}
-                    onChange={handleEditChange}
-                    margin="normal"
-                    InputProps={{
-                      sx: { color: 'white' }
-                    }}
-                    InputLabelProps={{
-                      sx: { color: 'white' }
-                    }}
-                  />
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel sx={{ color: 'white' }}>Location</InputLabel>
-                    <Select
-                      name="location"
-                      value={editingProvider.location || ''}
-                      onChange={handleEditChange}
-                      sx={{
-                        color: 'white',
-                        '& .MuiSvgIcon-root': {
-                          color: 'white'
-                        }
-                      }}
-                    >
-                      {[
-                        'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale', 
-                        'Nuwara Eliya', 'Galle', 'Matara', 'Hambantota', 
-                        'Jaffna', 'Kilinochchi', 'Mannar', 'Vavuniya', 
-                        'Mullaitivu', 'Batticaloa', 'Ampara', 'Trincomalee', 
-                        'Kurunegala', 'Puttalam', 'Anuradhapura', 'Polonnaruwa', 
-                        'Badulla', 'Monaragala', 'Ratnapura', 'Kegalle'
-                      ].map(loc => (
-                        <MenuItem key={loc} value={loc}>{loc}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel sx={{ color: 'white' }}>Service Type</InputLabel>
-                    <Select
-                      name="serviceType"
-                      value={editingProvider.serviceType || ''}
-                      onChange={handleEditChange}
-                      sx={{
-                        color: 'white',
-                        '& .MuiSvgIcon-root': {
-                          color: 'white'
-                        }
-                      }}
-                    >
-                      <MenuItem value="HouseCleaning">House Cleaning</MenuItem>
-                      <MenuItem value="KitchenHelpers">Kitchen Helpers</MenuItem>
-                      <MenuItem value="ChildCare">Child Care</MenuItem>
-                      <MenuItem value="ElderCare">Elder Care</MenuItem>
-                      <MenuItem value="PetCare">Pet Care</MenuItem>
-                      <MenuItem value="Education">Education</MenuItem>
-                    </Select>
-                  </FormControl>
-
-                  <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                    <TextField
-                      fullWidth
-                      label="Min Rate (Rs)"
-                      name="payRate[0]"
-                      type="number"
-                      value={editingProvider.payRate[0] || 500}
-                      onChange={(e) => {
-                        const newPayRate = [...editingProvider.payRate];
-                        newPayRate[0] = e.target.value;
-                        setEditingProvider({ ...editingProvider, payRate: newPayRate });
-                      }}
-                      margin="normal"
-                      InputProps={{
-                        sx: { color: 'white' }
-                      }}
-                      InputLabelProps={{
-                        sx: { color: 'white' }
-                      }}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Max Rate (Rs)"
-                      name="payRate[1]"
-                      type="number"
-                      value={editingProvider.payRate[1] || 2000}
-                      onChange={(e) => {
-                        const newPayRate = [...editingProvider.payRate];
-                        newPayRate[1] = e.target.value;
-                        setEditingProvider({ ...editingProvider, payRate: newPayRate });
-                      }}
-                      margin="normal"
-                      InputProps={{
-                        sx: { color: 'white' }
-                      }}
-                      InputLabelProps={{
-                        sx: { color: 'white' }
-                      }}
-                    />
-                  </Box>
-
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel sx={{ color: 'white' }}>Availability</InputLabel>
-                    <Select
-                      name="availability"
-                      value={editingProvider.availability || ''}
-                      onChange={handleEditChange}
-                      sx={{
-                        color: 'white',
-                        '& .MuiSvgIcon-root': {
-                          color: 'white'
-                        }
-                      }}
-                    >
-                      <MenuItem value="yes">Available</MenuItem>
-                      <MenuItem value="no">Not Available</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
-                    Languages Spoken
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {['Sinhala', 'English', 'Tamil'].map(lang => (
-                      <FormControlLabel
-                        key={lang}
-                        control={
-                          <Checkbox
-                            checked={editingProvider.selectedLanguages?.includes(lang) || false}
-                            onChange={() => handleCheckboxChange('selectedLanguages', lang)}
-                            sx={{ color: 'white' }}
-                          />
-                        }
-                        label={<Typography sx={{ color: 'white' }}>{lang}</Typography>}
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-
-                {editingProvider.serviceType === 'PetCare' && (
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
-                      Pet Types
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {['Dogs', 'Cats', 'Birds', 'Fish'].map(pet => (
-                        <FormControlLabel
-                          key={pet}
-                          control={
-                            <Checkbox
-                              checked={editingProvider.selectedPetTypes?.includes(pet) || false}
-                              onChange={() => handleCheckboxChange('selectedPetTypes', pet)}
-                              sx={{ color: 'white' }}
-                            />
-                          }
-                          label={<Typography sx={{ color: 'white' }}>{pet}</Typography>}
-                        />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
-
-                {editingProvider.serviceType === 'ChildCare' && (
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
-                      Age Groups
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {['Newborn', 'Toddler', 'Pre-school', 'Primary School', 'Teenager (12+ years)'].map(age => (
-                        <FormControlLabel
-                          key={age}
-                          control={
-                            <Checkbox
-                              checked={editingProvider.selectedAgeGroups?.includes(age) || false}
-                              onChange={() => handleCheckboxChange('selectedAgeGroups', age)}
-                              sx={{ color: 'white' }}
-                            />
-                          }
-                          label={<Typography sx={{ color: 'white' }}>{age}</Typography>}
-                        />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
-
-                {editingProvider.serviceType === 'Education' && (
-                  <>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
-                        Syllabus
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {['Local Syllabus', 'Cambridge Syllabus', 'Edxcel Syllabus'].map(syllabus => (
-                          <FormControlLabel
-                            key={syllabus}
-                            control={
-                              <Checkbox
-                                checked={editingProvider.selectedSyllabi?.includes(syllabus) || false}
-                                onChange={() => handleCheckboxChange('selectedSyllabi', syllabus)}
-                                sx={{ color: 'white' }}
-                              />
-                            }
-                            label={<Typography sx={{ color: 'white' }}>{syllabus}</Typography>}
-                          />
-                        ))}
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
-                        Subjects
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {['Art', 'Business', 'ICT', 'Mathematics', 'Physics', 'Science', 'Music', 'English', 'Chemistry', 'History', 'Other Languages'].map(subject => (
-                          <FormControlLabel
-                            key={subject}
-                            control={
-                              <Checkbox
-                                checked={editingProvider.selectedSubjects?.includes(subject) || false}
-                                onChange={() => handleCheckboxChange('selectedSubjects', subject)}
-                                sx={{ color: 'white' }}
-                              />
-                            }
-                            label={<Typography sx={{ color: 'white' }}>{subject}</Typography>}
-                          />
-                        ))}
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
-                        Grades
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'O/L', 'A/L'].map(grade => (
-                          <FormControlLabel
-                            key={grade}
-                            control={
-                              <Checkbox
-                                checked={editingProvider.selectedGrades?.includes(grade) || false}
-                                onChange={() => handleCheckboxChange('selectedGrades', grade)}
-                                sx={{ color: 'white' }}
-                              />
-                            }
-                            label={<Typography sx={{ color: 'white' }}>{grade}</Typography>}
-                          />
-                        ))}
-                      </Box>
-                    </Grid>
-                  </>
-                )}
-
-                {editingProvider.serviceType !== 'Education' && (
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ color: 'white' }}>
-                      Services Offered
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {(() => {
-                        switch(editingProvider.serviceType) {
-                          case 'HouseCleaning':
-                            return ['Bathroom Cleaning', 'Carpet Cleaning', 'Kitchen Cleaning', 'Laundry', 'Windows Cleaning'];
-                          case 'KitchenHelpers':
-                            return ['Birthday', 'Family Reunion', 'Friends Gathering', 'Alms Giving', 'Foodie Adventure', 'Other'];
-                          case 'ElderCare':
-                            return ['Personal Care', 'Transportation', 'Specialized Care', 'Household Tasks', 'Hospice Care', 'Nursing and Health Care'];
-                          case 'PetCare':
-                            return ['Walking', 'Day Care', 'Overnight Sitting', 'Training', 'Grooming', 'Transportation'];
-                          case 'ChildCare':
-                            return ['Day Care', 'After School Care', 'Nannies', 'Baby Sitters', 'In-Home Care', 'Childminders'];
-                          default:
-                            return [];
-                        }
-                      })().map(service => (
-                        <FormControlLabel
-                          key={service}
-                          control={
-                            <Checkbox
-                              checked={editingProvider.selectedServices?.includes(service) || false}
-                              onChange={() => handleCheckboxChange('selectedServices', service)}
-                              sx={{ color: 'white' }}
-                            />
-                          }
-                          label={<Typography sx={{ color: 'white' }}>{service}</Typography>}
-                        />
-                      ))}
-                    </Box>
-                  </Grid>
-                )}
-
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="About"
-                    name="about"
-                    value={editingProvider.about || ''}
-                    onChange={handleEditChange}
-                    multiline
-                    rows={4}
-                    margin="normal"
-                    InputProps={{
-                      sx: { color: 'white' }
-                    }}
-                    InputLabelProps={{
-                      sx: { color: 'white' }
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </DialogContent>
-            <DialogActions>
-              <Button 
-                onClick={() => setEditDialogOpen(false)} 
-                startIcon={<Cancel />}
-                sx={{ color: 'white' }}
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleEditSave} 
-                color="primary"
-                startIcon={<Save />}
-              >
-                Save Changes
-              </Button>
-            </DialogActions>
-          </Dialog>
-        )}
 
         <Snackbar
           open={snackbarOpen}
@@ -928,10 +579,17 @@ const Users = () => {
           onClose={handleSnackbarClose}
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
-          <Alert 
-            onClose={handleSnackbarClose} 
+          <Alert
+            onClose={handleSnackbarClose}
             severity={snackbarSeverity}
-            sx={{ width: '100%' }}
+            sx={{
+              background: snackbarSeverity === 'success'
+                ? 'rgba(34, 197, 94, 0.9)'
+                : 'rgba(239, 68, 68, 0.9)',
+              color: '#ffffff',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+            }}
           >
             {snackbarMessage}
           </Alert>
