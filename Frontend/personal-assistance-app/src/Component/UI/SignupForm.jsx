@@ -28,113 +28,100 @@ function SignupForm() {
 
   // Form validation
   useEffect(() => {
-    // Reset form validation state
-    setFormValid(false);
+    // Reset validation errors first
+    let tempFirstNameError = "";
+    let tempLastNameError = "";
+    let tempMobileError = "";
+    let tempEmailError = "";
+    let tempPasswordError = "";
+    let tempConfirmPasswordError = "";
+    let tempTermsError = "";
     
     // Validate first name (no numbers or special characters)
     if (firstName) {
       const nameRegex = /^[A-Za-z\s'-]+$/;
       if (!nameRegex.test(firstName)) {
-        setFirstNameError("First name should only contain letters, spaces, hyphens, or apostrophes");
+        tempFirstNameError = "First name should only contain letters, spaces, hyphens, or apostrophes";
       } else if (firstName.length < 2) {
-        setFirstNameError("First name must be at least 2 characters");
-      } else {
-        setFirstNameError("");
+        tempFirstNameError = "First name must be at least 2 characters";
       }
-    } else {
-      setFirstNameError("");
     }
+    setFirstNameError(tempFirstNameError);
     
     // Validate last name (no numbers or special characters)
     if (lastName) {
       const nameRegex = /^[A-Za-z\s'-]+$/;
       if (!nameRegex.test(lastName)) {
-        setLastNameError("Last name should only contain letters, spaces, hyphens, or apostrophes");
+        tempLastNameError = "Last name should only contain letters, spaces, hyphens, or apostrophes";
       } else if (lastName.length < 2) {
-        setLastNameError("Last name must be at least 2 characters");
-      } else {
-        setLastNameError("");
+        tempLastNameError = "Last name must be at least 2 characters";
       }
-    } else {
-      setLastNameError("");
     }
+    setLastNameError(tempLastNameError);
     
     // Validate mobile number (numbers only, proper length)
     if (mobile) {
       const mobileRegex = /^[0-9]{10}$/;
       if (!mobileRegex.test(mobile.replace(/\D/g, ''))) {
-        setMobileError("Please enter a valid mobile number (10 digits)");
-      } else {
-        setMobileError("");
+        tempMobileError = "Please enter a valid mobile number (10 digits)";
       }
-    } else {
-      setMobileError("");
     }
+    setMobileError(tempMobileError);
     
-    // Validate email format
+    // Validate email
     if (email) {
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        setEmailError("Please enter a valid email address");
-      } else {
-        setEmailError("");
+        tempEmailError = "Please enter a valid email address";
       }
-    } else {
-      setEmailError("");
     }
+    setEmailError(tempEmailError);
     
     // Validate password strength
     if (password) {
       const passwordChecks = {
-        length: password.length >= 8,
-        uppercase: /[A-Z]/.test(password),
-        lowercase: /[a-z]/.test(password),
-        number: /[0-9]/.test(password),
-        special: /[^A-Za-z0-9]/.test(password)
+        length: password.length >= 6,
+        hasUpper: /[A-Z]/.test(password),
+        hasLower: /[a-z]/.test(password),
+        hasNumber: /[0-9]/.test(password),
+        hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
       };
-      
+          
       if (!passwordChecks.length) {
-        setPasswordError("Password must be at least 8 characters long");
-      } else if (!(passwordChecks.uppercase && passwordChecks.lowercase)) {
-        setPasswordError("Password must include both uppercase and lowercase letters");
-      } else if (!passwordChecks.number) {
-        setPasswordError("Password must include at least one number");
-      } else if (!passwordChecks.special) {
-        setPasswordError("Password must include at least one special character");
-      } else {
-        setPasswordError("");
+        tempPasswordError = "Password must be at least 6 characters long";
+      } else if (!passwordChecks.hasUpper) {
+        tempPasswordError = "Password must include at least one uppercase letter";
+      } else if (!passwordChecks.hasLower) {
+        tempPasswordError = "Password must include at least one lowercase letter";
+      } else if (!passwordChecks.hasNumber) {
+        tempPasswordError = "Password must include at least one number";
+      } else if (!passwordChecks.hasSpecial) {
+        tempPasswordError = "Password must include at least one special character";
       }
-    } else {
-      setPasswordError("");
     }
-    
+    setPasswordError(tempPasswordError);
+        
     // Validate password confirmation
     if (confirmPassword) {
       if (password !== confirmPassword) {
-        setConfirmPasswordError("Passwords do not match");
-      } else {
-        setConfirmPasswordError("");
+        tempConfirmPasswordError = "Passwords do not match";
       }
-    } else {
-      setConfirmPasswordError("");
     }
+    setConfirmPasswordError(tempConfirmPasswordError);
     
     // Validate terms acceptance
     if (!acceptTerms) {
-      setTermsError("You must accept the Terms and Privacy Policy");
-    } else {
-      setTermsError("");
+      tempTermsError = "You must accept the Terms and Privacy Policy";
     }
+    setTermsError(tempTermsError);
     
     // Check if form is valid
-    if (
+    const isValid = 
       firstName && lastName && mobile && email && password && confirmPassword && acceptTerms &&
-      !firstNameError && !lastNameError && !mobileError && !emailError && 
-      !passwordError && !confirmPasswordError && !termsError &&
-      password === confirmPassword
-    ) {
-      setFormValid(true);
-    }
+      !tempFirstNameError && !tempLastNameError && !tempMobileError && !tempEmailError && 
+      !tempPasswordError && !tempConfirmPasswordError && !tempTermsError;
+    
+    setFormValid(isValid);
   }, [firstName, lastName, mobile, email, password, confirmPassword, acceptTerms]);
 
   const handleSignup = async (e) => {
@@ -158,7 +145,7 @@ function SignupForm() {
         password,
       });
 
-      if (res.data.message === "success") {
+      if (res.data && res.data.message === "success") {
         // Auto-login after successful registration
         try {
           const loginRes = await api.post("/api/auth/token", {
@@ -166,11 +153,11 @@ function SignupForm() {
             password,
           });
           
-          if (loginRes.data.token) {
+          if (loginRes.data && loginRes.data.token) {
             localStorage.setItem("authToken", loginRes.data.token);
             localStorage.setItem("userRole", "user");
             // Set session timestamp
-            localStorage.setItem("sessionStart", Date.now());
+            localStorage.setItem("sessionStart", Date.now().toString());
             navigate("/dashboard");
           } else {
             // Registration successful but auto-login failed
@@ -184,7 +171,7 @@ function SignupForm() {
           setTimeout(() => navigate("/signin"), 2000);
         }
       } else {
-        setErrorMsg(res.data.message || "Signup failed");
+        setErrorMsg((res.data && res.data.message) || "Signup failed");
       }
     } catch (err) {
       console.error(err);
@@ -226,8 +213,9 @@ function SignupForm() {
         <form onSubmit={handleSignup} className="space-y-4">
           {/* First Name Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
             <input
+              id="firstName"
               type="text"
               className={`w-full px-4 py-3 border ${
                 firstNameError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
@@ -248,8 +236,9 @@ function SignupForm() {
           
           {/* Last Name Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
             <input
+              id="lastName"
               type="text"
               className={`w-full px-4 py-3 border ${
                 lastNameError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
@@ -270,8 +259,9 @@ function SignupForm() {
           
           {/* Mobile Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+            <label htmlFor="mobile" className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
             <input
+              id="mobile"
               type="tel"
               className={`w-full px-4 py-3 border ${
                 mobileError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
@@ -292,8 +282,9 @@ function SignupForm() {
           
           {/* Email Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
+              id="email"
               type="email"
               className={`w-full px-4 py-3 border ${
                 emailError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
@@ -314,8 +305,9 @@ function SignupForm() {
           
           {/* Password Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
+              id="password"
               type="password"
               className={`w-full px-4 py-3 border ${
                 passwordError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
@@ -332,22 +324,19 @@ function SignupForm() {
                 {passwordError}
               </p>
             )}
-            {password && !passwordError && (
-              <p className="mt-1 text-sm text-green-600">
-                Strong password!
-              </p>
-            )}
+
             <div className="mt-1 text-xs text-gray-500">
-              Password must be at least 8 characters with uppercase, lowercase, number, and special character.
+              Password must be at least 6 characters with uppercase, lowercase, number, and special character.
             </div>
           </div>
           
           {/* Confirm Password Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
               Confirm Password
             </label>
             <input
+              id="confirmPassword"
               type="password"
               className={`w-full px-4 py-3 border ${
                 confirmPasswordError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
@@ -380,7 +369,7 @@ function SignupForm() {
             </div>
             <div className="ml-3 text-sm">
               <label htmlFor="terms" className="text-gray-700">
-                I agree to the <a href="/terms" className="text-blue-600 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>
+                I agree to the Terms of Service and Privacy Policy
               </label>
               {termsError && (
                 <p className="mt-1 text-sm text-red-600">
