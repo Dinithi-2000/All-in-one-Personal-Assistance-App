@@ -518,11 +518,25 @@ const ServiceProviderDashboard = () => {
        });
  }
 
- const handleLogout = () => {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("userData");
-  navigate("/");
-};
+  const handleLogout = () => {
+    Swal.fire({
+          title: 'Are you sure?',
+          text: "You will be logged out from your account.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#0d9488', 
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, Logout!',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("serviceProviderData");
+            localStorage.removeItem("serviceProviderProfile");
+            localStorage.removeItem("userRole");
+            navigate("/");
+          }
+        });
+  };
 
 
   const handleCheckboxChange = (e) => {
@@ -762,15 +776,15 @@ const ServiceProviderDashboard = () => {
               )}
             </div>
 
-            {/* <div className="relative">
+            <div className="relative">
               <button
                 className="flex items-center space-x-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
-                onClick={() => navigate("/profile")}
+                onClick={() => handleLogout()}
               >
-                <span>Profile</span>
+                <span>Logut</span>
                 <ChevronDown size={16} />
               </button>
-            </div> */}
+            </div>
           </div>
         </header>
 

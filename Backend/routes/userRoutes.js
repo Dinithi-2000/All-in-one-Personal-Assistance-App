@@ -130,6 +130,69 @@ router.post('/review/post-review',
   }),
 );
 
+router.get('/review/my-reviews',
+  expressAsyncHandler(async (req, res) => {
+    try {
+    
+      const reviews = await ReviewModel.find({ customerID: req.user.id }, '-customerID -updatedAt').populate({
+        path: 'providerID',
+        model: ServiceProvider,
+        select: 'name email  location photo availability serviceType'
+      });
+
+      if(reviews.length > 0){
+        return res.status(200).send(reviews)
+      }else{
+        return res.status(200).send([])
+      }
+
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
+router.patch('/review/edit-review/:id',
+  expressAsyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { review, starRate } = req.body;
+    try {
+    
+      await ReviewModel.updateOne({ _id: id}, { $set: {
+        review,
+        starRate
+      }})
+
+      return res.status(200).send({ message: 'Updated.'})
+
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
+router.delete('/review/delete-review/:id',
+  expressAsyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    try {
+    
+    const review = await ReviewModel.findOneAndDelete({ _id: id });
+
+    if(review){
+      return res.status(200).send({ message: 'Deleted'})
+    }else{      
+      return res.status(400).send({ message: 'Faild.'})
+    }
+
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }),
+);
+
+
+
 router.get('/bookmark/my-bookmarks',
   expressAsyncHandler(async (req, res) => {
     try {

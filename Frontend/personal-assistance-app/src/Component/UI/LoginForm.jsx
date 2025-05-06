@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../Lib/api";
 import { useNavigate } from "react-router-dom";
 
@@ -8,10 +8,60 @@ function LoginForm() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loginAs, setLoginAs] = useState("user"); // "user" or "provider"
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [formValid, setFormValid] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
   const navigate = useNavigate();
+
+  // Form validation
+  useEffect(() => {
+    // Reset form validation state
+    setFormValid(false);
+    
+    // Validate email format
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setEmailError("Please enter a valid email address");
+      } else {
+        setEmailError("");
+      }
+    } else {
+      setEmailError("");
+    }
+    
+    // Validate password
+    if (password) {
+      if (password.length < 8) {
+        setPasswordError("Password must be at least 8 characters");
+      } else {
+        setPasswordError("");
+      }
+    } else {
+      setPasswordError("");
+    }
+    
+    // Check if form is valid
+    if (email && password && !emailError && !passwordError) {
+      setFormValid(true);
+    }
+  }, [email, password, emailError, passwordError]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!formValid) {
+      return;
+    }
+    
+    // Check login attempts to prevent brute force
+    if (loginAttempts >= 5) {
+      setErrorMsg("Too many login attempts. Please try again later or reset your password.");
+      return;
+    }
+    
     setIsLoading(true);
     setErrorMsg("");
 
@@ -19,22 +69,41 @@ function LoginForm() {
       const endpoint = loginAs === "user" ? "/api/auth/token" : "/api/auth/token-service-provider";
       
       const res = await api.post(endpoint, {
-        email,
+        email: email.trim(),
         password,
       });
 
       if (res.data.token) {
+        // Reset login attempts on successful login
+        setLoginAttempts(0);
         localStorage.setItem("authToken", res.data.token);
         localStorage.setItem("userRole", loginAs);
+        
+        // Set session timestamp for additional security
+        localStorage.setItem("sessionStart", Date.now());
+        
         navigate(loginAs === "user" ? "/dashboard" : "/spdashboard");
       } else {
+        setLoginAttempts(prevAttempts => prevAttempts + 1);
         setErrorMsg(res.data.message || "Login failed");
       }
     } catch (err) {
       console.error(err);
+      setLoginAttempts(prevAttempts => prevAttempts + 1);
 
-      if (err.response && err.response.data && err.response.data.message) {
-        setErrorMsg(err.response.data.message);
+      // Handle specific error responses
+      if (err.response) {
+        if (err.response.status === 401) {
+          setErrorMsg("Invalid email or password");
+        } else if (err.response.status === 429) {
+          setErrorMsg("Too many login attempts. Please try again later.");
+        } else if (err.response.data && err.response.data.message) {
+          setErrorMsg(err.response.data.message);
+        } else {
+          setErrorMsg("Authentication failed. Please check your credentials.");
+        }
+      } else if (err.request) {
+        setErrorMsg("Network error. Please check your connection and try again.");
       } else {
         setErrorMsg("Something went wrong. Please try again.");
       }
@@ -89,13 +158,22 @@ function LoginForm() {
               </div>
               <input
                 type="email"
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                className={`w-full pl-10 pr-4 py-3 border ${
+                  emailError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                } rounded-lg outline-none transition-all`}
                 placeholder="yourname@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={emailError ? "true" : "false"}
+                aria-describedby={emailError ? "email-error" : undefined}
                 required
               />
             </div>
+            {emailError && (
+              <p id="email-error" className="mt-1 text-sm text-red-600">
+                {emailError}
+              </p>
+            )}
           </div>
           
           <div>
@@ -113,13 +191,22 @@ function LoginForm() {
               </div>
               <input
                 type="password"
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                className={`w-full pl-10 pr-4 py-3 border ${
+                  passwordError ? "border-red-300 focus:ring-red-500 focus:border-red-500" : "border-gray-200 focus:ring-blue-500 focus:border-blue-500"
+                } rounded-lg outline-none transition-all`}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                aria-invalid={passwordError ? "true" : "false"}
+                aria-describedby={passwordError ? "password-error" : undefined}
                 required
               />
             </div>
+            {passwordError && (
+              <p id="password-error" className="mt-1 text-sm text-red-600">
+                {passwordError}
+              </p>
+            )}
           </div>
           
           {errorMsg && (
@@ -131,9 +218,9 @@ function LoginForm() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isLoading}
-              className={`w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ${
-                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              disabled={isLoading || !formValid}
+              className={`w-full flex items-center justify-center bg-blue-600 text-white py-3 px-4 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ${
+                isLoading || !formValid ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"
               }`}
             >
               {isLoading ? (
@@ -164,9 +251,9 @@ function LoginForm() {
         </div>
         <div className="mt-4 text-center">
           <p className="text-gray-600">
-            signin As Admin{" "}
+            Sign in As Admin{" "}
             <a 
-              href= '/admin-signin' 
+              href="/admin-signin" 
               className="text-blue-600 font-medium hover:text-blue-800"
             >
               Sign in
