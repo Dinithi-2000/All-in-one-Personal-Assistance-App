@@ -4,6 +4,8 @@ import { createBooking } from "../../Lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../Lib/api";
 import Swal from "sweetalert2";
+import NavBar from "../UI/NavBar";
+import { useNavigate } from "react-router-dom";
 
 // Icons
 import {
@@ -57,17 +59,27 @@ const ServiceSelection = () => {
     bookingTime: "",
   });
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (userData) {
       try {
-        setUser(JSON.parse(userData));
+        const parsedUserData = JSON.parse(userData);
+        setUser(parsedUserData);
+        setUserData(parsedUserData);
       } catch (error) {
         console.error("Failed to parse userData from localStorage", error);
       }
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    navigate("/"); // Redirect to home
+  };
 
   // Clear notifications after 5 seconds
   useEffect(() => {
@@ -266,6 +278,9 @@ const ServiceSelection = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
+      {/* Navigation Bar - Added at the top level */}
+      <NavBar handleLogout={handleLogout} user={userData} />
+      
       {/* Notification Bar */}
       <AnimatePresence>
         {bookingSuccess && (
@@ -699,7 +714,7 @@ const ServiceSelection = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative"
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative"
             >
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6">
@@ -832,13 +847,13 @@ const ServiceSelection = () => {
                   </h3>
                   <div className="space-y-2 text-gray-600 text-sm">
                     <p>
-                      <span className="font-medium">Name:</span> {user.name}
+                      <span className="font-medium">Name:</span> {user?.firstName || user?.name || ""}
                     </p>
                     <p>
-                      <span className="font-medium">Email:</span> {user.email}
+                      <span className="font-medium">Email:</span> {user?.email || ""}
                     </p>
                     <p>
-                      <span className="font-medium">Phone:</span> {user.phone}
+                      <span className="font-medium">Phone:</span> {user?.mobile || user?.phone || ""}
                     </p>
                   </div>
                 </div>

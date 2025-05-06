@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import NavBar from "../UI/NavBar";
+import { useNavigate } from "react-router-dom";
 import {
   X,
   User,
@@ -39,6 +41,8 @@ const MyReviews = () => {
     starRate: 0,
   });
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [userData, setUserData] = useState({});
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("authToken");
 
@@ -46,12 +50,20 @@ const MyReviews = () => {
     const userData = localStorage.getItem("userData");
     if (userData) {
       try {
-        setUser(JSON.parse(userData));
+        const parsedUserData = JSON.parse(userData);
+        setUser(parsedUserData);
+        setUserData(parsedUserData);
       } catch (error) {
         console.error("Failed to parse userData from localStorage", error);
       }
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    navigate("/"); // Redirect to home
+  };
 
   // Fetch reviews on component mount
   useEffect(() => {
@@ -318,6 +330,9 @@ const MyReviews = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
+      {/* Navigation Bar - Added at the top level */}
+      <NavBar handleLogout={handleLogout} user={userData} />
+      
       {/* Notification Toasts */}
       <AnimatePresence>
         {success && (

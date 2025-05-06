@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { retrieveBookings, updateBooking, deleteBooking } from "../../Lib/api";
 import { motion, AnimatePresence } from "framer-motion";
+import NavBar from "../UI/NavBar";
 import {
   CalendarDays,
   Clock,
@@ -22,7 +23,8 @@ import {
   StarHalf,
   PenTool,
 } from "lucide-react";
-import axios from "axios"; // Make sure axios is imported
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const MyBookings = () => {
   const [user, setUser] = useState(null);
@@ -56,6 +58,8 @@ const MyBookings = () => {
   const [reviewsSubmitted, setReviewsSubmitted] = useState([]);
 
   const token = localStorage.getItem("authToken");
+  const [userData, setUserData] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
@@ -63,7 +67,9 @@ const MyBookings = () => {
       console.log("userData01:" + userData);
 
       try {
-        setUser(JSON.parse(userData));
+        const parsedUserData = JSON.parse(userData);
+        setUser(parsedUserData);
+        setUserData(parsedUserData); // Set the userData state too
       } catch (error) {
         console.error("Failed to parse userData from localStorage", error);
       }
@@ -143,6 +149,12 @@ const MyBookings = () => {
     setEditReason("");
     setEditReasonError(null);
     setEditModalOpen(true);
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    navigate("/"); // Redirect to home
   };
 
   const handleEditClose = () => {
@@ -304,7 +316,6 @@ const MyBookings = () => {
     }
     console.log("token:"+token);
     
-
     setError(null);
     setSuccess(null);
 
@@ -442,6 +453,9 @@ const MyBookings = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
+      {/* Navigation Bar - Properly placed here at the top level */}
+      <NavBar handleLogout={handleLogout} user={userData} />
+      
       {/* Notification Toasts */}
       <AnimatePresence>
         {success && (
