@@ -76,6 +76,15 @@ const NavBar = ({ handleLogout, user, forceUpdate }) => {
 
               {!isProvider && (
               <Link
+                to="/my-reviews"
+                className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
+              >
+                <span>My Reviews</span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+              </Link>)}
+
+              {!isProvider && (
+              <Link
                 to="/bookmarks"
                 className="text-[#003366] font-semibold hover:text-teal-500 transition duration-300 relative group no-underline whitespace-nowrap"
               >

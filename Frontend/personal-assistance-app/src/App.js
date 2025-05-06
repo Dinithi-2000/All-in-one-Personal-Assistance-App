@@ -19,6 +19,7 @@ import Profile from "./Component/Pages/Profile";
 import BookmarkPage from "./Component/Pages/Bookmarks";
 import ServiceProviderDashboard from "./Component/Pages/ServiceProvider/ServiceProviderDashboard";
 import MyBookings from "./Component/Pages/MyBookings";
+import MyReviews from "./Component/Pages/MyReviews";
 
 import ServiceSelection1 from "./Component/Pages/ServiceProvider/ServiceSelection";
 import HouseCleaningService from "./Component/Pages/ServiceProvider/HouseCleaningService";
@@ -117,6 +118,7 @@ function App() {
           <Route path="/spdashboard" element={<ServiceProviderDashboard />} />
           <Route path="/serviceselection" element={<ServiceSelection />} />
           <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/my-reviews" element={<MyReviews />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/bookmarks" element={<BookmarkPage />} />
         </Route>
