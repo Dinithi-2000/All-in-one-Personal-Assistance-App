@@ -1,79 +1,91 @@
-import express from "express"
-import mongoose from "mongoose"
-import bodyParser from "body-parser"
-import cors from "cors"
-import dotenv from "dotenv"
-import { paymentRoute } from "./routes/paymentRouts.js"
-import { RefundRouter } from "./routes/RefundRoutes.js"
-import { savedPaymentRouter } from "./routes/savedPaymentRoute.js"
-import { financialActivityRoute } from "./routes/financialActivity.js"
-import { PaymentGatewayRoute } from "./routes/PaymentGatewayRoute.js"
+// Backend/server.js (Relevant parts)
+import express from "express";
+import mongoose from "mongoose";
+// import bodyParser from "body-parser"; // bodyParser is built into express >= 4.16
+import cors from "cors";
+import dotenv from "dotenv";
+
+// --- Import Your Routes ---
+import { paymentRoute } from "./routes/paymentRouts.js";
+import { RefundRouter } from "./routes/RefundRoutes.js";
+import { savedPaymentRouter } from "./routes/savedPaymentRoute.js";
+import { financialActivityRoute } from "./routes/financialActivity.js";
+import { PaymentGatewayRoute } from "./routes/PaymentGatewayRoute.js";
 import { bookingRouter } from "./routes/bookingRoutes.js";
 import ServiceProviderRouter from './routes/serviceProviderRoute.js';
-import { schedulePaymentComplete } from "./services/paymentschedule.js"
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-import chatBotRoutes from './routes/chatBotRoutes.js';
+import chatBotRoutes from './routes/chatBotRoutes.js'; // <<< Ensure this points to the correct file
 import spRoutes from './routes/spRoutes.js';
-import adminRoutes from './routes/adminRoutes.js'
+import adminRoutes from './routes/adminRoutes.js';
 
-//import middlewares
-import validateToken from "./middlwares/validateTokenHandler.js"
+// --- Import Your Middleware & Services ---
+import validateToken from "./middlwares/validateTokenHandler.js";
+import { schedulePaymentComplete } from "./services/paymentschedule.js";
 
-
-//create express application instance
 const app = express();
-
 dotenv.config();
 
-//set local host port
 const PORT = process.env.PORT || 8070;
+const URL = process.env.MONGO_URL;
 
-app.use(express.json({ limit: '50mb' }));  // Increase JSON payload limit
-app.use(express.urlencoded({ limit: '50mb', extended: true }));  // Increase URL-encoded payload limit
-
-//apply middleware to the applicaton and convert JSON request to HTTP request
+// --- Middleware Setup ---
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'], 
+    origin: ['http://localhost:3000', 'http://localhost:3001'], // Adjust as needed
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(bodyParser.json({ limit: '50mb' }));  // Increase bodyParser limit too
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+app.use((req, res, next) => {
+    console.log(`[Server Log] Received: ${req.method} ${req.originalUrl}`);
+    next();
+  });
 
-//get mongodb url
-const URL = process.env.MONGO_URL;
+// Use built-in Express parsers (bodyParser is generally not needed separately)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-//create connection
+// --- Database Connection ---
 mongoose.connect(URL)
     .then(() => console.log("MongoDb Connected Successfully"))
     .catch((err) => console.log("Connection Failed", err));
 
-//open created connection
-const connection = mongoose.connection;
-connection.once("open", () => {
-    console.log("MogoDB success")
-})
+mongoose.connection.on("error", err => {
+    console.log("MongoDB connection error:", err);
+});
+mongoose.connection.once("open", () => {
+    console.log("MongoDB connection successful");
+});
 
-//start server
-app.listen(PORT, () => {
-    console.log(`server start and running ${PORT}`);
-})
-
-
-app.use('/api/auth',authRoutes);
-app.use('/api/user',validateToken,userRoutes)
-app.use('/api/service-provider',validateToken,spRoutes)
-app.use("/home/payment", paymentRoute)
-app.use("/home/Refund", RefundRouter)
-app.use("/api", PaymentGatewayRoute)
-app.use("/home/payment/savedPayment", savedPaymentRouter)
-app.use("/adminDashBoard/Financial", financialActivityRoute)
+// --- Route Definitions ---
+app.use('/api/auth', authRoutes);
+app.use('/api/user', validateToken, userRoutes);
+app.use('/api/service-provider', validateToken, spRoutes);
+app.use("/home/payment", paymentRoute); // Consider moving these under /api too for consistency
+app.use("/home/Refund", RefundRouter);
+app.use("/api", PaymentGatewayRoute);
+app.use("/home/payment/savedPayment", savedPaymentRouter);
+app.use("/adminDashBoard/Financial", financialActivityRoute);
 app.use("/home/booking", bookingRouter);
-app.use("/home/serviceProvider", ServiceProviderRouter)
-app.use("/admin", adminRoutes)
-app.use('/api/chat/',chatBotRoutes);
+app.use("/home/serviceProvider", ServiceProviderRouter);
+app.use("/admin", adminRoutes);
+app.use('/api/chat', chatBotRoutes); // <<< Correctly mounted
 
-schedulePaymentComplete();
+// --- Start Server & Scheduled Tasks ---
+app.listen(PORT, () => {
+    console.log(`Server start and running on port ${PORT}`);
+});
+
+schedulePaymentComplete(); // Run your scheduled task
+
+// --- Basic Root Route ---
+app.get('/', (req, res) => {
+    res.send('SeraniLux Backend is Running!');
+});
+
+// --- Global Error Handler (Optional but Recommended) ---
+app.use((err, req, res, next) => {
+    console.error("Global Error Handler Caught:", err.stack);
+    res.status(500).send('Something broke!');
+});
