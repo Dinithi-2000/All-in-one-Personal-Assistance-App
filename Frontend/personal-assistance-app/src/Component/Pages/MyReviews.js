@@ -372,7 +372,7 @@ const MyReviews = () => {
       </AnimatePresence>
 
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-violet-600 to-indigo-700 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="container mx-auto px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -403,7 +403,7 @@ const MyReviews = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search reviews..."
-                className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors outline-none"
+                className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors outline-none"
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -411,7 +411,7 @@ const MyReviews = () => {
               <select
                 value={filterRating}
                 onChange={(e) => setFilterRating(e.target.value)}
-                className="py-3 px-4 rounded-lg border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors outline-none"
+                className="py-3 px-4 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors outline-none"
               >
                 <option value="all">All Ratings</option>
                 <option value="5">5 Stars</option>
@@ -454,7 +454,7 @@ const MyReviews = () => {
                       setSearchQuery("");
                       setFilterRating("all");
                     }}
-                    className="mt-4 px-4 py-2 bg-violet-100 text-violet-700 rounded-lg hover:bg-violet-200 transition-colors"
+                    className="mt-4 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
                   >
                     Clear filters
                   </button>
@@ -507,7 +507,7 @@ const MyReviews = () => {
                         <div className="flex items-center text-gray-700">
                           <CalendarDays
                             size={16}
-                            className="mr-2 text-violet-500"
+                            className="mr-2 text-blue-500"
                           />
                           <span className="text-sm">
                             Posted on: {formatDate(review.createdAt)}
@@ -516,7 +516,7 @@ const MyReviews = () => {
                       )}
                       {review.updatedAt && review.updatedAt !== review.createdAt && (
                         <div className="flex items-center text-gray-700">
-                          <Clock size={16} className="mr-2 text-violet-500" />
+                          <Clock size={16} className="mr-2 text-blue-500" />
                           <span className="text-sm">
                             Updated on: {formatDate(review.updatedAt)}
                           </span>
@@ -529,7 +529,7 @@ const MyReviews = () => {
                   <div className="flex md:flex-col justify-end gap-3 mt-4 md:mt-0">
                     <button
                       onClick={() => handleEditOpen(review)}
-                      className="px-4 py-2.5 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+                      className="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
                       aria-label={`Edit review for ${review.providerID?.name || "provider"}`}
                     >
                       <Edit size={16} />
@@ -573,7 +573,7 @@ const MyReviews = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-violet-600 to-indigo-700 text-white p-6">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6">
                 <h2
                   id="edit-modal-title"
                   className="text-xl font-bold flex items-center"
@@ -581,13 +581,13 @@ const MyReviews = () => {
                   <Edit className="mr-3 h-5 w-5" />
                   Edit Your Review
                 </h2>
-                <p className="text-violet-100 mt-1 text-sm">
+                <p className="text-blue-100 mt-1 text-sm">
                   Update your feedback for{" "}
                   {selectedReview?.providerID?.name || "this provider"}
                 </p>
                 <button
                   onClick={handleEditClose}
-                  className="absolute top-4 right-4 text-white hover:text-violet-100 transition-colors duration-200"
+                  className="absolute top-4 right-4 text-white hover:text-blue-100 transition-colors duration-200"
                   aria-label="Close edit modal"
                 >
                   <X className="h-5 w-5" />
@@ -625,14 +625,14 @@ const MyReviews = () => {
                 {/* Review Text */}
                 <div className="mb-5">
                   <label className="block text-gray-700 font-medium mb-2 flex items-center text-sm">
-                    <MessageSquare className="mr-2 text-violet-500 h-4 w-4" />
+                    <MessageSquare className="mr-2 text-blue-500 h-4 w-4" />
                     Your Review
                   </label>
                   <textarea
                     name="review"
                     value={editFormData.review}
                     onChange={handleEditFormChange}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 bg-gray-50 resize-none h-32"
                     placeholder="Share your experience with this service provider..."
                     aria-label="Enter your review"
                   />
@@ -649,7 +649,7 @@ const MyReviews = () => {
                   </button>
                   <button
                     onClick={handleEditReview}
-                    className="px-4 py-2.5 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-700 transition-all flex items-center shadow-sm"
+                    className="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center shadow-sm"
                     aria-label="Save changes"
                   >
                     <span>Save Changes</span>
