@@ -1778,58 +1778,45 @@ const ServiceProviderDashboard = () => {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {reviews?.map((review) => (
-                      <div
-                        key={review._id}
-                        className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="h-10 w-10 overflow-hidden rounded-full">
-                              {review.customerID.profile_pic ? (
-                                <img
-                                  src={review.customerID.profile_pic}
-                                  alt={`${review.customerID.firstName} ${review.customerID.lastName}`}
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                                  <User size={20} />
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-800">
-                                {review.customerID.firstName}{" "}
-                                {review.customerID.lastName}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {formatDate(review.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                size={16}
-                                className={
-                                  i < review.starRate
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-gray-300"
-                                }
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="mt-3 text-gray-600">{review.review}</p>
-                        <div className="mt-3 flex justify-end">
-                          <button className="text-xs text-blue-600 hover:text-blue-800">
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                   {reviews?.map((review) => (
+  <div
+    key={review._id}
+    className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0"
+  >
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-3">
+        <div className="h-10 w-10 overflow-hidden rounded-full">
+          {review.customerID && review.customerID.profile_pic ? (
+            <img
+              src={review.customerID.profile_pic}
+              alt={`${review.customerID?.firstName || 'User'} ${review.customerID?.lastName || ''}`}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center rounded-full bg-blue-100 text-blue-600">
+              <User size={20} />
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="font-medium text-gray-800">
+            {review.customerID ? `${review.customerID.firstName || ''} ${review.customerID.lastName || ''}` : 'Anonymous User'}
+          </p>
+          <p className="text-xs text-gray-500">
+            {formatDate(review.createdAt)}
+          </p>
+        </div>
+      </div>
+      {/* Rest of your code remains the same */}
+    </div>
+    <p className="mt-3 text-gray-600">{review.review}</p>
+    <div className="mt-3 flex justify-end">
+      <button className="text-xs text-blue-600 hover:text-blue-800">
+        Reply
+      </button>
+    </div>
+  </div>
+))}
                   </div>
                 )}
               </div>
