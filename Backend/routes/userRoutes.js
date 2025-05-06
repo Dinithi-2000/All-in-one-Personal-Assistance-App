@@ -260,23 +260,6 @@ router.delete('/bookmark/remove-bookmark',
   }),
 );
 
-router.get('/review/my-reviews',expressAsyncHandler(async(req,res) => {
-  try{
-    const reviews = await ReviewModel.find({ providerID: req.user.id }).populate({
-      path: 'customerID',
-      model: UserModel,
-      select: 'firstName lastName profile_pic email'
-    })
-    if(reviews.length > 0){
-      return res.status(200).send(reviews);
-    }else{
-      return res.status(200).send([])
-    }
-
-  }catch(error){
-    return res.status(500).send({ message: error.message });
-  }
-}));
 
 //MARK: Counts
 router.get('/counts',expressAsyncHandler(async(req,res) => {
