@@ -3,6 +3,8 @@ import expressAsyncHandler from 'express-async-handler';
 import speakeasy from 'speakeasy';
 import ServiceProvider from '../models/ServiceProvider.js';
 import BookingModel from '../models/BookingModel.js';
+import ReviewModel from '../models/ReviewModel.js';
+import UserModel from '../models/UserModel.js';
 
 const router = express.Router();
 
@@ -122,6 +124,25 @@ router.post(
       }
     }),
 );
+
+router.get('/review/my-reviews',expressAsyncHandler(async(req,res) => {
+  try{
+
+    const reviews = await ReviewModel.find({ providerID: req.user.id }).populate({
+      path: 'customerID',
+      model: UserModel,
+      select: 'firstName lastName profile_pic email'
+    })
+    if(reviews.length > 0){
+      return res.status(200).send(reviews);
+    }else{
+      return res.status(200).send([])
+    }
+
+  }catch(error){
+    return res.status(500).send({ message: error.message });
+  }
+}));
 
 
 export default router;

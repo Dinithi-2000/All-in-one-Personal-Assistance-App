@@ -115,7 +115,7 @@ const ServiceProviderDashboard = () => {
         setLoading(true);
         const token = localStorage.getItem("authToken");
 
-        const response = await api.get("/api/user/review/my-reviews", {
+        const response = await api.get("/api/service-provider/review/my-reviews", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
