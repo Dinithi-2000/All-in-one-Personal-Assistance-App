@@ -1,6 +1,8 @@
 import express from 'express';
 import Review from '../models/ReviewModel.js';
 import validateToken from '../middlwares/validateTokenHandler.js';
+import UserModel from '../models/UserModel.js';
+import ServiceProvider from '../models/ServiceProvider.js';
 
 const router = express.Router();
 
@@ -12,8 +14,16 @@ router.get('/reviews', validateToken, async (req, res) => {
     console.log('User from token:', req.user); // Debug log
 
     const reviews = await Review.find()
-      .populate('customerID', 'name')
-      .populate('providerID', 'name')
+      .populate({
+        path: 'customerID',
+        model: UserModel,
+        select: 'firstName lastName profileImage',
+      })
+      .populate({
+        path: 'providerID',
+        model: ServiceProvider,
+        select: 'name logo',
+      })
       .sort({ createdAt: -1 })
       .lean();
 
@@ -23,7 +33,21 @@ router.get('/reviews', validateToken, async (req, res) => {
       return res.status(200).json([]);
     }
 
-    res.json(reviews);
+    // Normalize data for frontend
+    const normalizedReviews = reviews.map(review => ({
+      _id: review._id,
+      customerName: review.customerID
+        ? `${review.customerID.firstName || ''} ${review.customerID.lastName || ''}`.trim() || 'Anonymous'
+        : 'Anonymous',
+      customerImage: review.customerID?.profileImage || null,
+      providerName: review.providerID?.name || 'Unknown Provider',
+      providerLogo: review.providerID?.logo || null,
+      reviewText: review.review || '',
+      starRate: review.starRate || 0,
+      createdAt: review.createdAt || '',
+    }));
+
+    res.json(normalizedReviews);
   } catch (err) {
     console.error('Error fetching reviews:', err);
     res.status(500).json({ message: 'Server Error', error: err.message });

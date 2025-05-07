@@ -95,7 +95,7 @@ const AdminReviews = () => {
         _id: review._id || '',
       }));
       console.log('Normalized Reviews:', normalizedReviews);
-      setReviews(normalizedReviews);
+      setReviews(response.data);
       setError(null);
     } catch (err) {
       console.error('Error details:', {
