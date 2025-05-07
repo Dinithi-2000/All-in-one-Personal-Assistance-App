@@ -21,19 +21,19 @@ import {
 
 const statusColors = {
   PENDING: {
-    bg: "bg-yellow-100",
-    text: "text-yellow-800",
-    badge: "bg-yellow-500"
+    bg: "bg-[#FFF3E0]", // Light orange background
+    text: "text-[#FF9800]", // Orange text
+    badge: "bg-[#FF9800]" // Orange badge
   },
   CONFIRMED: {
-    bg: "bg-green-100",
-    text: "text-green-800",
-    badge: "bg-green-500"
+    bg: "bg-[#E8F5E9]", // Light green background
+    text: "text-[#4CAF50]", // Green text
+    badge: "bg-[#4CAF50]" // Green badge
   },
   REJECTED: {
-    bg: "bg-red-100",
-    text: "text-red-800",
-    badge: "bg-red-500"
+    bg: "bg-[#FFEBEE]", // Light red background
+    text: "text-[#ff5252]", // Red text
+    badge: "bg-[#ff5252]" // Red badge
   }
 };
 
@@ -220,22 +220,22 @@ const AdminBookings = () => {
 
     // Add company logo and information
     doc.setFontSize(18);
-    doc.setTextColor(0, 128, 128); // Teal color
+    doc.setTextColor(0, 102, 204); // Blue color
     doc.text(companyInfo.name, 105, 15, { align: 'center' });
 
     doc.setFontSize(10);
-    doc.setTextColor(80);
+    doc.setTextColor(100); // Gray
     doc.text(companyInfo.address, 105, 22, { align: 'center' });
     doc.text(`Phone: ${companyInfo.phone} | Email: ${companyInfo.email}`, 105, 28, { align: 'center' });
 
     // Add title and date
     doc.setFontSize(16);
-    doc.setTextColor(0, 128, 128);
+    doc.setTextColor(0, 102, 204); // Blue color
     doc.text("Bookings Report", 105, 38, { align: 'center' });
 
     const date = new Date().toLocaleString();
     doc.setFontSize(10);
-    doc.setTextColor(80);
+    doc.setTextColor(100);
     doc.text(`Generated on: ${date}`, 105, 44, { align: 'center' });
 
     // Add filter information
@@ -268,12 +268,12 @@ const AdminBookings = () => {
       startY: 65,
       theme: 'grid',
       headStyles: {
-        fillColor: [0, 128, 128],
+        fillColor: [0, 102, 204], // Blue header
         textColor: 255,
         fontStyle: 'bold'
       },
       alternateRowStyles: {
-        fillColor: [245, 245, 245]
+        fillColor: [240, 240, 240] // Light gray
       },
       margin: { top: 65 }
     });
@@ -284,12 +284,12 @@ const AdminBookings = () => {
       let yPosition = doc.lastAutoTable.finalY + 10;
 
       doc.setFontSize(12);
-      doc.setTextColor(0, 128, 128);
+      doc.setTextColor(0, 102, 204); // Blue color
       doc.text("Rejection Details", 14, yPosition);
       yPosition += 8;
 
       doc.setFontSize(10);
-      doc.setTextColor(80);
+      doc.setTextColor(100);
 
       rejectedBookings.forEach(booking => {
         doc.text(`Customer: ${booking.customerDetails?.name || "N/A"}`, 14, yPosition);
@@ -314,8 +314,8 @@ const AdminBookings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 z-10 flex-1">
-      <main className="max-w-screen mx-auto py-8 px-0 lg:px-8 ">
+    <div className="min-h-screen bg-gradient-to-br from-[#1a237e] to-[#121212] p-6 z-10 flex-1">
+      <main className="max-w-screen mx-auto py-8 px-0 lg:px-8">
         {/* Notification System */}
         <AnimatePresence>
           {success && (
@@ -323,7 +323,7 @@ const AdminBookings = () => {
               initial={{ opacity: 0, y: -50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -50 }}
-              className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center"
+              className="fixed top-4 right-4 z-50 bg-[#4CAF50] text-white px-6 py-3 rounded-lg shadow-lg flex items-center"
             >
               <FaCheck className="mr-2" /> {success}
             </motion.div>
@@ -333,7 +333,7 @@ const AdminBookings = () => {
               initial={{ opacity: 0, y: -50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -50 }}
-              className="fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center"
+              className="fixed top-4 right-4 z-50 bg-[#ff5252] text-white px-6 py-3 rounded-lg shadow-lg flex items-center"
             >
               <FaExclamationTriangle className="mr-2" /> {error}
             </motion.div>
@@ -341,16 +341,16 @@ const AdminBookings = () => {
         </AnimatePresence>
 
         {/* Header Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-[rgba(255,255,255,0.1)] backdrop-blur-lg rounded-lg shadow-sm p-6 mb-6 border border-[rgba(255,255,255,0.1)]">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800 mb-2">Booking Management</h1>
-              <p className="text-gray-500">Manage and process service bookings</p>
+              <h1 className="text-2xl font-bold text-white mb-2">Booking Management</h1>
+              <p className="text-[rgba(255,255,255,0.7)]">Manage and process service bookings</p>
             </div>
             <div className="mt-4 md:mt-0">
               <button
                 onClick={generatePDF}
-                className="flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition duration-300 shadow-sm"
+                className="flex items-center px-4 py-2 bg-[#0066CC] text-white rounded-lg hover:bg-[#005BB5] transition duration-300 shadow-sm"
               >
                 <FaFileExport className="mr-2" />
                 Export to PDF
@@ -360,37 +360,37 @@ const AdminBookings = () => {
         </div>
 
         {/* Filters & Search Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-[rgba(255,255,255,0.1)] backdrop-blur-lg rounded-lg shadow-sm p-6 mb-6 border border-[rgba(255,255,255,0.1)]">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="flex-1">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search bookings by name, service, date..."
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-[rgba(255,255,255,0.3)] bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-[#0066CC] focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <div className="absolute left-4 top-3.5 text-gray-400">
+                <div className="absolute left-4 top-3.5 text-[rgba(255,255,255,0.7)]">
                   <FaSearch />
                 </div>
               </div>
             </div>
 
             <div className="w-full md:w-auto flex items-center">
-              <div className="flex items-center mr-2 text-gray-600">
+              <div className="flex items-center mr-2 text-[rgba(255,255,255,0.7)]">
                 <FaFilter className="mr-2" />
                 <span>Status:</span>
               </div>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="pl-3 pr-8 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="pl-3 pr-8 py-2 rounded-lg border border-[rgba(255,255,255,0.3)] bg-[rgba(0,0,0,0.5)] text-white focus:outline-none focus:ring-2 focus:ring-[#0066CC] focus:border-transparent appearance-none"
               >
-                <option value="ALL">All Statuses</option>
-                <option value="PENDING">Pending</option>
-                <option value="CONFIRMED">Confirmed</option>
-                <option value="REJECTED">Rejected</option>
+                <option value="ALL" className="bg-[rgba(0,0,0,0.5)] text-white">All Statuses</option>
+                <option value="PENDING" className="bg-[rgba(0,0,0,0.5)] text-white">Pending</option>
+                <option value="CONFIRMED" className="bg-[rgba(0,0,0,0.5)] text-white">Confirmed</option>
+                <option value="REJECTED" className="bg-[rgba(0,0,0,0.5)] text-white">Rejected</option>
               </select>
             </div>
           </div>
@@ -398,156 +398,156 @@ const AdminBookings = () => {
 
         {/* Dashboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-blue-50 rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
+          <div className="bg-[rgba(0,91,187,0.3)] rounded-lg shadow-sm p-6 border-l-4 border-[#0066CC]">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-blue-800 text-sm font-medium">Total Bookings</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">{bookings.length}</p>
+                <p className="text-white text-sm font-medium">Total Bookings</p>
+                <p className="text-2xl font-bold text-white mt-1">{bookings.length}</p>
               </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <FaCalendarAlt className="text-blue-500 text-xl" />
+              <div className="bg-[rgba(255,255,255,0.1)] p-3 rounded-full">
+                <FaCalendarAlt className="text-[#0066CC] text-xl" />
               </div>
             </div>
           </div>
 
-          <div className="bg-yellow-50 rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
+          <div className="bg-[rgba(255,152,0,0.2)] rounded-lg shadow-sm p-6 border-l-4 border-[#FF9800]">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-yellow-800 text-sm font-medium">Pending Bookings</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">
+                <p className="text-white text-sm font-medium">Pending Bookings</p>
+                <p className="text-2xl font-bold text-white mt-1">
                   {bookings.filter(b => b.status === "PENDING").length}
                 </p>
               </div>
-              <div className="bg-yellow-100 p-3 rounded-full">
-                <FaClock className="text-yellow-500 text-xl" />
+              <div className="bg-[rgba(255,255,255,0.1)] p-3 rounded-full">
+                <FaClock className="text-[#FF9800] text-xl" />
               </div>
             </div>
           </div>
 
-          <div className="bg-green-50 rounded-lg shadow-sm p-6 border-l-4 border-green-500">
+          <div className="bg-[rgba(76,175,80,0.2)] rounded-lg shadow-sm p-6 border-l-4 border-[#4CAF50]">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-green-800 text-sm font-medium">Confirmed Bookings</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">
+                <p className="text-white text-sm font-medium">Confirmed Bookings</p>
+                <p className="text-2xl font-bold text-white mt-1">
                   {bookings.filter(b => b.status === "CONFIRMED").length}
                 </p>
               </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <FaMoneyBillWave className="text-green-500 text-xl" />
+              <div className="bg-[rgba(255,255,255,0.1)] p-3 rounded-full">
+                <FaMoneyBillWave className="text-[#4CAF50] text-xl" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Bookings Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-[rgba(255,255,255,0.1)] backdrop-blur-lg rounded-lg shadow-sm overflow-hidden border border-[rgba(255,255,255,0.1)]">
           {loading ? (
             <div className="flex justify-center items-center p-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0066CC]"></div>
             </div>
           ) : filteredBookings.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="bg-gray-100 rounded-full h-20 w-20 flex items-center justify-center mx-auto mb-4">
-                <FaInfoCircle className="text-gray-400 text-2xl" />
+              <div className="bg-[rgba(255,255,255,0.1)] rounded-full h-20 w-20 flex items-center justify-center mx-auto mb-4">
+                <FaInfoCircle className="text-[rgba(255,255,255,0.7)] text-2xl" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700">No bookings found</h3>
-              <p className="text-gray-500 mt-1">Try adjusting your search or filter criteria</p>
+              <h3 className="text-lg font-medium text-white">No bookings found</h3>
+              <p className="text-[rgba(255,255,255,0.7)] mt-1">Try adjusting your search or filter criteria</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-[rgba(255,255,255,0.05)]">
+                <thead className="bg-[rgba(0,91,187,0.3)]">
                   <tr>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("customerName")}
                     >
                       <div className="flex items-center">
-                        <FaUserAlt className="mr-2 text-gray-400" />
+                        <FaUserAlt className="mr-2 text-[rgba(255,255,255,0.7)]" />
                         Customer {getSortIndicator("customerName")}
                       </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("providerName")}
                     >
                       <div className="flex items-center">
-                        <FaUserTie className="mr-2 text-gray-400" />
+                        <FaUserTie className="mr-2 text-[rgba(255,255,255,0.7)]" />
                         Provider {getSortIndicator("providerName")}
                       </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("bookingService")}
                     >
                       Service {getSortIndicator("bookingService")}
                     </th>
                     <th
-                      className="hidden lg:table-cell px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="hidden lg:table-cell px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("bookingDate")}
                     >
                       <div className="flex items-center">
-                        <FaCalendarAlt className="mr-2 text-gray-400" />
+                        <FaCalendarAlt className="mr-2 text-[rgba(255,255,255,0.7)]" />
                         Date {getSortIndicator("bookingDate")}
                       </div>
                     </th>
                     <th
-                      className="hidden lg:table-cell px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="hidden lg:table-cell px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("monthlyPayment")}
                     >
                       <div className="flex items-center">
-                        <FaMoneyBillWave className="mr-2 text-gray-400" />
+                        <FaMoneyBillWave className="mr-2 text-[rgba(255,255,255,0.7)]" />
                         Payment {getSortIndicator("monthlyPayment")}
                       </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSort("status")}
                     >
                       Status {getSortIndicator("status")}
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-medium text-white uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-transparent divide-y divide-[rgba(255,255,255,0.05)]">
                   {filteredBookings.map((booking) => (
                     <React.Fragment key={booking._id}>
                       <tr
-                        className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                        className="hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-150 cursor-pointer"
                         onClick={() => toggleRowExpansion(booking._id)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <div className="flex-shrink-0 h-10 w-10 bg-[rgba(255,255,255,0.1)] rounded-full flex items-center justify-center text-white">
                               {booking.customerDetails?.name?.charAt(0) || "?"}
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-white">
                                 {booking.customerDetails?.name || "Unknown Customer"}
                               </div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-[rgba(255,255,255,0.7)]">
                                 {booking.customerDetails?.email || "No email"}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-white">
                             {booking.providerID?.name || "Unknown Provider"}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{booking.bookingService}</div>
-                          <div className="text-xs text-gray-500">{booking.agreementDuration}</div>
+                          <div className="text-sm text-white">{booking.bookingService}</div>
+                          <div className="text-xs text-[rgba(255,255,255,0.7)]">{booking.agreementDuration}</div>
                         </td>
                         <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{booking.bookingDate}</div>
-                          <div className="text-xs text-gray-500">{booking.bookingTime}</div>
+                          <div className="text-sm text-white">{booking.bookingDate}</div>
+                          <div className="text-xs text-[rgba(255,255,255,0.7)]">{booking.bookingTime}</div>
                         </td>
                         <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-white">
                             Rs. {booking.monthlyPayment}
                           </div>
                         </td>
@@ -565,7 +565,7 @@ const AdminBookings = () => {
                                   e.stopPropagation();
                                   handleConfirm(booking._id);
                                 }}
-                                className="inline-flex items-center px-3 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded-md transition duration-300"
+                                className="inline-flex items-center px-3 py-1 bg-[#E8F5E9] hover:bg-[#C8E6C9] text-[#4CAF50] rounded-md transition duration-300"
                               >
                                 <FaCheck className="mr-1" />
                                 <span>Confirm</span>
@@ -575,7 +575,7 @@ const AdminBookings = () => {
                                   e.stopPropagation();
                                   handleOpenRejectModal(booking._id);
                                 }}
-                                className="inline-flex items-center px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition duration-300"
+                                className="inline-flex items-center px-3 py-1 bg-[#FFEBEE] hover:bg-[#FFCDD2] text-[#ff5252] rounded-md transition duration-300"
                               >
                                 <FaTimes className="mr-1" />
                                 <span>Reject</span>
@@ -585,32 +585,32 @@ const AdminBookings = () => {
                         </td>
                       </tr>
                       {expandedRow === booking._id && (
-                        <tr className="bg-gray-50">
+                        <tr className="bg-[rgba(255,255,255,0.05)]">
                           <td colSpan="7" className="px-6 py-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <h4 className="font-medium text-gray-700 mb-2">Customer Details</h4>
-                                <div className="bg-white p-3 rounded-md shadow-sm">
-                                  <p className="text-sm"><span className="font-medium">Name:</span> {booking.customerDetails?.name}</p>
-                                  <p className="text-sm"><span className="font-medium">Email:</span> {booking.customerDetails?.email}</p>
-                                  <p className="text-sm"><span className="font-medium">Phone:</span> {booking.customerDetails?.phone}</p>
+                                <h4 className="font-medium text-white mb-2">Customer Details</h4>
+                                <div className="bg-[rgba(255,255,255,0.1)] p-3 rounded-md shadow-sm">
+                                  <p className="text-sm text-white"><span className="font-medium">Name:</span> {booking.customerDetails?.name}</p>
+                                  <p className="text-sm text-white"><span className="font-medium">Email:</span> {booking.customerDetails?.email}</p>
+                                  <p className="text-sm text-white"><span className="font-medium">Phone:</span> {booking.customerDetails?.phone}</p>
                                 </div>
                               </div>
                               <div>
-                                <h4 className="font-medium text-gray-700 mb-2">Booking Details</h4>
-                                <div className="bg-white p-3 rounded-md shadow-sm">
-                                  <p className="text-sm"><span className="font-medium">Service:</span> {booking.bookingService}</p>
-                                  <p className="text-sm"><span className="font-medium">Duration:</span> {booking.agreementDuration}</p>
-                                  <p className="text-sm"><span className="font-medium">Payment:</span> Rs. {booking.monthlyPayment}</p>
-                                  <p className="text-sm"><span className="font-medium">Date & Time:</span> {booking.bookingDate} at {booking.bookingTime}</p>
+                                <h4 className="font-medium text-white mb-2">Booking Details</h4>
+                                <div className="bg-[rgba(255,255,255,0.1)] p-3 rounded-md shadow-sm">
+                                  <p className="text-sm text-white"><span className="font-medium">Service:</span> {booking.bookingService}</p>
+                                  <p className="text-sm text-white"><span className="font-medium">Duration:</span> {booking.agreementDuration}</p>
+                                  <p className="text-sm text-white"><span className="font-medium">Payment:</span> Rs. {booking.monthlyPayment}</p>
+                                  <p className="text-sm text-white"><span className="font-medium">Date & Time:</span> {booking.bookingDate} at {booking.bookingTime}</p>
                                 </div>
                               </div>
 
                               {booking.status === "REJECTED" && booking.rejectionReason && (
                                 <div className="md:col-span-2">
-                                  <h4 className="font-medium text-gray-700 mb-2">Rejection Reason</h4>
-                                  <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-md">
-                                    <p className="text-sm text-gray-700">{booking.rejectionReason}</p>
+                                  <h4 className="font-medium text-white mb-2">Rejection Reason</h4>
+                                  <div className="bg-[#FFEBEE] border-l-4 border-[#ff5252] p-3 rounded-md">
+                                    <p className="text-sm text-white">{booking.rejectionReason}</p>
                                   </div>
                                 </div>
                               )}
@@ -634,9 +634,9 @@ const AdminBookings = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden"
+                className="bg-[#1a1a1a] rounded-lg shadow-xl w-full max-w-md overflow-hidden border border-[rgba(255,255,255,0.1)]"
               >
-                <div className="bg-red-500 text-white p-4">
+                <div className="bg-[#ff5252] text-white p-4">
                   <h2 className="text-xl font-bold flex items-center">
                     <FaTimes className="mr-3" />
                     Reject Booking
@@ -644,30 +644,30 @@ const AdminBookings = () => {
                 </div>
                 <div className="p-6">
                   <div className="mb-4">
-                    <label className="block text-gray-700 font-medium mb-2">
+                    <label className="block text-white font-medium mb-2">
                       Reason for Rejection
                     </label>
                     <textarea
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
-                      className={`w-full border ${rejectionError ? "border-red-500" : "border-gray-300"
-                        } rounded-lg p-3 h-32 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-200`}
+                      className={`w-full border ${rejectionError ? "border-[#ff5252]" : "border-[rgba(255,255,255,0.3)]"
+                        } rounded-lg p-3 h-32 bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-[#ff5252] focus:border-transparent transition duration-200`}
                       placeholder="Please provide detailed reason for rejecting this booking..."
                     />
                     {rejectionError && (
-                      <p className="text-red-500 text-sm mt-1">{rejectionError}</p>
+                      <p className="text-[#ff5252] text-sm mt-1">{rejectionError}</p>
                     )}
                   </div>
                   <div className="flex justify-end space-x-3">
                     <button
                       onClick={handleCloseRejectModal}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-300"
+                      className="px-4 py-2 bg-[rgba(255,255,255,0.1)] text-white rounded-lg hover:bg-[rgba(255,255,255,0.2)] transition duration-300"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleReject}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 flex items-center"
+                      className="px-4 py-2 bg-[#ff5252] text-white rounded-lg hover:bg-[#e04848] transition duration-300 flex items-center"
                     >
                       <FaTimes className="mr-2" />
                       Confirm Rejection
