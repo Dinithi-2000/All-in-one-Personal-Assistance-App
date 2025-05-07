@@ -24,6 +24,10 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   
+  // Validation states
+  const [errors, setErrors] = useState({});
+  const [isTouched, setIsTouched] = useState({});
+  
   // State for file uploads
   const [profilePhotoFile, setProfilePhotoFile] = useState(null);
   const [coverPhotoFile, setCoverPhotoFile] = useState(null);
@@ -73,16 +77,173 @@ const Profile = () => {
     fetchUserData();
   }, [fetchUserData]);
 
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // First Name validation
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (formData.firstName.length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters";
+    }
+    
+    // Last Name validation
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (formData.lastName.length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters";
+    }
+    
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    
+    // Mobile validation
+    if (formData.mobile && !/^[0-9]{10}$/.test(formData.mobile.replace(/[^0-9]/g, ''))) {
+      newErrors.mobile = "Please enter a valid 10-digit phone number";
+    }
+    
+    // NIC validation (Sri Lankan ID format)
+    if (formData.nic && !isValidNIC(formData.nic)) {
+      newErrors.nic = "Please enter a valid NIC number";
+    }
+    
+    // Birthday validation
+    if (formData.birthDay) {
+      const birthDate = new Date(formData.birthDay);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      
+      // Check if the birthday has occurred this year
+      const isBirthdayPassed = 
+        today.getMonth() > birthDate.getMonth() || 
+        (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+      
+      const actualAge = isBirthdayPassed ? age : age - 1;
+      
+      if (actualAge < 13) {
+        newErrors.birthDay = "You must be at least 13 years old";
+      } else if (birthDate > today) {
+        newErrors.birthDay = "Birth date cannot be in the future";
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  // NIC validation helper function (handles both old and new SL formats)
+  const isValidNIC = (nic) => {
+    // Old format: 9 digits + V/X (e.g., 123456789V)
+    // New format: 12 digits (e.g., 199812345678)
+    const oldFormat = /^[0-9]{9}[vVxX]$/;
+    const newFormat = /^[0-9]{12}$/;
+    
+    return oldFormat.test(nic) || newFormat.test(nic);
+  };
+
+  // Validate a specific field when it's touched
+  const validateField = (name, value) => {
+    let error = "";
+    
+    switch (name) {
+      case "firstName":
+        if (!value.trim()) {
+          error = "First name is required";
+        } else if (value.length < 2) {
+          error = "First name must be at least 2 characters";
+        }
+        break;
+        
+      case "lastName":
+        if (!value.trim()) {
+          error = "Last name is required";
+        } else if (value.length < 2) {
+          error = "Last name must be at least 2 characters";
+        }
+        break;
+        
+      case "email":
+        if (!value.trim()) {
+          error = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          error = "Please enter a valid email address";
+        }
+        break;
+        
+      case "mobile":
+        if (value && !/^[0-9]{10}$/.test(value.replace(/[^0-9]/g, ''))) {
+          error = "Please enter a valid 10-digit phone number";
+        }
+        break;
+        
+      case "nic":
+        if (value && !isValidNIC(value)) {
+          error = "Please enter a valid NIC number";
+        }
+        break;
+        
+      case "birthDay":
+        if (value) {
+          const birthDate = new Date(value);
+          const today = new Date();
+          const age = today.getFullYear() - birthDate.getFullYear();
+          
+          const isBirthdayPassed = 
+            today.getMonth() > birthDate.getMonth() || 
+            (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+          
+          const actualAge = isBirthdayPassed ? age : age - 1;
+          
+          if (actualAge < 13) {
+            error = "You must be at least 13 years old";
+          } else if (birthDate > today) {
+            error = "Birth date cannot be in the future";
+          }
+        }
+        break;
+        
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
   // Handle profile photo change
   const handleProfilePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({...prev, profilePhoto: "Profile photo must be less than 5MB"}));
+        return;
+      }
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        setErrors(prev => ({...prev, profilePhoto: "Only JPG, PNG and WebP formats are supported"}));
+        return;
+      }
+      
       setProfilePhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePhotoPreview(reader.result);
       };
       reader.readAsDataURL(file);
+      
+      // Clear any previous errors
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors.profilePhoto;
+        return newErrors;
+      });
     }
   };
 
@@ -90,18 +251,48 @@ const Profile = () => {
   const handleCoverPhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setErrors(prev => ({...prev, coverPhoto: "Cover photo must be less than 10MB"}));
+        return;
+      }
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        setErrors(prev => ({...prev, coverPhoto: "Only JPG, PNG and WebP formats are supported"}));
+        return;
+      }
+      
       setCoverPhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setCoverPhotoPreview(reader.result);
       };
       reader.readAsDataURL(file);
+      
+      // Clear any previous errors
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors.coverPhoto;
+        return newErrors;
+      });
     }
   };
 
   // Update just the photos
   const handleUpdatePhotos = async () => {
     try {
+      // Validate photos first
+      if (errors.profilePhoto || errors.coverPhoto) {
+        Swal.fire({
+          text: "Please fix the errors with your photos before uploading.",
+          icon: "error",
+          confirmButtonColor: "#d33",
+        });
+        return;
+      }
+      
       const photoData = {
         profile_pic: profilePhotoPreview || formData.profile_pic,
         cover_pic: coverPhotoPreview || formData.cover_pic
@@ -126,6 +317,10 @@ const Profile = () => {
         cover_pic: photoData.cover_pic
       }));
 
+      // Reset file states
+      setProfilePhotoFile(null);
+      setCoverPhotoFile(null);
+
       // Re-fetch to ensure everything is synced
       await fetchUserData();
 
@@ -141,6 +336,23 @@ const Profile = () => {
 
   // Save all profile data
   const handleSave = async () => {
+    // Mark all fields as touched for validation
+    const allTouched = {};
+    Object.keys(formData).forEach(key => {
+      allTouched[key] = true;
+    });
+    setIsTouched(allTouched);
+    
+    // Validate all fields
+    if (!validateForm()) {
+      Swal.fire({
+        text: "Please fix the validation errors before saving.",
+        icon: "warning",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
+    
     try {
       // Update profile details first
       await api.patch(
@@ -161,6 +373,8 @@ const Profile = () => {
       });
 
       setEditMode(false);
+      // Reset touched state
+      setIsTouched({});
       // re-fetch fresh data & update form
       await fetchUserData();
 
@@ -211,9 +425,41 @@ const Profile = () => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
+    }));
+    
+    // Mark field as touched
+    setIsTouched(prev => ({
+      ...prev,
+      [name]: true
+    }));
+    
+    // Validate the field as user types
+    const fieldError = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: fieldError
+    }));
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    
+    // Mark field as touched
+    setIsTouched(prev => ({
+      ...prev,
+      [name]: true
+    }));
+    
+    // Validate on blur
+    const fieldError = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: fieldError
     }));
   };
 
@@ -264,6 +510,13 @@ const Profile = () => {
             </div>
           )}
         </div>
+        
+        {/* Error message for cover photo */}
+        {errors.coverPhoto && (
+          <div className="bg-red-100 text-red-700 p-2 text-center">
+            {errors.coverPhoto}
+          </div>
+        )}
 
         <div className="p-8">
           {/* Profile Photo Section */}
@@ -289,6 +542,14 @@ const Profile = () => {
                 </label>
               )}
             </div>
+            
+            {/* Error message for profile photo */}
+            {errors.profilePhoto && (
+              <div className="mt-2 text-red-600 text-sm">
+                {errors.profilePhoto}
+              </div>
+            )}
+            
             <h2 className="text-3xl font-bold mt-4 text-[#003366]">
               {user.firstName} {user.lastName}
             </h2>
@@ -298,61 +559,73 @@ const Profile = () => {
           <div className="space-y-6 max-w-3xl mx-auto">
             {/* First / Last Name */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field 
+              <ValidatedField 
                 label="First Name" 
                 name="firstName" 
-                value={user.firstName} 
-                formValue={formData.firstName}
+                value={formData.firstName}
                 onChange={handleChange} 
-                editMode={editMode} 
+                onBlur={handleBlur}
+                editMode={editMode}
+                error={isTouched.firstName && errors.firstName}
+                required
               />
-              <Field 
+              <ValidatedField 
                 label="Last Name" 
                 name="lastName" 
-                value={user.lastName} 
-                formValue={formData.lastName}
+                value={formData.lastName}
                 onChange={handleChange} 
+                onBlur={handleBlur}
                 editMode={editMode} 
+                error={isTouched.lastName && errors.lastName}
+                required
               />
             </div>
 
             {/* Email */}
-            <Field 
+            <ValidatedField 
               label="Email" 
               name="email" 
-              value={user.email} 
-              formValue={formData.email}
+              value={formData.email}
               onChange={handleChange} 
+              onBlur={handleBlur}
               editMode={editMode} 
               type="email"
+              error={isTouched.email && errors.email}
+              required
             />
 
             {/* Mobile */}
-            <Field 
+            <ValidatedField 
               label="Mobile" 
               name="mobile" 
-              value={user.mobile} 
-              formValue={formData.mobile}
+              value={formData.mobile}
               onChange={handleChange} 
+              onBlur={handleBlur}
               editMode={editMode} 
+              error={isTouched.mobile && errors.mobile}
             />
-             <Field 
+             
+             {/* NIC */}
+             <ValidatedField 
               label="NIC" 
               name="nic" 
-              value={user.nic} 
-              formValue={formData.nic}
+              value={formData.nic}
               onChange={handleChange} 
+              onBlur={handleBlur}
               editMode={editMode} 
+              error={isTouched.nic && errors.nic}
             />
-             <Field 
+             
+             {/* Address */}
+             <ValidatedField 
               label="Address" 
               name="address" 
-              value={user.address} 
-              formValue={formData.address}
+              value={formData.address}
               onChange={handleChange} 
+              onBlur={handleBlur}
               editMode={editMode} 
+              error={isTouched.address && errors.address}
             />            
-
 
             {/* Birthday */}
             <div>
@@ -360,13 +633,23 @@ const Profile = () => {
                 Birthday
               </label>
               {editMode ? (
-                <input
-                  type="date"
-                  name="birthDay"
-                  value={formData.birthDay}
-                  onChange={handleChange}
-                  className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-teal-300"
-                />
+                <div>
+                  <input
+                    type="date"
+                    name="birthDay"
+                    value={formData.birthDay}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`border p-2 rounded w-full focus:outline-none ${
+                      isTouched.birthDay && errors.birthDay 
+                        ? "border-red-500 focus:ring-red-300" 
+                        : "focus:ring-2 focus:ring-teal-300"
+                    }`}
+                  />
+                  {isTouched.birthDay && errors.birthDay && (
+                    <p className="text-red-600 text-sm mt-1">{errors.birthDay}</p>
+                  )}
+                </div>
               ) : (
                 <p className="text-gray-800">
                   {user.birthDay ? user.birthDay.split("T")[0] : "—"}
@@ -399,7 +682,12 @@ const Profile = () => {
             <div className="flex justify-center mt-6">
               <button
                 onClick={handleUpdatePhotos}
-                className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition flex items-center gap-2"
+                disabled={errors.profilePhoto || errors.coverPhoto}
+                className={`${
+                  errors.profilePhoto || errors.coverPhoto
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-teal-500 hover:bg-teal-600"
+                } text-white font-semibold py-2 px-6 rounded-lg transition flex items-center gap-2`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
@@ -415,7 +703,12 @@ const Profile = () => {
               <>
                 <button
                   onClick={handleSave}
-                  className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-8 rounded-full transition"
+                  disabled={Object.keys(errors).some(key => errors[key])}
+                  className={`${
+                    Object.keys(errors).some(key => errors[key])
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-teal-500 hover:bg-teal-600"
+                  } text-white font-semibold py-2 px-8 rounded-full transition`}
                 >
                   Save
                 </button>
@@ -427,6 +720,8 @@ const Profile = () => {
                     setCoverPhotoPreview(user.cover_pic || null);
                     setProfilePhotoFile(null);
                     setCoverPhotoFile(null);
+                    setErrors({});
+                    setIsTouched({});
                   }}
                   className="border border-gray-400 text-gray-700 font-semibold py-2 px-8 rounded-full transition"
                 >
@@ -443,7 +738,7 @@ const Profile = () => {
             )}
             <button
                 onClick={() => handleDelete()}
-                className="bg-red-500 hover:bg-blue-600 text-white font-semibold py-2 px-8 rounded-full transition"
+                className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-8 rounded-full transition"
               >
                Delete Account
               </button>
@@ -454,19 +749,37 @@ const Profile = () => {
   );
 };
 
-// Field component for form fields
-function Field({ label, name, value, formValue, onChange, editMode, type = "text" }) {
+// Field component for form fields with validation
+function ValidatedField({ 
+  label, 
+  name, 
+  value, 
+  onChange, 
+  onBlur, 
+  editMode, 
+  type = "text", 
+  error,
+  required = false 
+}) {
   return (
     <div>
-      <label className="block text-gray-700 font-medium mb-1">{label}</label>
+      <label className="block text-gray-700 font-medium mb-1">
+        {label} {required && <span className="text-red-600">*</span>}
+      </label>
       {editMode ? (
-        <input
-          type={type}
-          name={name}
-          value={formValue}
-          onChange={onChange}
-          className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-teal-300"
-        />
+        <div>
+          <input
+            type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+            className={`border p-2 rounded w-full focus:outline-none ${
+              error ? "border-red-500 focus:ring-red-300" : "focus:ring-2 focus:ring-teal-300"
+            }`}
+          />
+          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+        </div>
       ) : (
         <p className="text-gray-800">{value || "—"}</p>
       )}

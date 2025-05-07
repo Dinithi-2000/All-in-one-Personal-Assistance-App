@@ -140,7 +140,7 @@ const Users = () => {
     doc.setTextColor(100);
     const date = new Date().toLocaleDateString();
     doc.text(`Generated on: ${date}`, 14, yPosition + 10);
-    doc.text(`Total Users: ${users.length}`, 14, yPosition + 20);
+    doc.text(`Total Users: ${filteredUsers.length}`, 14, yPosition + 20);
     yPosition += 30;
 
     // Horizontal line
@@ -149,8 +149,8 @@ const Users = () => {
     doc.line(14, yPosition, 196, yPosition);
     yPosition += 10;
 
-    // Prepare table data
-    const tableData = users.map(user => [
+    // Prepare table data from filteredUsers
+    const tableData = filteredUsers.map(user => [
       user.name,
       user.email,
       user.mobile || user.phone || 'N/A',
@@ -224,8 +224,6 @@ const Users = () => {
         >
           User Management
         </Typography>
-        
-
         
         {/* Search and actions bar */}
         <Paper sx={{ 
