@@ -19,9 +19,7 @@ import Profile from "./Component/Pages/Profile";
 import BookmarkPage from "./Component/Pages/Bookmarks";
 import ServiceProviderDashboard from "./Component/Pages/ServiceProvider/ServiceProviderDashboard";
 import MyBookings from "./Component/Pages/MyBookings";
-
 import Chatbot from './Component/Chatbot/Chatbot';
-
 import MyReviews from "./Component/Pages/MyReviews";
 
 
@@ -46,6 +44,8 @@ import RefundPage from "./Component/Pages/Admindashboard/RefundPage";
 import Settings from "./Component/Pages/Admindashboard/Settings";
 import AdminBookings from "./Component/Pages/Admindashboard/AdminBookings";
 import Services from "./Component/Pages/Admindashboard/ServicePage";
+import AdminReviews from "./Component/Pages/Admindashboard/AdminReviews"; // Added import
+
 
 function AuthRedirector() {
   const [loading, setLoading] = useState(true);
@@ -103,6 +103,7 @@ function App() {
         <Route path="/createaccount" element={<CreateAccount />} />
         <Route path="/serviceselections" element={<ServiceSelection1 />} />
         <Route path="/housecselection" element={<HouseCleaningService />} />
+      
 
         {/* <Route path="/payment" element={<PaymentDashboard />} /> */}
         
@@ -142,6 +143,7 @@ function App() {
             <Route path="refund" element={<RefundPage />} />
             <Route path="setting" element={<Settings />} />
             <Route path="bookings" element={<AdminBookings />} />{" "}
+            <Route path="reviews" element={<AdminReviews />} /> {/* Added Reviews route */}
           </Route>
         </Route>
 

@@ -1,10 +1,10 @@
-// Frontend/personal-assistance-app/src/Component/UI/AdminDashboard/Common/SideBar.js
 import {
   BarChart2,
   Blocks,
-  Calendar, // Add Calendar icon for Bookings
+  Calendar,
   ChefHat,
   Menu,
+  MessageSquare, // Added for Reviews
   Settings,
   TrendingUp,
   Users,
@@ -29,10 +29,16 @@ const SIDEBAR_ITEMS = [
   },
   { name: "Users", icon: Users, color: "#EC4899", href: "/admin/user" },
   {
-    name: "Bookings", // Add Bookings item
+    name: "Bookings",
     icon: Calendar,
-    color: "#2DD4BF", // Teal color to complement the existing palette
+    color: "#2DD4BF",
     href: "/admin/bookings",
+  },
+  {
+    name: "Reviews", // Added Reviews item
+    icon: MessageSquare,
+    color: "#F472B6", // Pink shade to complement existing palette
+    href: "/admin/reviews",
   },
   {
     name: "Transactions",
@@ -46,7 +52,6 @@ const SIDEBAR_ITEMS = [
     color: "#F59E0B",
     href: "/admin/provider",
   },
-
   {
     name: "Profit/Loss",
     icon: TrendingUp,

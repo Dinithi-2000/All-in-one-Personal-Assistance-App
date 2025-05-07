@@ -18,6 +18,7 @@ import userRoutes from './routes/userRoutes.js';
 import chatBotRoutes from './routes/chatBotRoutes.js'; // <<< Ensure this points to the correct file
 import spRoutes from './routes/spRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 // --- Import Your Middleware & Services ---
 import validateToken from "./middlwares/validateTokenHandler.js";
@@ -71,6 +72,7 @@ app.use("/home/booking", bookingRouter);
 app.use("/home/serviceProvider", ServiceProviderRouter);
 app.use("/admin", adminRoutes);
 app.use('/api/chat', chatBotRoutes); // <<< Correctly mounted
+app.use('/api/admin', validateToken, reviewRoutes);
 
 // --- Start Server & Scheduled Tasks ---
 app.listen(PORT, () => {
@@ -87,5 +89,5 @@ app.get('/', (req, res) => {
 // --- Global Error Handler (Optional but Recommended) ---
 app.use((err, req, res, next) => {
     console.error("Global Error Handler Caught:", err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).json({ message: 'Something broke!', error: err.message });
 });
