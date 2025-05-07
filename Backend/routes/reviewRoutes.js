@@ -1,41 +1,40 @@
-const express = require('express');
+import express from 'express';
+import Review from '../models/ReviewModel.js';
+import validateToken from '../middlwares/validateTokenHandler.js';
+
 const router = express.Router();
-const Review = require('../../models/Review');
-const auth = require('../../middleware/auth');
-const { check, validationResult } = require('express-validator');
 
 // @route   GET api/admin/reviews
 // @desc    Get all reviews
 // @access  Private (Admin)
-router.get('/', auth, async (req, res) => {
+router.get('/reviews', validateToken, async (req, res) => {
   try {
-    // Verify admin role (assuming user role is stored in req.user)
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied: Admins only' });
-    }
+    console.log('User from token:', req.user); // Debug log
 
     const reviews = await Review.find()
       .populate('customerID', 'name')
       .populate('providerID', 'name')
+      .sort({ createdAt: -1 })
       .lean();
+
+    console.log('Found reviews:', reviews.length); // Debug log
+
+    if (!reviews || reviews.length === 0) {
+      return res.status(200).json([]);
+    }
 
     res.json(reviews);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Error fetching reviews:', err);
+    res.status(500).json({ message: 'Server Error', error: err.message });
   }
 });
 
 // @route   DELETE api/admin/review/delete/:id
 // @desc    Delete a review by ID
 // @access  Private (Admin)
-router.delete('/delete/:id', auth, async (req, res) => {
+router.delete('/review/delete/:id', validateToken, async (req, res) => {
   try {
-    // Verify admin role
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied: Admins only' });
-    }
-
     const review = await Review.findById(req.params.id);
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
@@ -44,9 +43,9 @@ router.delete('/delete/:id', auth, async (req, res) => {
     await Review.deleteOne({ _id: req.params.id });
     res.status(200).json({ message: 'Review deleted successfully' });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Error deleting review:', err);
+    res.status(500).json({ message: 'Server Error', error: err.message });
   }
 });
 
-module.exports = router;
+export default router;

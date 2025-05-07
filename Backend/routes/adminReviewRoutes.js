@@ -31,7 +31,7 @@ const isAdminAuth = expressAsyncHandler(async (req, res, next) => {
 
 // GET: Fetch all reviews
 router.get(
-  '/reviews',
+  '/api/admin/reviews',
   isAdminAuth,
   expressAsyncHandler(async (req, res) => {
     try {
@@ -39,22 +39,25 @@ router.get(
         .populate({
           path: 'customerID',
           model: UserModel,
-          select: 'firstName lastName',
+          select: 'firstName lastName profileImage',
         })
         .populate({
           path: 'providerID',
           model: ServiceProvider,
-          select: 'name',
+          select: 'name logo',
         })
+        .sort({ createdAt: -1 }) // Most recent first
         .lean();
 
       // Normalize data for frontend
       const normalizedReviews = reviews.map(review => ({
         _id: review._id,
         customerName: review.customerID
-          ? `${review.customerID.firstName || ''} ${review.customerID.lastName || ''}`.trim() || 'Unknown Customer'
-          : 'Unknown Customer',
+          ? `${review.customerID.firstName || ''} ${review.customerID.lastName || ' '}`.trim() || 'Anonymous'
+          : 'Anonymous',
+        customerImage: review.customerID?.profileImage || null,
         providerName: review.providerID?.name || 'Unknown Provider',
+        providerLogo: review.providerID?.logo || null,
         reviewText: review.review || '',
         starRate: review.starRate || 0,
         createdAt: review.createdAt || '',
@@ -70,7 +73,7 @@ router.get(
 
 // DELETE: Delete a review by ID
 router.delete(
-  '/review/delete/:id',
+  '/api/admin/review/delete/:id',
   isAdminAuth,
   expressAsyncHandler(async (req, res) => {
     const { id } = req.params;

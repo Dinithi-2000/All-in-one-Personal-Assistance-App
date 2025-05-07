@@ -42,7 +42,7 @@ import Swal from 'sweetalert2';
 
 const API_BASE_URL = 'http://localhost:8070';
 
-const getToken = () => localStorage.getItem('authToken');
+const getToken = () => localStorage.getItem('adminToken');
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -65,9 +65,23 @@ const AdminReviews = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
+      const token = getToken();
+      console.log('Auth Token:', token ? 'Token exists' : 'No token found');
+
+      if (!token) {
+        setError('Authentication token is missing. Please log in again.');
+        return;
+      }
+
       const response = await axios.get(`${API_BASE_URL}/api/admin/reviews`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
       });
+      
+      console.log('API Response:', response.data);
+      
       if (!response.data || !Array.isArray(response.data)) {
         throw new Error('Invalid API response: expected an array of reviews');
       }
@@ -80,11 +94,24 @@ const AdminReviews = () => {
         createdAt: review.createdAt || '',
         _id: review._id || '',
       }));
+      console.log('Normalized Reviews:', normalizedReviews);
       setReviews(normalizedReviews);
       setError(null);
     } catch (err) {
-      console.error('Error fetching reviews:', err.response ? err.response.data : err.message);
-      setError(err.response?.data?.message || 'Failed to fetch reviews');
+      console.error('Error details:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        message: err.message
+      });
+      
+      if (err.response?.status === 401) {
+        setError('Your session has expired. Please log in again.');
+        // Optionally redirect to login page
+        // window.location.href = '/login';
+      } else {
+        setError(err.response?.data?.message || 'Failed to fetch reviews');
+      }
     } finally {
       setLoading(false);
     }
