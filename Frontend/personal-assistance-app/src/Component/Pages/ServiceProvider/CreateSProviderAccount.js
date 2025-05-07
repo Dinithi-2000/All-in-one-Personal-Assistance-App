@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import { CloudUpload, Visibility, VisibilityOff, Person, Email } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
+import Swal from 'sweetalert2';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8070/home/serviceProvider'; // Backend base URL
@@ -253,53 +254,123 @@ const CreateAccount = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     setError('');
 
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
+//     if (!validateForm()) {
+//       setLoading(false);
+//       return;
+//     }
 
-    try {
-      const profileData = {
-        name: `${formData.firstName} ${formData.lastName}`,
-email: formData.email,
-        password: formData.password,
-        serviceType: serviceData.serviceType || 'General',
-        location: serviceData.location || 'Default Location',
-        payRate: serviceData.payRate || [500, 2000],
-        selectedLanguages: serviceData.selectedLanguages || ['English'],
-        about: 'Sample about text',
-        selectedServices: serviceData.selectedServices || ['Default Service'],
-        policeClearance: URL.createObjectURL(formData.policeClearance),
-        photo: formData.photo || 'https://via.placeholder.com/200',
-        selectedPetTypes: serviceData.selectedPetTypes || [],
-        selectedSyllabi: serviceData.selectedSyllabi || [],
-        selectedSubjects: serviceData.selectedSubjects || [],
-        selectedGrades: serviceData.selectedGrades || [],
-        selectedAgeGroups: serviceData.selectedAgeGroups || [],
-        userType: 'sp', // Default value as per schema
-        nic: formData.nic,
-        birthCertificate: URL.createObjectURL(formData.birthCertificate),
-        availability: formData.availability,
-        gender: formData.gender,
-      };
+//     try {
+//       const profileData = {
+//         name: `${formData.firstName} ${formData.lastName}`,
+// email: formData.email,
+//         password: formData.password,
+//         serviceType: serviceData.serviceType || 'General',
+//         location: serviceData.location || 'Default Location',
+//         payRate: serviceData.payRate || [500, 2000],
+//         selectedLanguages: serviceData.selectedLanguages || ['English'],
+//         about: 'Sample about text',
+//         selectedServices: serviceData.selectedServices || ['Default Service'],
+//         policeClearance: URL.createObjectURL(formData.policeClearance),
+//         photo: formData.photo || 'https://via.placeholder.com/200',
+//         selectedPetTypes: serviceData.selectedPetTypes || [],
+//         selectedSyllabi: serviceData.selectedSyllabi || [],
+//         selectedSubjects: serviceData.selectedSubjects || [],
+//         selectedGrades: serviceData.selectedGrades || [],
+//         selectedAgeGroups: serviceData.selectedAgeGroups || [],
+//         userType: 'sp', // Default value as per schema
+//         nic: formData.nic,
+//         birthCertificate: URL.createObjectURL(formData.birthCertificate),
+//         availability: formData.availability,
+//         gender: formData.gender,
+//       };
 
-      console.log('Profile Data:', profileData);
+//       console.log('Profile Data:', profileData);
 
-      const response = await axios.post(`${API_BASE_URL}/create-service-provider`, profileData);
-      localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
-      navigate('/viewspprofile');
-    } catch (err) {
-      setError('Registration failed. Please try again.');
-      console.error('Error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+//       const response = await axios.post(`${API_BASE_URL}/create-service-provider`, profileData);
+//       localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
+//       navigate('/viewspprofile');
+//     } catch (err) {
+//       setError('Registration failed. Please try again.');
+//       console.error('Error:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+
+  if (!validateForm()) {
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const profileData = {
+      name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      password: formData.password,
+      serviceType: serviceData.serviceType || 'General',
+      location: serviceData.location || 'Default Location',
+      payRate: serviceData.payRate || [500, 2000],
+      selectedLanguages: serviceData.selectedLanguages || ['English'],
+      about: 'Sample about text',
+      selectedServices: serviceData.selectedServices || ['Default Service'],
+      policeClearance: URL.createObjectURL(formData.policeClearance),
+      photo: formData.photo || 'https://via.placeholder.com/200',
+      selectedPetTypes: serviceData.selectedPetTypes || [],
+      selectedSyllabi: serviceData.selectedSyllabi || [],
+      selectedSubjects: serviceData.selectedSubjects || [],
+      selectedGrades: serviceData.selectedGrades || [],
+      selectedAgeGroups: serviceData.selectedAgeGroups || [],
+      userType: 'sp', // Default value as per schema
+      nic: formData.nic,
+      birthCertificate: URL.createObjectURL(formData.birthCertificate),
+      availability: formData.availability,
+      gender: formData.gender,
+    };
+
+    console.log('Profile Data:', profileData);
+
+    const response = await axios.post(`${API_BASE_URL}/create-service-provider`, profileData);
+    localStorage.setItem('serviceProviderProfile', JSON.stringify(response.data));
+    
+    // Show success alert
+    Swal.fire({
+      title: 'Profile Created!',
+      text: 'Your service provider profile has been created successfully.',
+      icon: 'success',
+      confirmButtonColor: '#40E0D0',
+      confirmButtonText: 'Continue to Profile'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/viewspprofile');
+      }
+    });
+    
+  } catch (err) {
+    setError('Registration failed. Please try again.');
+    console.error('Error:', err);
+    
+    // Show error alert
+    Swal.fire({
+      title: 'Registration Failed',
+      text: 'There was an error creating your profile. Please try again.',
+      icon: 'error',
+      confirmButtonColor: '#40E0D0'
+    });
+    
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <StyledContainer maxWidth="sm">
