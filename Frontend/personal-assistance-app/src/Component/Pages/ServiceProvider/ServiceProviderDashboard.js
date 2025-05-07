@@ -75,8 +75,8 @@ const ServiceProviderDashboard = () => {
   const [isViewingProfile, setIsViewingProfile] = useState(false);
 
   const filteredBookings = useMemo(() => {
-    if (!bookings || !Array.isArray(bookings)) return [];
-    return bookings.filter((booking) => {
+    const safeBookings = Array.isArray(bookings) ? bookings : []; // Ensure bookings is an array
+    return safeBookings.filter((booking) => {
       const clientName = booking.customerDetails?.name?.toLowerCase() || "";
       const serviceName = booking.bookingService?.toLowerCase() || "";
       const appointmentDate = booking.bookingDate?.toLowerCase() || "";
@@ -110,10 +110,11 @@ const ServiceProviderDashboard = () => {
             },
           },
         );
-        setBookings(response.data);
+        setBookings(Array.isArray(response.data) ? response.data : []); // Ensure bookings is an array
       } catch (err) {
         setError(err.message);
         console.error("Failed to fetch bookings:", err);
+        setBookings([]); // Fallback to empty array on error
       } finally {
         setIsLoading(false);
       }
@@ -1006,11 +1007,11 @@ const getServicesOffered = (serviceType) => {
           <div>
             <p className="text-sm font-medium text-gray-500">Total Bookings</p>
             <p className="mt-1 text-2xl font-bold text-gray-800">
-              {bookings.length || "0"}
-            </p>
-            <p className="mt-1 text-sm text-green-500">
-              {bookings.length > 0 ? "+5% from last month" : "No bookings yet"}
-            </p>
+  {Array.isArray(bookings) ? bookings.length : 0 || "0"}
+</p>
+<p className="mt-1 text-sm text-green-500">
+  {Array.isArray(bookings) && bookings.length > 0 ? "+5% from last month" : "No bookings yet"}
+</p>
           </div>
           <div className="rounded-full bg-purple-100 p-3 text-purple-600">
             <Calendar size={24} />
@@ -1048,13 +1049,13 @@ const getServicesOffered = (serviceType) => {
           <div>
             <p className="text-sm font-medium text-gray-500">Pending Bookings</p>
             <p className="mt-1 text-2xl font-bold text-gray-800">
-              {bookings.filter((b) => b.status === "PENDING").length || "0"}
-            </p>
-            <p className="mt-1 text-sm text-green-500">
-              {bookings.filter((b) => b.status === "PENDING").length > 0
-                ? "Action required"
-                : "No pending bookings"}
-            </p>
+  {Array.isArray(bookings) ? bookings.filter((b) => b.status === "PENDING").length : 0 || "0"}
+</p>
+<p className="mt-1 text-sm text-green-500">
+  {Array.isArray(bookings) && bookings.filter((b) => b.status === "PENDING").length > 0
+    ? "Action required"
+    : "No pending bookings"}
+</p>
           </div>
           <div className="rounded-full bg-blue-100 p-3 text-blue-600">
             <Clock size={24} />
@@ -1084,29 +1085,29 @@ const getServicesOffered = (serviceType) => {
         </div>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={(() => {
-                const statusCounts = bookings.reduce(
-                  (acc, booking) => {
-                    const status = booking.status.toUpperCase();
-                    acc[status] = (acc[status] || 0) + 1;
-                    return acc;
-                  },
-                  {  CONFIRMED: 0, PENDING: 0, REJECTED: 0 }
-                );
-                return [
-                  //{ name: "Completed", count: statusCounts.COMPLETED },
-                  { name: "Confirmed", count: statusCounts.CONFIRMED },
-                  { name: "Pending", count: statusCounts.PENDING },
-                  { name: "Rejected", count: statusCounts.REJECTED },
-                ].filter(
-                  (entry) =>
-                    timeframe === "all" ||
-                    entry.name.toLowerCase() === timeframe
-                );
-              })()}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
+          <BarChart
+  data={(() => {
+    const safeBookings = Array.isArray(bookings) ? bookings : []; // Ensure bookings is an array
+    const statusCounts = safeBookings.reduce(
+      (acc, booking) => {
+        const status = booking.status.toUpperCase();
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      },
+      { CONFIRMED: 0, PENDING: 0, REJECTED: 0 }
+    );
+    return [
+      { name: "Confirmed", count: statusCounts.CONFIRMED },
+      { name: "Pending", count: statusCounts.PENDING },
+      { name: "Rejected", count: statusCounts.REJECTED },
+    ].filter(
+      (entry) =>
+        timeframe === "all" ||
+        entry.name.toLowerCase() === timeframe
+    );
+  })()}
+  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="name" axisLine={false} tickLine={false} />
               <YAxis
@@ -1147,21 +1148,22 @@ const getServicesOffered = (serviceType) => {
         </h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={(() => {
-                const bookingsByDate = bookings.reduce((acc, booking) => {
-                  const date = new Date(booking.bookingDate)
-                    .toISOString()
-                    .slice(0, 10);
-                  acc[date] = (acc[date] || 0) + 1;
-                  return acc;
-                }, {});
-                return Object.entries(bookingsByDate)
-                  .map(([date, count]) => ({ date, count }))
-                  .sort((a, b) => new Date(a.date) - new Date(b.date));
-              })()}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
+          <LineChart
+  data={(() => {
+    const safeBookings = Array.isArray(bookings) ? bookings : []; // Ensure bookings is an array
+    const bookingsByDate = safeBookings.reduce((acc, booking) => {
+      const date = new Date(booking.bookingDate)
+        .toISOString()
+        .slice(0, 10);
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(bookingsByDate)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  })()}
+  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="date"
